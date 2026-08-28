@@ -1,0 +1,14 @@
+---
+description: Authoritative product constraints from project_scope.md
+alwaysApply: true
+---
+
+# Product scope
+
+`project_scope.md` is the authoritative project specification. Before implementing or proposing a feature, check it against the product principles and non-goals in that document.
+
+This platform is private-first and couple-centric. It is not a dating, hookup, anonymous social, or pornography platform.
+
+When implementation details conflict with product integrity, privacy, consent, auditability, or safety, favour those constraints over implementation convenience.
+
+Never silently invent a product rule. Surface the ambiguity instead.

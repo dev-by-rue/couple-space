@@ -1,0 +1,13 @@
+---
+description: Never create git commits unless the user explicitly asks
+alwaysApply: true
+---
+
+# No automatic commits
+
+Never run `git commit`, stage-and-commit workflows, or propose committing as the next step unless the user explicitly asks to commit in the current message.
+
+- Do not commit "because the work is done"
+- Do not commit "to save progress"
+- Do not amend, push, or open a PR unless explicitly requested
+- If commit readiness comes up, ask first — do not run git commit commands

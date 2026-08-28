@@ -1,11 +1,13 @@
 ---
-description: Authoritative product constraints from project_scope.md
+description: Authoritative product constraints from docs/product/scope.md
 alwaysApply: true
 ---
 
 # Product scope
 
-`project_scope.md` is the authoritative project specification. Before implementing or proposing a feature, check it against the product principles and non-goals in that document.
+`docs/product/scope.md` is the authoritative project specification. Before implementing or proposing a feature, check it against the product principles and non-goals in that document.
+
+`docs/product/future-roadmap.md` is directional context only. Do not implement or model items from it unless they have been promoted into the active product scope.
 
 This platform is private-first and couple-centric. It is not a dating, hookup, anonymous social, or pornography platform.
 

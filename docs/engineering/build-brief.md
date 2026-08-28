@@ -41,6 +41,7 @@ Act as senior technical lead. Prefer small vertical slices. Do not scaffold or i
 - `docs/product/future-roadmap.md` — directional only
 - `docs/superpowers/specs/*` — approved designs
 - ADRs under `docs/architecture/decisions/` when important choices are locked
+- `docs/engineering/nestjs-supabase-setup.md` — add NestJS `apps/api` and prove hosted Supabase Postgres connectivity
 
 ## Scaffolding gate
 

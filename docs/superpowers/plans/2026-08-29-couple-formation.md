@@ -507,7 +507,7 @@ git commit -m "feat(domain): couple invite accept and activation invariants"
 **Interfaces:**
 - Produces: `schema` tables + `createDb(connectionString: string)` returning Drizzle instance
 
-- [ ] **Step 1: Create package + deps**
+- [x] **Step 1: Create package + deps**
 
 ```json
 {
@@ -537,7 +537,7 @@ git commit -m "feat(domain): couple invite accept and activation invariants"
 
 Run: `pnpm install`
 
-- [ ] **Step 2: Define schema tables**
+- [x] **Step 2: Define schema tables**
 
 `packages/db/src/schema/users.ts`:
 
@@ -683,7 +683,7 @@ export * from "./schema/index.js";
 export * from "./client.js";
 ```
 
-- [ ] **Step 3: Drizzle config + env example**
+- [x] **Step 3: Drizzle config + env example**
 
 `packages/db/drizzle.config.ts`:
 
@@ -716,7 +716,7 @@ INVITE_TTL_HOURS=72
 INVITE_RATE_LIMIT_PER_HOUR=10
 ```
 
-- [ ] **Step 4: Generate migration**
+- [x] **Step 4: Generate migration**
 
 Run (with `DATABASE_URL` set to local Supabase or Postgres):
 
@@ -726,7 +726,7 @@ cd packages/db && pnpm generate
 
 Expected: SQL migration under `packages/db/drizzle/` including partial unique index.
 
-- [ ] **Step 5: Apply migration to local DB**
+- [x] **Step 5: Apply migration to local DB**
 
 Run: `cd packages/db && pnpm migrate`  
 Expected: tables created; verify partial unique index exists.

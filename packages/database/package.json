@@ -13,13 +13,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check-types": "tsc --noEmit -p tsconfig.json",
-    "dev": "tsc -p tsconfig.json --watch"
+    "dev": "tsc -p tsconfig.json --watch",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.0",
     "postgres": "^3.4.0"
   },
   "devDependencies": {
+    "dotenv": "^16",
+    "drizzle-kit": "^0.31.0",
     "typescript": "^5"
   }
 }

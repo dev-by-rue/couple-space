@@ -1,8 +1,21 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import "reflect-metadata";
+import { config } from "dotenv";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module.js";
+import { loadEnv } from "./config/env.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+config({ path: resolve(__dirname, "../../../.env") });
 
 async function bootstrap() {
+  const env = loadEnv();
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  app.enableCors({ origin: env.CORS_ORIGIN, credentials: true });
+  await app.listen(env.API_PORT);
 }
+
 await bootstrap();

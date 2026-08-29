@@ -70,7 +70,7 @@ SUPABASE_JWKS_URL=
 DATABASE_URL=postgresql://postgres.[ref]:[YOUR-PASSWORD]@aws-0-[region].pooler.supabase.com:6543/postgres
 
 # API
-API_PORT=3001
+API_PORT=8080
 CORS_ORIGIN=http://localhost:3000
 ```
 
@@ -86,27 +86,27 @@ SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SECRET_KEY=
 SUPABASE_JWKS_URL=
 DATABASE_URL=
-API_PORT=3001
+API_PORT=8080
 CORS_ORIGIN=http://localhost:3000
 ```
 
 **Do not** put `SUPABASE_SECRET_KEY` or `DATABASE_URL` in `apps/web` or any `NEXT_PUBLIC_*` / public client env.
 ---
 
-## 3. Add a minimal DB package
+## 3. Add a minimal database package
 
-The API will import a shared Drizzle helper from `packages/db` (matches the monorepo layout in the platform design).
+The API will import a shared Drizzle helper from `packages/database` (matches the monorepo layout in the platform design).
 
-### 3.1 Create `packages/db/package.json`
+### 3.1 Create `packages/database/package.json`
 
 ```json
 {
-  "name": "@couple-space/db",
+  "name": "@couple-space/database",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./index.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit"
@@ -121,7 +121,7 @@ The API will import a shared Drizzle helper from `packages/db` (matches the mono
 }
 ```
 
-### 3.2 Create `packages/db/tsconfig.json`
+### 3.2 Create `packages/database/tsconfig.json`
 
 ```json
 {
@@ -133,11 +133,11 @@ The API will import a shared Drizzle helper from `packages/db` (matches the mono
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src", "index.ts"]
 }
 ```
 
-### 3.3 Create `packages/db/src/client.ts`
+### 3.3 Create `packages/database/src/client.ts`
 
 `prepare: false` is required when using Supabase’s **transaction** pooler:
 
@@ -153,10 +153,10 @@ export function createDb(connectionString: string) {
 export type Db = ReturnType<typeof createDb>;
 ```
 
-### 3.4 Create `packages/db/src/index.ts`
+### 3.4 Create `packages/database/index.ts`
 
 ```ts
-export * from "./client.js";
+export * from "./src/client";
 ```
 
 ### 3.5 Install
@@ -197,10 +197,10 @@ In `apps/api/package.json`:
 
 ### 4.2 Add API dependencies
 
-From repo root:
+From repo root (quote `@workspace:*` in zsh):
 
 ```bash
-pnpm --filter @couple-space/api add @couple-space/db zod dotenv
+pnpm --filter @couple-space/api add "@couple-space/database@workspace:*" zod dotenv
 pnpm --filter @couple-space/api add -D @types/node
 ```
 
@@ -208,7 +208,7 @@ pnpm --filter @couple-space/api add -D @types/node
 
 ### 4.3 Prefer CommonJS for Nest if imports fight ESM
 
-If workspace/`exports` imports misbehave under Nest, set `apps/api/tsconfig.json` `"module": "commonjs"` and use extensionless relative imports inside `apps/api` only. Keep `packages/db` as ESM; Nest’s bundler/runtime usually still resolves `workspace:*` packages.
+If workspace/`exports` imports misbehave under Nest, set `apps/api/tsconfig.json` `"module": "commonjs"` and use extensionless relative imports inside `apps/api` only. Keep `packages/database` as ESM; Nest’s bundler/runtime usually still resolves `workspace:*` packages.
 
 ---
 
@@ -221,7 +221,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  API_PORT: z.coerce.number().default(3001),
+  API_PORT: z.coerce.number().default(8080),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
 });
 
@@ -236,7 +236,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
 
 ```ts
 import { Global, Module } from "@nestjs/common";
-import { createDb, type Db } from "@couple-space/db";
+import { createDb, type Db } from "@couple-space/database";
 import { loadEnv } from "../config/env";
 
 export const DB = Symbol("DB");
@@ -262,7 +262,7 @@ export class DbModule {}
 ```ts
 import { Controller, Get, Inject, ServiceUnavailableException } from "@nestjs/common";
 import { sql } from "drizzle-orm";
-import type { Db } from "@couple-space/db";
+import type { Db } from "@couple-space/database";
 import { DB } from "./db/db.module";
 
 @Controller()
@@ -286,7 +286,7 @@ export class HealthController {
 }
 ```
 
-Add `drizzle-orm` to the API if Nest cannot resolve `sql` via the db package alone:
+Add `drizzle-orm` to the API if Nest cannot resolve `sql` via the database package alone:
 
 ```bash
 pnpm --filter @couple-space/api add drizzle-orm
@@ -357,8 +357,8 @@ Expected: Nest boots with **no** Zod parse error (missing `DATABASE_URL` would t
 Terminal 2:
 
 ```bash
-curl -s localhost:3001/health
-curl -s localhost:3001/health/db
+curl -s localhost:8080/health
+curl -s localhost:8080/health/db
 ```
 
 Expected:
@@ -377,11 +377,12 @@ If `/health/db` returns `503`, the API is up but Postgres is not reachable — s
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Zod fails on boot | `.env` missing or not loaded | Confirm root `.env` exists; check `dotenv` path in `main.ts` |
-| `database unreachable` | Wrong URI / password / network | Re-copy URI from Supabase; URL-encode special characters in the password |
+| `database unreachable` / `ENOTFOUND` | Wrong host or paused project; direct `db.<ref>.supabase.co` may not resolve | Re-copy URI from **Project Settings → Database**. Prefer **Transaction pooler** host (`*.pooler.supabase.com`) for Nest runtime |
+| `CONNECT_TIMEOUT` to pooler | Corporate proxy (e.g. Zscaler) blocking outbound Postgres ports `5432`/`6543` | Use local Postgres for Nest (`DATABASE_URL=postgresql://USER@127.0.0.1:5432/postgres`); keep hosted URI as `DATABASE_URL_SUPABASE` until IT allowlists the pooler. Hotspot does **not** help if the Zscaler agent stays on |
 | Prepared-statement / pooler errors | Transaction pooler + prepared statements | Keep `postgres(..., { prepare: false })` in `createDb` |
-| Cannot find `@couple-space/db` | Install not run / wrong package name | `pnpm install` from root; check `packages/db/package.json` `name` |
+| Cannot find `@couple-space/database` | Install not run / wrong package name | `pnpm install` from root; check `packages/database/package.json` `name`; quote `"@couple-space/database@workspace:*"` in zsh |
 | Nest import / ESM errors | Module format clash | Prefer CommonJS in `apps/api` (see §4.3) |
-| Port in use | Something else on 3001 | Change `API_PORT` in `.env` |
+| Port in use | Something else on 8080 | Change `API_PORT` in `.env` |
 
 ---
 

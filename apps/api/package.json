@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@couple-space/api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -34,7 +34,7 @@
     "@nestjs/schematics": "^12.0.0",
     "@nestjs/testing": "^12.0.1",
     "@types/express": "^5.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^24.13.3",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",
     "oxlint": "^1.58.0",

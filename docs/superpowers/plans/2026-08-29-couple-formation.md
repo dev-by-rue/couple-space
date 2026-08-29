@@ -119,7 +119,7 @@ apps/web/
 **Interfaces:**
 - Produces: status string unions exported from `@couple-space/domain`
 
-- [ ] **Step 1: Create package manifest**
+- [x] **Step 1: Create package manifest**
 
 ```json
 {
@@ -141,7 +141,7 @@ apps/web/
 }
 ```
 
-- [ ] **Step 2: Add tsconfig + vitest config**
+- [x] **Step 2: Add tsconfig + vitest config**
 
 `packages/domain/tsconfig.json`:
 
@@ -173,7 +173,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Add status enums and barrel export**
+- [x] **Step 3: Add status enums and barrel export**
 
 `packages/domain/src/couple-status.ts`:
 
@@ -217,7 +217,7 @@ export * from "./invitation-status.js";
 export * from "./membership-status.js";
 ```
 
-- [ ] **Step 4: Wire turbo test + install**
+- [x] **Step 4: Wire turbo test + install**
 
 Root `package.json` scripts:
 
@@ -267,7 +267,7 @@ git commit -m "chore: scaffold @couple-space/domain package"
   - `canAcceptInvitation(input: CanAcceptInvitationInput): { ok: true } | { ok: false; reason: string }`
   - `canActivateCouple(input: CanActivateCoupleInput): { ok: true } | { ok: false; reason: string }`
 
-- [ ] **Step 1: Write failing tests for `canAcceptInvitation`**
+- [x] **Step 1: Write failing tests for `canAcceptInvitation`**
 
 ```ts
 // packages/domain/src/can-accept-invitation.test.ts
@@ -333,12 +333,12 @@ describe("canAcceptInvitation", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — expect fail**
+- [x] **Step 2: Run tests — expect fail**
 
 Run: `pnpm --filter @couple-space/domain test`  
 Expected: FAIL (module not found / export missing)
 
-- [ ] **Step 3: Implement `canAcceptInvitation`**
+- [x] **Step 3: Implement `canAcceptInvitation`**
 
 ```ts
 // packages/domain/src/can-accept-invitation.ts
@@ -383,7 +383,7 @@ export function canAcceptInvitation(
 }
 ```
 
-- [ ] **Step 4: Write failing tests for `canActivateCouple`**
+- [x] **Step 4: Write failing tests for `canActivateCouple`**
 
 ```ts
 // packages/domain/src/can-activate-couple.test.ts
@@ -438,7 +438,7 @@ describe("canActivateCouple", () => {
 });
 ```
 
-- [ ] **Step 5: Implement `canActivateCouple` and export**
+- [x] **Step 5: Implement `canActivateCouple` and export**
 
 ```ts
 // packages/domain/src/can-activate-couple.ts
@@ -479,7 +479,7 @@ export * from "./can-accept-invitation.js";
 export * from "./can-activate-couple.js";
 ```
 
-- [ ] **Step 6: Run tests — expect pass**
+- [x] **Step 6: Run tests — expect pass**
 
 Run: `pnpm --filter @couple-space/domain test`  
 Expected: all tests PASS

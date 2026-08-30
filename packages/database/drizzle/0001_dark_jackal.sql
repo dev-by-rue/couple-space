@@ -8,6 +8,7 @@ CREATE TABLE "refresh_tokens" (
 );
 --> statement-breakpoint
 ALTER TABLE "users" RENAME COLUMN "auth_user_id" TO "password_hash";--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "password_hash" TYPE text;--> statement-breakpoint
 ALTER TABLE "users" DROP CONSTRAINT "users_auth_user_id_unique";--> statement-breakpoint
 ALTER TABLE "users" ALTER COLUMN "display_name" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "date_of_birth" date NOT NULL;--> statement-breakpoint

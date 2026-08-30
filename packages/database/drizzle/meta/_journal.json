@@ -15,6 +15,13 @@
       "when": 1788123777236,
       "tag": "0001_dark_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788132000000,
+      "tag": "0002_password_hash_text",
+      "breakpoints": true
     }
   ]
 }

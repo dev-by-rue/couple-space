@@ -6,11 +6,7 @@ import { AuthUser } from '../auth/auth-user.types.js';
 import { jwtVerify, SignJWT } from 'jose';
 import { randomBytes, createHash } from 'node:crypto';
 import { and, eq, isNull } from 'drizzle-orm';
-
-export type TokenPair = {
-  accessToken: string;
-  refreshToken: string;
-};
+import type { TokenPair } from './token-pair.types.js';
 
 /**
  * Fast one-way hash for refresh-token lookup.

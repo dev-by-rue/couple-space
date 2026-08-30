@@ -438,7 +438,7 @@ Use an in-memory fake DB shape (only the methods TokenService needs). Full file:
 import { createHash, randomBytes } from "node:crypto";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { SignJWT } from "jose";
-import { TokenService } from "./token.service.js";
+import { createTokenServiceForTests } from "./token.service.js";
 
 function sha256(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");

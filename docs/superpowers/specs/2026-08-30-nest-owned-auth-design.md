@@ -189,17 +189,14 @@ The implementation plan and resulting code must be usable by **junior / less exp
 - Comments in committed source should teach invariants and footguns; avoid narrating obvious syntax.
 - Tests in the plan are equally commented so reviewers understand the failure mode being guarded.
 
-## 14. Onboarding documentation (zero codebase knowledge)
+## 14. Onboarding documentation (out of this auth design)
 
-Alongside (or as an early task in) the auth plan, maintain docs a newcomer can read **without opening the code**:
+Platform-wide docs for someone with **zero codebase knowledge** (what the product is, principles, MVP vs roadmap, how the monorepo fits together, how to run things) are **not scoped to this auth design**. They are a separate documentation workstream covering the whole platform.
 
-| Doc | Purpose |
-|---|---|
-| `docs/README.md` (or `docs/onboarding.md`) | Index: what Couple Space is, where to start, how docs relate |
-| `docs/product/scope.md` | Authoritative product (already exists — link, do not duplicate rules) |
-| `docs/product/future-roadmap.md` | Directional only; **not** approved to build (already exists — clarify in index) |
-| `docs/engineering/build-brief.md` | Engineering rules; **update** to Nest-owned auth + local/self-hosted Postgres (remove Supabase Auth as current stack) |
-| Platform design / this auth design / ADRs | Architecture “why”; mark Supabase Auth sections superseded |
-| Short “how to run locally” | Env vars, migrate, API + web, register → dev verify → `/me` |
+This auth design only requires:
 
-Future features stay in the roadmap doc with the existing policy: do not implement until promoted into `scope.md`.
+- Comments and plan clarity for Nest-owned auth (see §13)
+- That future platform docs index this spec under architecture / auth decisions
+- Build-brief / platform-design auth wording will be updated when the platform docs workstream (or ADR) lands — not as a hidden side effect of auth coding alone
+
+Existing product sources of truth remain: `docs/product/scope.md` (active), `docs/product/future-roadmap.md` (directional only).

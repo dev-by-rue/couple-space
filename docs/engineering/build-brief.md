@@ -42,6 +42,7 @@ Act as senior technical lead. Prefer small vertical slices. Do not scaffold or i
 - `docs/superpowers/specs/*` — approved designs
 - ADRs under `docs/architecture/decisions/` when important choices are locked
 - `docs/engineering/nestjs-supabase-setup.md` — add NestJS `apps/api` and prove hosted Supabase Postgres connectivity
+- `docs/engineering/auth-manual-smoke.md` — manual smoke for Nest-owned auth (product / QA / engineers)
 
 ## Scaffolding gate
 

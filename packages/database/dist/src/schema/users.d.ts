@@ -1,3 +1,10 @@
+/**
+ * Application user = auth subject.
+ * - id: primary key AND JWT `sub` (no separate auth_user_id).
+ * - password_hash: argon2id string; never select this into API responses.
+ * - email_verified: product gate for invite accept / couple activation.
+ * - date_of_birth: required at register; age-gate policy is a later product decision.
+ */
 export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "users";
     schema: undefined;
@@ -19,11 +26,11 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
-        authUserId: import("drizzle-orm/pg-core").PgColumn<{
-            name: "auth_user_id";
+        email: import("drizzle-orm/pg-core").PgColumn<{
+            name: "email";
             tableName: "users";
             dataType: "string";
-            columnType: "PgUUID";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -31,13 +38,13 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: undefined;
+            enumValues: [string, ...string[]];
             baseColumn: never;
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
-        email: import("drizzle-orm/pg-core").PgColumn<{
-            name: "email";
+        passwordHash: import("drizzle-orm/pg-core").PgColumn<{
+            name: "password_hash";
             tableName: "users";
             dataType: "string";
             columnType: "PgText";
@@ -77,12 +84,29 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
             columnType: "PgText";
             data: string;
             driverParam: string;
-            notNull: false;
+            notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        dateOfBirth: import("drizzle-orm/pg-core").PgColumn<{
+            name: "date_of_birth";
+            tableName: "users";
+            dataType: "string";
+            columnType: "PgDateString";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
             baseColumn: never;
             identity: undefined;
             generated: undefined;

@@ -1,5 +1,7 @@
 # Couple Formation (Slice 1) Implementation Plan
 
+> **Status:** Historical. Tasks 1–4 done under this plan / Nest setup. **Tasks 5 & 8 (Supabase Auth) superseded** by `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md` and `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`. **Tasks 6–7 & 9–10 remaining work moved to** `docs/superpowers/plans/2026-08-31-slice-1-remaining.md`. Do not execute remaining checkboxes here.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship user registration (via Supabase Auth), partner invitation, and couple activation so two verified users become one active couple.
@@ -898,6 +900,8 @@ git commit -m "chore: scaffold NestJS API with DB module"
 
 ### Task 5: Supabase JWT auth guard + user sync
 
+> **Superseded:** Nest-owned auth is implemented. See `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md` and completed work in `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`. Remaining slice work: `docs/superpowers/plans/2026-08-31-slice-1-remaining.md`.
+
 **Files:**
 - Create: `apps/api/src/auth/*`
 - Create: `apps/api/src/users/*`
@@ -1043,6 +1047,8 @@ git commit -m "feat(api): Supabase JWT guard and user sync"
 
 ### Task 6: Create couple + create invitation
 
+> **Moved:** Execute from `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 2). Do not follow the Supabase-era steps below as the active plan.
+
 **Files:**
 - Create: `apps/api/src/couples/couples.module.ts`
 - Create: `apps/api/src/couples/couples.service.ts`
@@ -1110,6 +1116,8 @@ git commit -m "feat(api): create couple and partner invitations"
 
 ### Task 7: Accept invitation → activate couple (idempotent)
 
+> **Moved:** Execute from `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 3).
+
 **Files:**
 - Modify: `apps/api/src/couples/couples.service.ts`
 - Modify: `apps/api/src/couples/couples.controller.ts`
@@ -1154,6 +1162,8 @@ git commit -m "feat(api): accept invite and activate couple"
 ---
 
 ### Task 8: Web — Supabase Auth + API client
+
+> **Superseded:** No Supabase Auth. Web auth UI is `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 1).
 
 **Files:**
 - Modify: `apps/web/package.json` (add `@supabase/supabase-js`, `@supabase/ssr`)
@@ -1220,6 +1230,8 @@ git commit -m "feat(web): Supabase auth and API client"
 
 ### Task 9: Web — couple dashboard, invite, accept
 
+> **Moved:** Execute from `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 4).
+
 **Files:**
 - Create: `apps/web/app/(app)/layout.tsx` (require session)
 - Create: `apps/web/app/(app)/couple/page.tsx`
@@ -1262,6 +1274,8 @@ git commit -m "feat(web): couple creation, invite, and accept flows"
 ---
 
 ### Task 10: ADR + slice-1 definition of done
+
+> **Moved / updated:** ADR must document Nest-owned auth (not Supabase). Execute from `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 5).
 
 **Files:**
 - Create: `docs/architecture/decisions/adr-001-supabase-auth-nestjs-api.md`

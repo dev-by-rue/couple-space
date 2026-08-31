@@ -11,6 +11,9 @@ const envSchema = z.object({
   
   COOKIE_SECURE: z.enum(['true', 'false']).default("false").transform((val) => val === 'true'),
   ENABLE_DEV_AUTH_ENDPOINTS: z.enum(['true', 'false']).default("false").transform((val) => val === 'true'),
+
+  INVITE_TTL_HOURS: z.coerce.number().positive().default(72),
+  INVITE_RATE_LIMIT_PER_HOUR: z.coerce.number().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;

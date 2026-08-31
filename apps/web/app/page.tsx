@@ -1,9 +1,19 @@
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="flex min-h-svh items-center justify-center">
-      <Button className="rounded-sm">Click me</Button>
-    </div>
-  )
+    <main className="mx-auto flex min-h-svh w-full max-w-lg flex-col items-center justify-center gap-6 p-6 text-center">
+      <h1 className="text-3xl font-semibold tracking-tight">Couple Space</h1>
+      <p className="text-muted-foreground text-sm">
+        Private-first couple formation. Sign in to continue.
+      </p>
+      <div className="flex gap-3">
+        <Button render={<Link href="/login" />}>Log in</Button>
+        <Button variant="outline" render={<Link href="/signup" />}>
+          Sign up
+        </Button>
+      </div>
+    </main>
+  );
 }

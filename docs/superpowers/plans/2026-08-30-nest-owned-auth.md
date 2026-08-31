@@ -1,5 +1,7 @@
 # Nest-Owned Auth Implementation Plan
 
+> **Status:** Tasks 1–8 complete. **Remaining work moved to** `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (web auth UI + formation couple slice). Do not execute Tasks 9–10 below; follow the remaining plan instead.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship NestJS-owned register/login/refresh/logout, dual cookie+Bearer transport, dev email verify, and `GET /me` — replacing Supabase Auth for formation Slice 1.
@@ -73,12 +75,14 @@ apps/web/                          # Task 8 deltas only
 ### Task 1: Schema — drop `auth_user_id`, add password + DOB + refresh_tokens
 
 **Files:**
+
 - Modify: `packages/database/src/schema/users.ts`
 - Create: `packages/database/src/schema/refresh-tokens.ts`
 - Modify: `packages/database/src/schema/index.ts`
 - Modify: `.env.example` (auth-related keys)
 
 **Interfaces:**
+
 - Produces: Drizzle tables `users`, `refreshTokens` exported from `@couple-space/database`
 
 - [ ] **Step 1: Replace users schema**
@@ -215,11 +219,13 @@ git commit -m "feat(database): nest auth user fields and refresh_tokens"
 ### Task 2: API deps + env validation
 
 **Files:**
+
 - Modify: `apps/api/package.json` (via pnpm add)
 - Modify: `apps/api/src/config/env.ts`
 - Modify: `apps/api/src/main.ts`
 
 **Interfaces:**
+
 - Produces: `loadEnv()` returning JWT/cookie/TTL/dev-flag fields
 
 - [ ] **Step 1: Install dependencies**
@@ -321,10 +327,12 @@ git commit -m "chore(api): auth deps, env, cookie-parser"
 ### Task 3: Password helpers (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/auth/password.ts`
 - Create: `apps/api/src/auth/password.test.ts`
 
 **Interfaces:**
+
 - Produces: `hashPassword(plain: string): Promise<string>`, `verifyPassword(hash: string, plain: string): Promise<boolean>`
 
 - [ ] **Step 1: Write failing tests**
@@ -402,11 +410,13 @@ git commit -m "feat(api): argon2id password helpers"
 ### Task 4: TokenService — access JWT + refresh rotate/revoke (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/auth/auth-user.ts`
 - Create: `apps/api/src/auth/token.service.ts`
 - Create: `apps/api/src/auth/token.service.test.ts`
 
 **Interfaces:**
+
 - Produces:
   - `AuthUser = { appUserId: string; email: string; emailVerified: boolean }`
   - `TokenService.issueTokenPair(user)`, `rotateRefresh(rawRefresh)`, `revokeRefresh(rawRefresh)`, `verifyAccessToken(jwt)`
@@ -685,11 +695,13 @@ git commit -m "feat(api): access JWT and refresh token rotation"
 ### Task 5: Cookies helper + Zod DTOs
 
 **Files:**
+
 - Create: `apps/api/src/auth/cookies.ts`
 - Create: `apps/api/src/auth/dto/register.schema.ts`
 - Create: `apps/api/src/auth/dto/login.schema.ts`
 
 **Interfaces:**
+
 - Produces: `setAuthCookies(res, pair)`, `clearAuthCookies(res)`, register/login zod schemas
 
 - [ ] **Step 1: Cookie helpers**
@@ -793,10 +805,12 @@ git commit -m "feat(api): auth cookies and validation schemas"
 ### Task 6: AuditService (minimal)
 
 **Files:**
+
 - Create: `apps/api/src/audit/audit.service.ts`
 - Create: `apps/api/src/audit/audit.module.ts`
 
 **Interfaces:**
+
 - Produces: `AuditService.append({ actorUserId, action, entityType, entityId, metadata? })`
 
 - [ ] **Step 1: Implement**
@@ -860,12 +874,14 @@ git commit -m "feat(api): audit event writer"
 ### Task 7: AuthService + AuthController (register/login/refresh/logout/dev-verify)
 
 **Files:**
+
 - Create: `apps/api/src/auth/auth.service.ts`
 - Create: `apps/api/src/auth/auth.service.test.ts`
 - Create: `apps/api/src/auth/auth.controller.ts`
 - Create: `apps/api/src/auth/auth.module.ts`
 
 **Interfaces:**
+
 - Produces HTTP:
   - `POST /auth/register|login|refresh|logout`
   - `POST /auth/dev/verify` (flag-gated)
@@ -1261,6 +1277,7 @@ git commit -m "feat(api): register login refresh logout and dev verify"
 ### Task 8: JwtAuthGuard + CurrentUser + GET /me
 
 **Files:**
+
 - Create: `apps/api/src/auth/jwt-auth.guard.ts`
 - Create: `apps/api/src/auth/current-user.decorator.ts`
 - Create: `apps/api/src/users/users.service.ts`
@@ -1269,6 +1286,7 @@ git commit -m "feat(api): register login refresh logout and dev verify"
 - Modify: `apps/api/src/app.module.ts`
 
 **Interfaces:**
+
 - Produces: `@UseGuards(JwtAuthGuard) @CurrentUser() user: AuthUser`
 - `GET /me` → profile + `couple: null`
 
@@ -1467,13 +1485,17 @@ git commit -m "feat(api): JWT guard and GET /me"
 
 ### Task 9: Web deltas (formation Task 8 replacement)
 
+> **Moved:** Execute from `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 1). Do not treat this section as the active checklist.
+
 **Files:**
+
 - Create: `apps/web/lib/api.ts`
 - Create: `apps/web/app/login/page.tsx`
 - Create: `apps/web/app/signup/page.tsx`
-- Do **not** add `@supabase/*`
+- Do **not** add `@supabase/`*
 
 **Interfaces:**
+
 - Produces: `apiFetch` with `credentials: 'include'`; login/signup forms posting to Nest
 
 - [ ] **Step 1: apiFetch**
@@ -1532,7 +1554,10 @@ git commit -m "feat(web): nest auth login and signup without supabase"
 
 ### Task 10: Note formation plan + definition of done
 
+> **Moved:** Supersession callouts and Slice 1 DoD live in `docs/superpowers/plans/2026-08-31-slice-1-remaining.md` (Task 5) and banners on the historical plans.
+
 **Files:**
+
 - Modify (short note at top of Task 5/8 sections): `docs/superpowers/plans/2026-08-29-couple-formation.md` — add a callout that Tasks 5 & 8 are superseded by this plan / auth design (do not execute old Supabase steps).
 
 - [ ] **Step 1: Add supersession callout**

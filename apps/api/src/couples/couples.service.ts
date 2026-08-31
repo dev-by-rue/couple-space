@@ -204,10 +204,24 @@ export class CouplesService {
         throw new NotFoundException({ reason: "invite_not_found" });
       }
 
+      // email_verified in the JWT can lag behind the DB (e.g. after verify).
+      // Authorization uses the DB as source of truth.
+      const [dbUser] = await tx
+        .select({
+          email: users.email,
+          emailVerified: users.emailVerified,
+        })
+        .from(users)
+        .where(eq(users.id, user.id))
+        .limit(1);
+      if (!dbUser) {
+        throw new NotFoundException({ reason: "user_not_found" });
+      }
+
       // Idempotent: same user already accepted this invite.
       if (
         invitation.status === "accepted" &&
-        invitation.email.trim().toLowerCase() === user.email.trim().toLowerCase()
+        invitation.email.trim().toLowerCase() === dbUser.email.trim().toLowerCase()
       ) {
         const [couple] = await tx
           .select()
@@ -236,10 +250,10 @@ export class CouplesService {
           | "expired",
         invitationExpiresAt: invitation.expiresAt,
         now: new Date(),
-        inviteeEmailVerified: user.emailVerified,
+        inviteeEmailVerified: dbUser.emailVerified,
         inviteeHasActiveMembership: Boolean(activeElsewhere[0]),
         invitationEmail: invitation.email,
-        inviteeEmail: user.email,
+        inviteeEmail: dbUser.email,
       });
 
       if (!gate.ok) {

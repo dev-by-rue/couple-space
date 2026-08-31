@@ -94,3 +94,64 @@ describe("AuthService.register", () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 });
+
+describe("AuthService.devVerify", () => {
+  let service: AuthService;
+
+  const mockDatabase = {
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(async () => [
+            {
+              id: "u1",
+              email: "a@example.com",
+              emailVerified: true,
+              displayName: "Ada",
+              dateOfBirth: "1990-01-01",
+            },
+          ]),
+        })),
+      })),
+    })),
+  };
+
+  const mockTokens = {
+    issueTokenPair: vi.fn(async () => ({
+      accessToken: "access-verified",
+      refreshToken: "refresh-verified",
+    })),
+  };
+
+  const mockAudit = {
+    append: vi.fn(async () => undefined),
+  };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: DB, useValue: mockDatabase },
+        { provide: TokenService, useValue: mockTokens },
+        { provide: AuditService, useValue: mockAudit },
+      ],
+    }).compile();
+
+    service = module.get(AuthService);
+  });
+
+  it("marks email verified and re-issues tokens with emailVerified true", async () => {
+    const result = await service.devVerify("u1");
+
+    expect(result.user.emailVerified).toBe(true);
+    expect(result.accessToken).toBe("access-verified");
+    expect(result.refreshToken).toBe("refresh-verified");
+    expect(mockTokens.issueTokenPair).toHaveBeenCalledWith({
+      id: "u1",
+      email: "a@example.com",
+      emailVerified: true,
+    });
+  });
+});

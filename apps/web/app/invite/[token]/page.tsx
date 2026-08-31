@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -24,12 +23,6 @@ export default function AcceptInvitePage() {
     retry: false,
   });
 
-  useEffect(() => {
-    if (me.isError) {
-      router.replace(`/login?next=/invite/${token}`);
-    }
-  }, [me.isError, router, token]);
-
   const accept = useMutation({
     mutationFn: () =>
       apiFetch<{ coupleId: string; status: string }>(
@@ -46,8 +39,13 @@ export default function AcceptInvitePage() {
     onSuccess: () => me.refetch(),
   });
 
-  if (me.isPending || me.isError) {
+  if (me.isPending) {
     return <main className="p-6 text-sm">Checking session…</main>;
+  }
+
+  // Invitees usually need an account first — send unauthenticated users to signup.
+  if (me.isError) {
+    redirect(`/signup?next=${encodeURIComponent(`/invite/${token}`)}`);
   }
 
   return (

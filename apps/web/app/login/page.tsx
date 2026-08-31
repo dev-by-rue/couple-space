@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { safeNextPath, withNextQuery } from "@/lib/auth-redirect";
 import { Button } from "@/components/ui/button";
 
 type LoginBody = {
@@ -12,8 +13,10 @@ type LoginBody = {
   password: string;
 };
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = safeNextPath(searchParams.get("next"));
   const [form, setForm] = useState<LoginBody>({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +27,7 @@ export default function LoginPage() {
         body: JSON.stringify(body),
       }),
     onSuccess: () => {
-      router.push("/couple");
+      router.push(next);
     },
     onError: (err: Error) => {
       setError(err.message);
@@ -79,10 +82,24 @@ export default function LoginPage() {
 
       <p className="text-sm">
         New here?{" "}
-        <Link className="underline" href="/signup">
+        <Link className="underline" href={withNextQuery("/signup", next)}>
           Create an account
         </Link>
       </p>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-svh items-center justify-center p-6 text-sm">
+          Loading…
+        </main>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

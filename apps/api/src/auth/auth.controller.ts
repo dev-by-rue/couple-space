@@ -84,13 +84,19 @@ export class AuthController {
    * TEMPORARY: stands in for "click link in verification email".
    * Remove/replace when a mailer + verify-token flow exists.
    * Disabled unless ENABLE_DEV_AUTH_ENDPOINTS=true.
+   * Re-issues cookies so JWT email_verified matches the DB.
    */
   @Post("dev/verify")
   @UseGuards(JwtAuthGuard)
-  async devVerify(@CurrentUser() user: AuthUser) {
+  async devVerify(
+    @CurrentUser() user: AuthUser,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     if (!loadEnv().ENABLE_DEV_AUTH_ENDPOINTS) {
       throw new ForbiddenException({ reason: "dev_auth_disabled" });
     }
-    return this.auth.devVerify(user.id);
+    const result = await this.auth.devVerify(user.id);
+    setAuthCookies(response, result);
+    return result;
   }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 
@@ -15,18 +14,11 @@ type Me = {
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const me = useQuery({
     queryKey: ["me"],
     queryFn: () => apiFetch<Me>("/me"),
     retry: false,
   });
-
-  useEffect(() => {
-    if (me.isError) {
-      router.replace("/login");
-    }
-  }, [me.isError, router]);
 
   if (me.isPending) {
     return (
@@ -37,7 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   if (me.isError) {
-    return null;
+    redirect("/login");
   }
 
   return <>{children}</>;

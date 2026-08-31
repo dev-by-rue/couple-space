@@ -132,13 +132,26 @@ export class AuthService {
     }
   }
 
-  async devVerify(userId: string): Promise<PublicUser> {
+  /**
+   * TEMPORARY: marks email verified and re-issues cookies/JWT.
+   * Access tokens embed email_verified — without rotation, accept/invite
+   * gates still see the pre-verify claim and return 403 email_unverified.
+   */
+  async devVerify(
+    userId: string,
+  ): Promise<TokenPair & { user: PublicUser }> {
     const updated = await this.db
       .update(users)
       .set({ emailVerified: true, updatedAt: new Date() })
       .where(eq(users.id, userId))
       .returning();
     const row = updated[0]!;
+
+    const pair = await this.tokens.issueTokenPair({
+      id: row.id,
+      email: row.email,
+      emailVerified: row.emailVerified,
+    });
 
     await this.audit.append({
       actorUserId: userId,
@@ -147,7 +160,10 @@ export class AuthService {
       entityId: userId,
     });
 
-    return toPublicUser(row);
+    return {
+      ...pair,
+      user: toPublicUser(row),
+    };
   }
 }
 

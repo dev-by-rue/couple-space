@@ -1,0 +1,187 @@
+<h2>Product-aligned primaries</h2>
+<p class="subtitle">Chosen from product principles: private-first, consent/safety, calm guided conversation — and explicit non-goals (not dating/hookup). Teal kept; sage + navy are the other two.</p>
+
+<style>
+  .why {
+    font-size: 0.85rem; line-height: 1.4; margin: 0 0 0.85rem;
+    padding: 0.65rem 0.75rem; border-radius: 0.5rem;
+    background: rgba(0,0,0,0.04);
+  }
+  .swatches { display: flex; gap: 0.4rem; margin: 0.75rem 0 1rem; }
+  .swatch {
+    width: 2.25rem; height: 2.25rem; border-radius: 0.4rem;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .ui-preview {
+    border-radius: 0.75rem; overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    font-family: "Source Sans 3", "Figtree", "Segoe UI", sans-serif;
+  }
+  .ui-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 0.85rem; font-size: 0.8rem; font-weight: 600;
+  }
+  .ui-body { padding: 1rem 0.85rem 1.1rem; }
+  .ui-title { font-size: 1.05rem; font-weight: 650; margin: 0 0 0.25rem; }
+  .ui-copy { font-size: 0.82rem; line-height: 1.35; margin: 0 0 0.85rem; opacity: 0.78; }
+  .ui-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn-primary {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 600; cursor: default;
+  }
+  .btn-ghost {
+    border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 600;
+    background: transparent; cursor: default;
+  }
+  .mode-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+    opacity: 0.55; margin: 0 0 0.35rem; font-weight: 650;
+  }
+  .pill {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    border-radius: 999px; padding: 0.15rem 0.55rem;
+    margin-left: 0.35rem; vertical-align: middle;
+  }
+  .kept { color: #245858; background: #dff0f0; }
+  .rec { color: #2f6b4f; background: #e5f3ea; }
+</style>
+
+<div class="section">
+  <p class="why"><strong>Why these (not peach/lavender/rose):</strong> Scope rejects dating/hookup aesthetics. MVP is calm mutual-reveal conversation plus consent, invite, and later moderation — so primaries should signal privacy and trust, not romance marketing. Soft teal, sage, and navy all sit on that axis with your warm ivory surfaces.</p>
+</div>
+
+<div class="cards">
+  <div class="card" data-choice="teal" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>A. Soft teal <span class="pill kept">Kept</span> <span class="pill rec">Best fit</span></h3>
+      <p>Calm + modern without romance cues. Reads “private product,” works for CTAs and quiet waiting/reveal states.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E0DDD8"></div>
+        <div class="swatch" style="background:#3E8A8A"></div>
+        <div class="swatch" style="background:#245858"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E0DDD8;">
+          <span>couple-space</span>
+          <span style="color:#3E8A8A;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#3E8A8A; color:#F4FBFA;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #D2CEC8; color:#245858;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#7EBEBE;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#5AA3A3; color:#171514;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#7EBEBE;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sage" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>B. Soft sage</h3>
+      <p>Grounded “private room” feel. Best alternate if you want the primary itself to feel warmer/earthier while staying non-dating.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E4DDD6"></div>
+        <div class="swatch" style="background:#6F8F7A"></div>
+        <div class="swatch" style="background:#3F5A48"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E4DDD6;">
+          <span>couple-space</span>
+          <span style="color:#6F8F7A;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#6F8F7A; color:#F7FBF8;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #D5CEC6; color:#3F5A48;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#A3BFAE;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#8AAB96; color:#171514;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#A3BFAE;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="navy" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>C. Soft navy</h3>
+      <p>Trust and seriousness — strong for consent, verification, and later moderation. Slightly less “friendly,” more institutional.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E0DDD8"></div>
+        <div class="swatch" style="background:#3D5270"></div>
+        <div class="swatch" style="background:#24344A"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E0DDD8;">
+          <span>couple-space</span>
+          <span style="color:#3D5270;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#3D5270; color:#F5F7FA;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #D2CEC8; color:#24344A;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#9BB0C9;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Waiting for your partner</p>
+          <p class="ui-copy">You’ve submitted. Nothing is revealed until you both answer.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#6B84A3; color:#171514;">View session</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#9BB0C9;">Leave for now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

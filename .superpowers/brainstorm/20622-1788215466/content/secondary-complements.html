@@ -1,0 +1,172 @@
+<h2>Choose a secondary that complements teal</h2>
+<p class="subtitle">Primary stays soft teal. Neutrals stay warm ivory/stone. Secondary is a real hue for secondary buttons, chips, and soft fills — not gray.</p>
+
+<style>
+  .why {
+    font-size: 0.88rem; line-height: 1.45; margin: 0 0 1rem;
+    padding: 0.7rem 0.85rem; border-radius: 0.5rem; background: rgba(0,0,0,0.04);
+  }
+  .swatches { display: flex; gap: 0.4rem; margin: 0.65rem 0 0.9rem; }
+  .swatch {
+    width: 2.1rem; height: 2.1rem; border-radius: 0.4rem;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .ui {
+    border-radius: 0.75rem; overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    font-family: "Source Sans 3", "Figtree", "Segoe UI", sans-serif;
+    background: #F7F3F0; color: #24201E;
+  }
+  .bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.65rem 0.85rem; font-size: 0.8rem; font-weight: 650;
+    background: #FBF8F6; border-bottom: 1px solid #D5CFC8;
+  }
+  .body { padding: 1rem 0.85rem 1.1rem; }
+  .title { margin: 0 0 0.25rem; font-size: 1.05rem; font-weight: 650; }
+  .copy { margin: 0 0 0.85rem; font-size: 0.82rem; opacity: 0.78; line-height: 1.35; }
+  .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .bp {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 650; cursor: default;
+    background: #3E8A8A; color: #F4FBFA;
+  }
+  .bs {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 650; cursor: default;
+  }
+  .chip {
+    border-radius: 0.4rem; padding: 0.3rem 0.65rem;
+    font-size: 0.75rem; font-weight: 650; cursor: default;
+  }
+  .rec {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; color: #2f6b4f;
+    background: #e5f3ea; border-radius: 999px; padding: 0.15rem 0.55rem;
+    margin-left: 0.35rem; vertical-align: middle;
+  }
+  .dark {
+    margin-top: 0.65rem; background: #171514; color: #F3EEEA;
+  }
+  .dark .bar {
+    background: #1F1C1A; border-bottom-color: #453F3B; color: #F3EEEA;
+  }
+</style>
+
+<div class="why">
+  <strong>Yes — pick a complement.</strong> Teal is cool-green. A warm muted secondary (peach or clay) creates clear hierarchy: teal = main action, warm = supporting. Sage is analogous (same family) — calmer, less contrast. Gray stays for borders/muted text only.
+</div>
+
+<div class="cards">
+  <div class="card" data-choice="peach" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>A. Soft peach <span class="rec">Recommended</span></h3>
+      <p>True warm complement to teal. Friendly without reading as rose/dating-primary.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#3E8A8A" title="primary"></div>
+        <div class="swatch" style="background:#E7C4B0" title="secondary"></div>
+        <div class="swatch" style="background:#8A5240" title="secondary fg"></div>
+        <div class="swatch" style="background:#F7F3F0"></div>
+      </div>
+      <div class="ui">
+        <div class="bar"><span>couple-space</span><span style="color:#3E8A8A;">Invite partner</span></div>
+        <div class="body">
+          <p class="title">Start a session</p>
+          <p class="copy">Primary for the main path; secondary for quieter alternatives.</p>
+          <div class="actions">
+            <button class="bp">Continue</button>
+            <button class="bs" style="background:#E7C4B0; color:#5C3428;">Maybe later</button>
+          </div>
+          <div class="chips">
+            <span class="chip" style="background:#E7C4B0; color:#5C3428;">Custom prompt</span>
+            <span class="chip" style="background:#E8E4DF; color:#6B6560;">Curated</span>
+          </div>
+        </div>
+      </div>
+      <div class="ui dark">
+        <div class="bar"><span>couple-space</span><span style="color:#7EBEBE;">Invite partner</span></div>
+        <div class="body">
+          <div class="actions">
+            <button class="bp" style="background:#5AA3A3; color:#171514;">Continue</button>
+            <button class="bs" style="background:#6A4A3C; color:#F3D5C4;">Maybe later</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="clay" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>B. Soft clay</h3>
+      <p>Warmer, earthier complement. Slightly more serious than peach; still clear against teal.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#3E8A8A"></div>
+        <div class="swatch" style="background:#D4B39A"></div>
+        <div class="swatch" style="background:#6B3F30"></div>
+        <div class="swatch" style="background:#F7F3F0"></div>
+      </div>
+      <div class="ui">
+        <div class="bar"><span>couple-space</span><span style="color:#3E8A8A;">Invite partner</span></div>
+        <div class="body">
+          <p class="title">Start a session</p>
+          <p class="copy">Primary for the main path; secondary for quieter alternatives.</p>
+          <div class="actions">
+            <button class="bp">Continue</button>
+            <button class="bs" style="background:#D4B39A; color:#4E2E22;">Maybe later</button>
+          </div>
+          <div class="chips">
+            <span class="chip" style="background:#D4B39A; color:#4E2E22;">Custom prompt</span>
+            <span class="chip" style="background:#E8E4DF; color:#6B6560;">Curated</span>
+          </div>
+        </div>
+      </div>
+      <div class="ui dark">
+        <div class="bar"><span>couple-space</span><span style="color:#7EBEBE;">Invite partner</span></div>
+        <div class="body">
+          <div class="actions">
+            <button class="bp" style="background:#5AA3A3; color:#171514;">Continue</button>
+            <button class="bs" style="background:#5C4034; color:#E6C9B4;">Maybe later</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sage" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>C. Soft sage</h3>
+      <p>Analogous to teal (same family). Very calm/cohesive; less visual contrast between primary and secondary.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#3E8A8A"></div>
+        <div class="swatch" style="background:#C5D4C8"></div>
+        <div class="swatch" style="background:#3F5A48"></div>
+        <div class="swatch" style="background:#F7F3F0"></div>
+      </div>
+      <div class="ui">
+        <div class="bar"><span>couple-space</span><span style="color:#3E8A8A;">Invite partner</span></div>
+        <div class="body">
+          <p class="title">Start a session</p>
+          <p class="copy">Primary for the main path; secondary for quieter alternatives.</p>
+          <div class="actions">
+            <button class="bp">Continue</button>
+            <button class="bs" style="background:#C5D4C8; color:#2F4638;">Maybe later</button>
+          </div>
+          <div class="chips">
+            <span class="chip" style="background:#C5D4C8; color:#2F4638;">Custom prompt</span>
+            <span class="chip" style="background:#E8E4DF; color:#6B6560;">Curated</span>
+          </div>
+        </div>
+      </div>
+      <div class="ui dark">
+        <div class="bar"><span>couple-space</span><span style="color:#7EBEBE;">Invite partner</span></div>
+        <div class="body">
+          <div class="actions">
+            <button class="bp" style="background:#5AA3A3; color:#171514;">Continue</button>
+            <button class="bs" style="background:#3A4A40; color:#C5D4C8;">Maybe later</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<h2>Design §3 — Application &amp; token mapping</h2>
+<p class="subtitle">How the brand lands in the web app. Approve to finish design sections, or request changes.</p>
+
+<style>
+  .block {
+    font-size: 0.9rem; line-height: 1.5; margin: 0 0 1rem;
+    padding: 0.85rem 1rem; border-radius: 0.65rem;
+    border: 1px solid rgba(0,0,0,0.08); background: #FBF8F6; color: #24201E;
+    font-family: Figtree, "Source Sans 3", sans-serif;
+  }
+  .block h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+  .block ul { margin: 0; padding-left: 1.15rem; }
+  .block li { margin-bottom: 0.3rem; }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem; background: #E8E4DF; padding: 0.1rem 0.35rem; border-radius: 0.25rem;
+  }
+  .options { margin-top: 1.25rem; }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+
+<div class="block">
+  <h3>Where it lives</h3>
+  <ul>
+    <li>Update <span class="mono">apps/web/app/globals.css</span> <span class="mono">:root</span> and <span class="mono">.dark</span> CSS variables (existing shadcn tokens — no new color API).</li>
+    <li>Replace Nunito Sans with Figtree via <span class="mono">next/font</span> in <span class="mono">layout.tsx</span>; keep Geist Mono for <span class="mono">--font-mono</span>.</li>
+    <li>Light + dark both first-class; theme toggle already supported by <span class="mono">.dark</span> variant.</li>
+  </ul>
+</div>
+
+<div class="block">
+  <h3>Token roles</h3>
+  <ul>
+    <li><strong>primary / ring</strong> → soft teal (CTAs, links, focus)</li>
+    <li><strong>secondary / accent</strong> → soft sage (secondary buttons, chips, soft highlights)</li>
+    <li><strong>background / card</strong> → warm ivory / warm charcoal</li>
+    <li><strong>muted / border / input</strong> → warm stone neutrals (structure only)</li>
+    <li><strong>destructive</strong> → independent red (errors, destructive confirms)</li>
+    <li><strong>sidebar-*</strong> → same brand hues as main surface/primary</li>
+  </ul>
+</div>
+
+<div class="block">
+  <h3>Out of scope for this brand pass</h3>
+  <ul>
+    <li>Marketing landing redesign, illustration, or logo mark</li>
+    <li>Per-page custom palettes or gradient systems</li>
+    <li>Changing component structure — only tokens + font wiring</li>
+  </ul>
+</div>
+
+<div class="block">
+  <h3>Acceptance checks</h3>
+  <ul>
+    <li>Login and auth screens look branded in light and dark</li>
+    <li>Primary vs secondary buttons are visually distinct (teal vs sage)</li>
+    <li>Body/UI text renders in Figtree; no Nunito remaining</li>
+    <li>Text/icon contrast remains usable on ivory and charcoal (spot-check CTAs and muted text)</li>
+  </ul>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-application" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Approve application plan</h3>
+      <p>Design complete — write the spec next</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise-application" onclick="toggleSelect(this)">
+    <div class="letter">↻</div>
+    <div class="content">
+      <h3>Needs revision</h3>
+      <p>Tell me what to change in chat</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,105 @@
+<h2>Design §2 — Typography</h2>
+<p class="subtitle">You chose clean humanist sans. App currently mixes Nunito Sans + Geist — we’ll standardize. Click a UI font (mono stays Geist Mono).</p>
+
+<style>
+  .note {
+    font-size: 0.88rem; line-height: 1.45; margin: 0 0 1rem;
+    padding: 0.7rem 0.85rem; border-radius: 0.5rem; background: rgba(0,0,0,0.04);
+  }
+  .specimen {
+    border-radius: 0.75rem; border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden; background: #F7F3F0; color: #24201E; padding: 1rem 1rem 1.15rem;
+  }
+  .brand {
+    font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 0.35rem;
+    color: #24201E;
+  }
+  .headline {
+    font-size: 1.2rem; font-weight: 650; margin: 0 0 0.4rem;
+  }
+  .body {
+    font-size: 0.95rem; line-height: 1.5; margin: 0 0 0.85rem; color: #6B6560;
+  }
+  .meta {
+    font-size: 0.78rem; font-weight: 650; letter-spacing: 0.04em;
+    text-transform: uppercase; color: #3E8A8A; margin: 0 0 0.75rem;
+  }
+  .row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .bp {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.85rem; font-weight: 650;
+    background: #3E8A8A; color: #F4FBFA; cursor: default;
+  }
+  .bs {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.85rem; font-weight: 650;
+    background: #C5D4C8; color: #2F4638; cursor: default;
+  }
+  .rec {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; color: #2f6b4f;
+    background: #e5f3ea; border-radius: 999px; padding: 0.15rem 0.55rem;
+    margin-left: 0.35rem; vertical-align: middle;
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="note">
+  <strong>Roles:</strong> one UI/body/heading sans for the product; Geist Mono only for rare technical strings (codes, tokens). No serif display. Heading weight via the same family (600/700), not a second display face.
+</div>
+
+<div class="cards">
+  <div class="card" data-choice="figtree" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>A. Figtree <span class="rec">Recommended</span></h3>
+      <p>Modern humanist — warm and readable, still product-polished. Easy via <code>next/font</code>.</p>
+      <div class="specimen" style="font-family: Figtree, sans-serif;">
+        <p class="meta">couple-space</p>
+        <p class="brand">Private space for two</p>
+        <p class="headline">Waiting for your partner</p>
+        <p class="body">You’ve submitted. Nothing is revealed until you both answer — then you can discuss together.</p>
+        <div class="row">
+          <button class="bp">Continue</button>
+          <button class="bs">Maybe later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="source-sans" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>B. Source Sans 3</h3>
+      <p>Classic Adobe humanist. Extremely readable; slightly more “document/editorial” than Figtree.</p>
+      <div class="specimen" style="font-family: 'Source Sans 3', sans-serif;">
+        <p class="meta">couple-space</p>
+        <p class="brand">Private space for two</p>
+        <p class="headline">Waiting for your partner</p>
+        <p class="body">You’ve submitted. Nothing is revealed until you both answer — then you can discuss together.</p>
+        <div class="row">
+          <button class="bp">Continue</button>
+          <button class="bs">Maybe later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="ibm-plex" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>C. IBM Plex Sans</h3>
+      <p>Humanist with a bit more technical character. Professional; slightly cooler than Figtree.</p>
+      <div class="specimen" style="font-family: 'IBM Plex Sans', sans-serif;">
+        <p class="meta">couple-space</p>
+        <p class="brand">Private space for two</p>
+        <p class="headline">Waiting for your partner</p>
+        <p class="body">You’ve submitted. Nothing is revealed until you both answer — then you can discuss together.</p>
+        <div class="row">
+          <button class="bp">Continue</button>
+          <button class="bs">Maybe later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

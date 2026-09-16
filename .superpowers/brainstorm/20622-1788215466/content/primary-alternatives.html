@@ -1,0 +1,186 @@
+<h2>Pick a new primary (surfaces stay warm)</h2>
+<p class="subtitle">Same warm ivory surfaces, humanist sans, light + dark. Only the primary accent changes — no rose. Click your preference.</p>
+
+<style>
+  .swatches {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0.75rem 0 1rem;
+  }
+  .swatch {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.4rem;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .ui-preview {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    font-family: "Source Sans 3", "Figtree", "Segoe UI", sans-serif;
+  }
+  .ui-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .ui-body { padding: 1rem 0.85rem 1.1rem; }
+  .ui-title { font-size: 1.05rem; font-weight: 650; margin: 0 0 0.25rem; }
+  .ui-copy { font-size: 0.82rem; line-height: 1.35; margin: 0 0 0.85rem; opacity: 0.78; }
+  .ui-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn-primary {
+    border: none; border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 600; cursor: default;
+  }
+  .btn-ghost {
+    border-radius: 0.45rem; padding: 0.45rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 600; background: transparent; cursor: default;
+  }
+  .mode-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+    opacity: 0.55; margin: 0 0 0.35rem; font-weight: 650;
+  }
+  .rec {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; color: #2f6b4f;
+    background: #e5f3ea; border-radius: 999px; padding: 0.15rem 0.55rem;
+    margin-left: 0.35rem; vertical-align: middle;
+  }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="sage" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>A. Soft sage <span class="rec">Recommended</span></h3>
+      <p>Calm, trustworthy, still warm via earth undertone. Least dating-app, most “private space.”</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E4DDD6"></div>
+        <div class="swatch" style="background:#6F8F7A"></div>
+        <div class="swatch" style="background:#3F5A48"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E4DDD6;">
+          <span>couple-space</span>
+          <span style="color:#6F8F7A;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#6F8F7A; color:#F7FBF8;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #D5CEC6; color:#3F5A48;">Create account</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#A3BFAE;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#8AAB96; color:#171514;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#A3BFAE;">Create account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="amber" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>B. Warm amber</h3>
+      <p>Inviting honey accent. Friendliest of the three; stays “home,” not romance-pink.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E8DFD4"></div>
+        <div class="swatch" style="background:#C4893A"></div>
+        <div class="swatch" style="background:#7A4F1C"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E8DFD4;">
+          <span>couple-space</span>
+          <span style="color:#C4893A;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#C4893A; color:#FFF9F1;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #D9CFC3; color:#7A4F1C;">Create account</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#E0B472;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#D4A04E; color:#171514;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#E0B472;">Create account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="teal" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>C. Soft teal</h3>
+      <p>Cooler primary on warm surfaces — clear product polish. Warmth lives in the environment, not the CTA.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="swatch" style="background:#F7F3F0"></div>
+        <div class="swatch" style="background:#E0DDD8"></div>
+        <div class="swatch" style="background:#3E8A8A"></div>
+        <div class="swatch" style="background:#245858"></div>
+        <div class="swatch" style="background:#24201E"></div>
+      </div>
+      <p class="mode-label">Light</p>
+      <div class="ui-preview" style="background:#F7F3F0; color:#24201E;">
+        <div class="ui-bar" style="background:#FBF8F6; border-bottom:1px solid #E0DDD8;">
+          <span>couple-space</span>
+          <span style="color:#3E8A8A;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#3E8A8A; color:#F4FBFA;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #D2CEC8; color:#245858;">Create account</button>
+          </div>
+        </div>
+      </div>
+      <p class="mode-label" style="margin-top:0.75rem;">Dark</p>
+      <div class="ui-preview" style="background:#171514; color:#F3EEEA;">
+        <div class="ui-bar" style="background:#1F1C1A; border-bottom:1px solid #332E2B;">
+          <span>couple-space</span>
+          <span style="color:#7EBEBE;">Invite partner</span>
+        </div>
+        <div class="ui-body">
+          <p class="ui-title">Welcome back</p>
+          <p class="ui-copy">Sign in to continue your private space together.</p>
+          <div class="ui-actions">
+            <button class="btn-primary" style="background:#5AA3A3; color:#171514;">Continue</button>
+            <button class="btn-ghost" style="border:1px solid #453F3B; color:#7EBEBE;">Create account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

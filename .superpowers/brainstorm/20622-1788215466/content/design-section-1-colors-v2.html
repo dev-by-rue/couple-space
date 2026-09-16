@@ -1,0 +1,136 @@
+<h2>Design §1 (revised) — Teal primary + sage secondary</h2>
+<p class="subtitle">Neutrals stay warm ivory/stone. Approve this pair, or say what to tweak.</p>
+
+<style>
+  .grid { display: grid; gap: 1rem; }
+  @media (min-width: 720px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+  .panel {
+    border-radius: 0.75rem; border: 1px solid rgba(0,0,0,0.08); overflow: hidden;
+    font-family: "Source Sans 3", "Figtree", "Segoe UI", sans-serif;
+  }
+  .panel-h {
+    padding: 0.6rem 0.85rem; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.65;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .row {
+    display: grid; grid-template-columns: 3.2rem 1fr auto; gap: 0.65rem;
+    align-items: center; padding: 0.45rem 0.85rem; font-size: 0.82rem;
+  }
+  .chip {
+    width: 3.2rem; height: 1.6rem; border-radius: 0.35rem;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .meta { opacity: 0.55; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+  .mock {
+    border-radius: 0.75rem; border: 1px solid rgba(0,0,0,0.08); overflow: hidden;
+    font-family: "Source Sans 3", "Figtree", "Segoe UI", sans-serif;
+  }
+  .mock-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.7rem 1rem; font-weight: 650; font-size: 0.85rem;
+  }
+  .mock-body { padding: 1.1rem 1rem 1.25rem; }
+  .mock-title { margin: 0 0 0.3rem; font-size: 1.15rem; font-weight: 650; }
+  .mock-copy { margin: 0 0 1rem; font-size: 0.88rem; opacity: 0.78; line-height: 1.4; }
+  .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .bp {
+    border: none; border-radius: 0.45rem; padding: 0.5rem 0.95rem;
+    font: inherit; font-size: 0.85rem; font-weight: 650; cursor: default;
+  }
+  .bs {
+    border: none; border-radius: 0.45rem; padding: 0.5rem 0.95rem;
+    font: inherit; font-size: 0.85rem; font-weight: 650; cursor: default;
+  }
+  .tag {
+    display: inline-block; border-radius: 0.4rem; padding: 0.3rem 0.65rem;
+    font-size: 0.75rem; font-weight: 650;
+  }
+  .options { margin-top: 1.25rem; }
+</style>
+
+<div class="grid two">
+  <div class="panel" style="background:#F7F3F0; color:#24201E;">
+    <div class="panel-h">Light</div>
+    <div class="row"><div class="chip" style="background:#F7F3F0"></div><div>background</div><div class="meta">#F7F3F0</div></div>
+    <div class="row"><div class="chip" style="background:#FBF8F6"></div><div>card</div><div class="meta">#FBF8F6</div></div>
+    <div class="row"><div class="chip" style="background:#24201E"></div><div>foreground</div><div class="meta">#24201E</div></div>
+    <div class="row"><div class="chip" style="background:#3E8A8A"></div><div>primary</div><div class="meta">#3E8A8A</div></div>
+    <div class="row"><div class="chip" style="background:#F4FBFA"></div><div>primary-foreground</div><div class="meta">#F4FBFA</div></div>
+    <div class="row"><div class="chip" style="background:#C5D4C8"></div><div>secondary</div><div class="meta">#C5D4C8</div></div>
+    <div class="row"><div class="chip" style="background:#2F4638"></div><div>secondary-foreground</div><div class="meta">#2F4638</div></div>
+    <div class="row"><div class="chip" style="background:#E8E4DF"></div><div>muted</div><div class="meta">#E8E4DF</div></div>
+    <div class="row"><div class="chip" style="background:#6B6560"></div><div>muted-foreground</div><div class="meta">#6B6560</div></div>
+    <div class="row"><div class="chip" style="background:#D5CFC8"></div><div>border / input</div><div class="meta">#D5CFC8</div></div>
+    <div class="row"><div class="chip" style="background:#5AA3A3"></div><div>ring</div><div class="meta">#5AA3A3</div></div>
+    <div class="row"><div class="chip" style="background:#B5453A"></div><div>destructive</div><div class="meta">#B5453A</div></div>
+  </div>
+
+  <div class="panel" style="background:#171514; color:#F3EEEA;">
+    <div class="panel-h" style="border-bottom-color:rgba(255,255,255,0.08);">Dark</div>
+    <div class="row"><div class="chip" style="background:#171514; border-color:rgba(255,255,255,0.12)"></div><div>background</div><div class="meta">#171514</div></div>
+    <div class="row"><div class="chip" style="background:#1F1C1A; border-color:rgba(255,255,255,0.12)"></div><div>card</div><div class="meta">#1F1C1A</div></div>
+    <div class="row"><div class="chip" style="background:#F3EEEA; border-color:rgba(255,255,255,0.12)"></div><div>foreground</div><div class="meta">#F3EEEA</div></div>
+    <div class="row"><div class="chip" style="background:#5AA3A3; border-color:rgba(255,255,255,0.12)"></div><div>primary</div><div class="meta">#5AA3A3</div></div>
+    <div class="row"><div class="chip" style="background:#171514; border-color:rgba(255,255,255,0.12)"></div><div>primary-foreground</div><div class="meta">#171514</div></div>
+    <div class="row"><div class="chip" style="background:#3A4A40; border-color:rgba(255,255,255,0.12)"></div><div>secondary</div><div class="meta">#3A4A40</div></div>
+    <div class="row"><div class="chip" style="background:#C5D4C8; border-color:rgba(255,255,255,0.12)"></div><div>secondary-foreground</div><div class="meta">#C5D4C8</div></div>
+    <div class="row"><div class="chip" style="background:#2A2624; border-color:rgba(255,255,255,0.12)"></div><div>muted</div><div class="meta">#2A2624</div></div>
+    <div class="row"><div class="chip" style="background:#B0A8A1; border-color:rgba(255,255,255,0.12)"></div><div>muted-foreground</div><div class="meta">#B0A8A1</div></div>
+    <div class="row"><div class="chip" style="background:#453F3B; border-color:rgba(255,255,255,0.12)"></div><div>border / input</div><div class="meta">#453F3B</div></div>
+    <div class="row"><div class="chip" style="background:#7EBEBE; border-color:rgba(255,255,255,0.12)"></div><div>ring</div><div class="meta">#7EBEBE</div></div>
+    <div class="row"><div class="chip" style="background:#E07068; border-color:rgba(255,255,255,0.12)"></div><div>destructive</div><div class="meta">#E07068</div></div>
+  </div>
+</div>
+
+<div class="grid two" style="margin-top:1rem;">
+  <div class="mock" style="background:#F7F3F0; color:#24201E;">
+    <div class="mock-bar" style="background:#FBF8F6; border-bottom:1px solid #D5CFC8;">
+      <span>couple-space</span>
+      <span style="color:#3E8A8A;">Invite partner</span>
+    </div>
+    <div class="mock-body">
+      <p class="mock-title">Start a session</p>
+      <p class="mock-copy">Teal for the main action; sage for supporting actions and chips.</p>
+      <div class="btns">
+        <button class="bp" style="background:#3E8A8A; color:#F4FBFA;">Continue</button>
+        <button class="bs" style="background:#C5D4C8; color:#2F4638;">Maybe later</button>
+      </div>
+      <span class="tag" style="background:#C5D4C8; color:#2F4638;">Custom prompt</span>
+      <span class="tag" style="background:#E8E4DF; color:#6B6560; margin-left:0.35rem;">Curated</span>
+    </div>
+  </div>
+  <div class="mock" style="background:#171514; color:#F3EEEA;">
+    <div class="mock-bar" style="background:#1F1C1A; border-bottom:1px solid #453F3B;">
+      <span>couple-space</span>
+      <span style="color:#7EBEBE;">Invite partner</span>
+    </div>
+    <div class="mock-body">
+      <p class="mock-title">Start a session</p>
+      <p class="mock-copy">Teal for the main action; sage for supporting actions and chips.</p>
+      <div class="btns">
+        <button class="bp" style="background:#5AA3A3; color:#171514;">Continue</button>
+        <button class="bs" style="background:#3A4A40; color:#C5D4C8;">Maybe later</button>
+      </div>
+      <span class="tag" style="background:#3A4A40; color:#C5D4C8;">Custom prompt</span>
+      <span class="tag" style="background:#2A2624; color:#B0A8A1; margin-left:0.35rem;">Curated</span>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-colors" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Approve color system</h3>
+      <p>Continue to typography</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise-colors" onclick="toggleSelect(this)">
+    <div class="letter">↻</div>
+    <div class="content">
+      <h3>Needs revision</h3>
+      <p>Tell me what to change in chat</p>
+    </div>
+  </div>
+</div>

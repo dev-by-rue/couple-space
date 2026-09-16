@@ -43,9 +43,9 @@ export default function AcceptInvitePage() {
     return <main className="p-6 text-sm">Checking session…</main>;
   }
 
-  // Invitees usually need an account first — send unauthenticated users to signup.
+  // Invitees usually need an account first — send unauthenticated users to register.
   if (me.isError) {
-    redirect(`/signup?next=${encodeURIComponent(`/invite/${token}`)}`);
+    redirect(`/register?next=${encodeURIComponent(`/invite/${token}`)}`);
   }
 
   return (

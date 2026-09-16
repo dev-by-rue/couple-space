@@ -108,6 +108,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.7.0
         version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@couple-space/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@hookform/resolvers':
+        specifier: ^5.9.1
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.88.0(react@19.2.8))(zod@4.5.1)
       '@tanstack/react-query':
         specifier: ^5.102.8
         version: 5.102.8(react@19.2.8)
@@ -129,6 +135,9 @@ importers:
       react-dom:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
+      react-hook-form:
+        specifier: ^7.88.0
+        version: 7.88.0(react@19.2.8)
       shadcn:
         specifier: ^4.19.0
         version: 4.19.0(typescript@5.9.3)
@@ -138,6 +147,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: ^4.5.1
+        version: 4.5.1
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -184,6 +196,10 @@ importers:
         version: 5.9.3
 
   packages/domain:
+    dependencies:
+      zod:
+        specifier: ^4.5.1
+        version: 4.5.1
     devDependencies:
       typescript:
         specifier: ^5
@@ -917,6 +933,84 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
+
+  '@hookform/resolvers@5.9.1':
+    resolution: {integrity: sha512-7b7vsbraJxKgjVSA1Nur9tLwj539WGJUBLA7QNvXnFoT2pM5Z7G+6rlukk4B2/QrTZy6huRtH6wKeESPKuIr6w==}
+    peerDependencies:
+      '@sinclair/typebox': '>=0.25.24'
+      '@standard-schema/spec': ^1.0.0
+      '@typeschema/main': '>=0.13.7'
+      '@vinejs/vine': ^2.0.0 || ^3.0.0 || ^4.0.0
+      ajv: ^8.12.0
+      ajv-errors: ^3.0.0
+      ajv-formats: ^2.1.1
+      arktype: ^2.0.0
+      ata-validator: ^1.2.0
+      class-transformer: '>=0.4.0'
+      class-validator: '>=0.12.0'
+      computed-types: ^1.0.0
+      effect: ^3.10.3
+      fluentvalidation-ts: ^3.0.0
+      fp-ts: ^2.7.0
+      io-ts: ^2.0.0
+      joi: ^17.0.0 || ^18.0.0
+      nope-validator: '>=0.12.0'
+      react-hook-form: ^7.55.0
+      superstruct: '>=0.12.0'
+      typanion: ^3.3.2
+      valibot: '>=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc'
+      vest: '>=6.0.0'
+      yup: ^1.0.0
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@sinclair/typebox':
+        optional: true
+      '@standard-schema/spec':
+        optional: true
+      '@typeschema/main':
+        optional: true
+      '@vinejs/vine':
+        optional: true
+      ajv:
+        optional: true
+      ajv-errors:
+        optional: true
+      ajv-formats:
+        optional: true
+      arktype:
+        optional: true
+      ata-validator:
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+      computed-types:
+        optional: true
+      effect:
+        optional: true
+      fluentvalidation-ts:
+        optional: true
+      fp-ts:
+        optional: true
+      io-ts:
+        optional: true
+      joi:
+        optional: true
+      nope-validator:
+        optional: true
+      superstruct:
+        optional: true
+      typanion:
+        optional: true
+      valibot:
+        optional: true
+      vest:
+        optional: true
+      yup:
+        optional: true
+      zod:
+        optional: true
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1876,6 +1970,9 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@standard-schema/utils@0.3.0':
+    resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
@@ -4441,6 +4538,12 @@ packages:
     peerDependencies:
       react: ^19.2.8
 
+  react-hook-form@7.88.0:
+    resolution: {integrity: sha512-QRaLOWhX93YCnMiRfnOFRSwWXZNt8qhm2JTZwypoDvKpSffTJHmpzMXt8U6PV5UThvL3IiiLDUWe2nHMtz6Mmw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -5850,6 +5953,16 @@ snapshots:
     dependencies:
       hono: 4.13.5
 
+  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.88.0(react@19.2.8))(zod@4.5.1)':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.88.0(react@19.2.8)
+    optionalDependencies:
+      '@standard-schema/spec': 1.1.0
+      ajv: 8.20.0
+      ajv-formats: 2.1.1(ajv@8.20.0)
+      zod: 4.5.1
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -6547,6 +6660,8 @@ snapshots:
   '@sindresorhus/merge-streams@4.0.0': {}
 
   '@standard-schema/spec@1.1.0': {}
+
+  '@standard-schema/utils@0.3.0': {}
 
   '@swc/helpers@0.5.23':
     dependencies:
@@ -7762,7 +7877,7 @@ snapshots:
       '@next/eslint-plugin-next': 16.3.3(eslint@10.9.1(jiti@2.7.0))
       eslint: 10.9.1(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@10.9.1(jiti@2.7.0))
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.9.1(jiti@2.7.0))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@10.9.1(jiti@2.7.0))
       eslint-plugin-react: 7.37.5(eslint@10.9.1(jiti@2.7.0))
@@ -7785,7 +7900,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0)):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@10.9.1(jiti@2.7.0)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -7800,14 +7915,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.14.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0)):
+  eslint-module-utils@2.14.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@10.9.1(jiti@2.7.0)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3)
       eslint: 10.9.1(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@10.9.1(jiti@2.7.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -7822,7 +7937,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 10.9.1(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.14.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0)))(eslint@10.9.1(jiti@2.7.0))
+      eslint-module-utils: 2.14.0(@typescript-eslint/parser@8.68.0(eslint@10.9.1(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@10.9.1(jiti@2.7.0))
       hasown: 2.0.4
       is-core-module: 2.16.2
       is-glob: 4.0.3
@@ -9193,6 +9308,10 @@ snapshots:
     dependencies:
       react: 19.2.8
       scheduler: 0.27.0
+
+  react-hook-form@7.88.0(react@19.2.8):
+    dependencies:
+      react: 19.2.8
 
   react-is@16.13.1: {}
 

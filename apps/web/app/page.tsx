@@ -10,7 +10,7 @@ export default function Home() {
       </p>
       <div className="flex gap-3">
         <Button render={<Link href="/login" />}>Log in</Button>
-        <Button variant="outline" render={<Link href="/signup" />}>
+        <Button variant="outline" render={<Link href="/register" />}>
           Sign up
         </Button>
       </div>

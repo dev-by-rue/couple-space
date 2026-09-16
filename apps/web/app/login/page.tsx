@@ -1,92 +1,38 @@
 "use client";
 
-import Link from "next/link";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { FormEvent, Suspense, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { safeNextPath, withNextQuery } from "@/lib/auth-redirect";
-import { Button } from "@/components/ui/button";
+import { GalleryVerticalEnd } from "lucide-react";
+import { LoginForm } from "@/components/auth/login.form";
+import { safeNextPath } from "@/lib/auth-redirect";
 
-type LoginBody = {
-  email: string;
-  password: string;
-};
-
-function LoginForm() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeNextPath(searchParams.get("next"));
-  const [form, setForm] = useState<LoginBody>({ email: "", password: "" });
-  const [error, setError] = useState<string | null>(null);
-
-  const login = useMutation({
-    mutationFn: (body: LoginBody) =>
-      apiFetch("/auth/login", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: () => {
-      router.push(next);
-    },
-    onError: (err: Error) => {
-      setError(err.message);
-    },
-  });
-
-  function onSubmit(event: FormEvent) {
-    event.preventDefault();
-    setError(null);
-    login.mutate(form);
-  }
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col justify-center gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Log in</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Session is stored in httpOnly cookies via the API.
-        </p>
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="/" className="flex items-center gap-2 font-medium">
+            <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Couple Space
+          </a>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <LoginForm
+              next={next}
+              onAuthenticated={() => router.push(next)}
+            />
+          </div>
+        </div>
       </div>
-
-      <form className="flex flex-col gap-3" onSubmit={onSubmit}>
-        <label className="flex flex-col gap-1 text-sm">
-          Email
-          <input
-            type="email"
-            className="border-input rounded-md border px-3 py-2"
-            required
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Password
-          <input
-            type="password"
-            className="border-input rounded-md border px-3 py-2"
-            required
-            value={form.password}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, password: e.target.value }))
-            }
-          />
-        </label>
-
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-        <Button type="submit" disabled={login.isPending}>
-          {login.isPending ? "Signing in…" : "Log in"}
-        </Button>
-      </form>
-
-      <p className="text-sm">
-        New here?{" "}
-        <Link className="underline" href={withNextQuery("/signup", next)}>
-          Create an account
-        </Link>
-      </p>
-    </main>
+      <div className="relative hidden bg-muted lg:block" aria-hidden="true" />
+    </div>
   );
 }
 
@@ -99,7 +45,7 @@ export default function LoginPage() {
         </main>
       }
     >
-      <LoginForm />
+      <LoginPageContent />
     </Suspense>
   );
 }

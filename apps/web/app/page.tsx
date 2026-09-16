@@ -6,12 +6,12 @@ export default function Home() {
     <main className="mx-auto flex min-h-svh w-full max-w-lg flex-col items-center justify-center gap-6 p-6 text-center">
       <h1 className="text-3xl font-semibold tracking-tight">Couple Space</h1>
       <p className="text-muted-foreground text-sm">
-        Private-first couple formation. Sign in to continue.
+        The original safe space for couples.
       </p>
       <div className="flex gap-3">
         <Button render={<Link href="/login" />}>Log in</Button>
         <Button variant="outline" render={<Link href="/register" />}>
-          Sign up
+          Register
         </Button>
       </div>
     </main>

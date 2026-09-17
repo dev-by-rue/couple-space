@@ -9,11 +9,13 @@
 **Tech Stack:** NestJS, Drizzle, Zod, Vitest, Next.js `apps/web`, existing auth (`AuthUser.id`, `JwtAuthGuard`, cookies `cs_access` / `cs_refresh`).
 
 **Specs:**
+
 - `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md`
 - `docs/superpowers/specs/2026-08-29-couple-space-platform-design.md` (auth sections superseded by Nest design)
 - `docs/product/scope.md`
 
 **History (do not execute remaining work from these):**
+
 - `docs/superpowers/plans/2026-08-30-nest-owned-auth.md` — Tasks 1–8 done; 9–10 moved here
 - `docs/superpowers/plans/2026-08-29-couple-formation.md` — Tasks 1–4 done; 5 & 8 superseded by Nest auth; 6–7 & 9–10 moved here
 
@@ -70,12 +72,14 @@ docs/architecture/decisions/
 ### Task 1: Web — Nest auth client + login/signup
 
 **Files:**
+
 - Create: `apps/web/lib/api.ts`
 - Create: `apps/web/app/signup/page.tsx`
 - Create: `apps/web/app/login/page.tsx`
 - Do **not** add `@supabase/*`
 
 **Interfaces:**
+
 - Produces: `apiFetch` with `credentials: 'include'`
 - Signup: email, password, displayName, dateOfBirth → `POST /auth/register`
 - Login: email, password → `POST /auth/login`
@@ -140,11 +144,13 @@ git commit -m "feat(web): nest auth login and signup"
 ### Task 2: API — create couple + create invitation
 
 **Files:**
-- Create: `apps/api/src/couples/*`
+
+- Create: `apps/api/src/couples/`*
 - Modify: `apps/api/src/app.module.ts`
 - Modify: `apps/api/src/config/env.ts` — ensure `INVITE_TTL_HOURS`, `INVITE_RATE_LIMIT_PER_HOUR`
 
 **Interfaces:**
+
 - `POST /couples` (auth) → `{ coupleId, status: "forming" }`
 - `POST /couples/:coupleId/invitations` body `{ email }` → `{ token, expiresAt }`
 - `GET /couples/me` → current couple + memberships summary (or 404 if none)
@@ -165,6 +171,7 @@ Update `.env.example` to match.
 - [x] **Step 2: Failing tests for `createCouple`**
 
 Cases:
+
 1. User with no active membership → couple `forming`, one active membership, audit `couple.created`
 2. User with active membership → conflict (409)
 
@@ -193,12 +200,12 @@ await this.db.transaction(async (tx) => {
 
 - [x] **Step 4: Failing tests for `createInvitation`**
 
-1. Only active member of that couple can invite  
-2. Zod email  
-3. Token = high-entropy secret (`randomBytes` / `randomUUID`); store unique raw token (capability URL)  
-4. `expiresAt = now + INVITE_TTL_HOURS`  
-5. Rate limit: invites created by this user in last hour ≥ limit → 429  
-6. Audit `invitation.created` — **do not** log the token  
+1. Only active member of that couple can invite
+2. Zod email
+3. Token = high-entropy secret (`randomBytes` / `randomUUID`); store unique raw token (capability URL)
+4. `expiresAt = now + INVITE_TTL_HOURS`
+5. Rate limit: invites created by this user in last hour ≥ limit → 429
+6. Audit `invitation.created` — **do not** log the token
 
 - [x] **Step 5: Implement createInvitation + `GET /couples/me`**
 
@@ -224,23 +231,25 @@ git commit -m "feat(api): create couple and partner invitations"
 ### Task 3: API — accept invitation → activate couple (idempotent)
 
 **Files:**
+
 - Modify: `apps/api/src/couples/couples.service.ts`
 - Modify: `apps/api/src/couples/couples.controller.ts`
 - Modify: `apps/api/src/couples/couples.service.test.ts`
 
 **Interfaces:**
+
 - `POST /invitations/:token/accept` → `{ coupleId, status: "active" }` (or current state if already active)
 - `POST /invitations/:token/revoke` — inviter only; pending → revoked
 
 - [x] **Step 1: Failing accept tests**
 
-1. Happy path: forming + pending + verified invitee → membership, invite `accepted`, couple `active`; audit `invitation.accepted` + `couple.activated`  
-2. Unverified → 403 `email_unverified`  
-3. Wrong email → 403 `email_mismatch`  
-4. Invitee already in another couple → 409  
-5. Expired → 409/410  
-6. Double accept same user → idempotent success  
-7. Use `canAcceptInvitation` + `canActivateCouple` from `@couple-space/domain`  
+1. Happy path: forming + pending + verified invitee → membership, invite `accepted`, couple `active`; audit `invitation.accepted` + `couple.activated`
+2. Unverified → 403 `email_unverified`
+3. Wrong email → 403 `email_mismatch`
+4. Invitee already in another couple → 409
+5. Expired → 409/410
+6. Double accept same user → idempotent success
+7. Use `canAcceptInvitation` + `canActivateCouple` from `@couple-space/domain`
 
 - [x] **Step 2: Implement accept in one transaction**
 
@@ -258,7 +267,7 @@ pnpm --filter @couple-space/api test
 
 Expected: PASS
 
-- [ ] **Step 5: Commit (only if user asked)**
+- [x] **Step 5: Commit (only if user asked)**
 
 ```bash
 git add apps/api
@@ -270,6 +279,7 @@ git commit -m "feat(api): accept invite and activate couple"
 ### Task 4: Web — couple dashboard, invite, accept
 
 **Files:**
+
 - Create: `apps/web/app/(app)/layout.tsx`
 - Create: `apps/web/app/(app)/couple/page.tsx`
 - Create: `apps/web/app/(app)/invite/page.tsx` (optional “send invite” UI if not on couple page)
@@ -277,6 +287,7 @@ git commit -m "feat(api): accept invite and activate couple"
 - Modify: `apps/web/app/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `POST /couples`, `POST /couples/:id/invitations`, `POST /invitations/:token/accept`, `GET /couples/me`
 - All via `apiFetch` + cookies
 
@@ -294,17 +305,17 @@ Require session: call `GET /me`; on 401 redirect to `/login`.
 
 Require login; if `emailVerified` false, prompt to run dev verify (dev only) or show “verify email”. Accept → `POST /invitations/:token/accept` → redirect `/couple`.
 
-- [ ] **Step 4: End-to-end manual checklist**
+- [x] **Step 4: End-to-end manual checklist**
 
-1. User A signs up, verifies, creates couple  
-2. User A invites User B’s email  
-3. User B signs up with that email, verifies  
-4. User B opens invite link, accepts  
-5. Both see couple `active`  
-6. User B cannot create another couple  
-7. Re-accept same invite is safe  
+1. User A signs up, verifies, creates couple
+2. User A invites User B’s email
+3. User B signs up with that email, verifies
+4. User B opens invite link, accepts
+5. Both see couple `active`
+6. User B cannot create another couple
+7. Re-accept same invite is safe
 
-- [ ] **Step 5: Commit (only if user asked)**
+- [x] **Step 5: Commit (only if user asked)**
 
 ```bash
 git add apps/web
@@ -316,12 +327,14 @@ git commit -m "feat(web): couple creation, invite, and accept flows"
 ### Task 5: ADR + Slice 1 definition of done
 
 **Files:**
+
 - Create: `docs/architecture/decisions/adr-001-nest-owned-auth-and-formation.md`
 - Optional note on platform design auth section → Nest-owned auth design
 
 - [x] **Step 1: Write ADR-001**
 
 Capture:
+
 - Nest-owned auth (why not Supabase Auth: IT / no local Supabase)
 - Dual cookie + Bearer transport for web + future native
 - Dev verify temporary; mailer follow-up
@@ -329,7 +342,6 @@ Capture:
 - Domain package for accept/activate invariants
 
 - [ ] **Step 2: Slice 1 DoD checklist**
-
 - [ ] Domain tests pass  
 - [ ] API tests pass (auth + couples)  
 - [ ] Migrations apply; `password_hash` is text  
@@ -337,8 +349,7 @@ Capture:
 - [ ] Web E2E checklist in Task 4 passes  
 - [ ] No session/community tables  
 - [ ] Audit events for auth + couple create/accept/revoke  
-- [ ] No `@supabase/*` auth packages in web  
-
+- [ ] No `@supabase/`* auth packages in web  
 - [ ] **Step 3: Commit (only if user asked)**
 
 ```bash

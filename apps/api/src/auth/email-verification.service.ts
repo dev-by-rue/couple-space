@@ -7,7 +7,7 @@ import {
   type Db,
 } from "@couple-space/database";
 import { DB } from "../db/db.module.js";
-import { MAIL, MailPort } from "../mail/mail.port.js";
+import { MAIL, type MailPort } from "../mail/mail.port.js";
 import { Env, loadEnv } from "../config/env.js";
 
 /**

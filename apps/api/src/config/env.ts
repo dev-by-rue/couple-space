@@ -14,6 +14,17 @@ const envSchema = z.object({
 
   INVITE_TTL_HOURS: z.coerce.number().positive().default(72),
   INVITE_RATE_LIMIT_PER_HOUR: z.coerce.number().positive().default(10),
+
+  WEB_ORIGIN: z.string().url().default("http://localhost:3000"),
+  EMAIL_VERIFY_TTL_HOURS: z.coerce.number().positive().default(24),
+  EMAIL_VERIFY_RESEND_PER_HOUR: z.coerce.number().positive().default(5),
+  // Safe defaults so loadEnv() in unit tests (TokenService) passes without SMTP in process.env.
+  // Real Ethereal credentials belong in developer .env — see .env.example.
+  SMTP_HOST: z.string().min(1).default("127.0.0.1"),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().min(1).default("unused"),
+  SMTP_PASS: z.string().min(1).default("unused"),
+  SMTP_FROM: z.string().min(1).default("noreply@example.com"),
 });
 
 export type Env = z.infer<typeof envSchema>;

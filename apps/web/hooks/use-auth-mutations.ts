@@ -24,30 +24,50 @@ export function useLoginMutation(
   });
 }
 
-/**
- * Register then, in development only, call POST /auth/dev/verify.
- * TEMPORARY: stands in for "click link in verification email".
- * Replace with a real mailer + verify-token flow later.
- */
 export function useRegisterMutation(
   options?: UseMutationOptions<unknown, Error, RegisterInput>,
 ) {
   return useMutation({
     ...options,
-    mutationFn: async (body: RegisterInput) => {
-      await apiFetch("/auth/register", {
+    mutationFn: (body: RegisterInput) =>
+      apiFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify(body),
-      });
-      if (process.env.NODE_ENV === "development") {
-        try {
-          await apiFetch("/auth/dev/verify", { method: "POST" });
-        } catch {
-          // Register already succeeded and cookies are set. Dev verify is
-          // TEMPORARY — a failed verify must not fail the mutation or strand
-          // the user with email_taken on retry.
-        }
-      }
-    },
+      }),
+  });
+}
+
+export function useVerifyEmailMutation(
+  options?: UseMutationOptions<unknown, Error, { token: string }>,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: ({ token }: { token: string }) =>
+      apiFetch("/auth/verify-email", {
+        method: "POST",
+        body: JSON.stringify({ token }),
+      }),
+  });
+}
+
+type ResendVerificationResponse = {
+  ok: true;
+  alreadyVerified?: true;
+  sent?: false;
+};
+
+export function useResendVerificationMutation(
+  options?: UseMutationOptions<
+    ResendVerificationResponse,
+    Error,
+    void
+  >,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: () =>
+      apiFetch<ResendVerificationResponse>("/auth/resend-verification", {
+        method: "POST",
+      }),
   });
 }

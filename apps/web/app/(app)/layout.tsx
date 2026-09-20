@@ -32,5 +32,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     redirect("/login");
   }
 
+  if (!me.data.emailVerified) {
+    redirect("/check-email");
+  }
+
   return <>{children}</>;
 }

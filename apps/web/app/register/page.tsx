@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GalleryVerticalEnd } from "lucide-react";
 import { RegisterForm } from "@/components/auth/register.form";
-import { safeNextPath } from "@/lib/auth-redirect";
+import { safeNextPath, withNextQuery } from "@/lib/auth-redirect";
 
 function RegisterPageContent() {
   const router = useRouter();
@@ -26,7 +26,9 @@ function RegisterPageContent() {
           <div className="w-full max-w-xs">
             <RegisterForm
               next={next}
-              onAuthenticated={() => router.push(next)}
+              onAuthenticated={() =>
+                router.push(withNextQuery("/check-email", next))
+              }
             />
           </div>
         </div>

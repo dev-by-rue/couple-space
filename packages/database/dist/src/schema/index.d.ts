@@ -4,3 +4,4 @@ export * from "./couple-memberships.js";
 export * from "./couple-invitations.js";
 export * from "./audit-events.js";
 export * from "./refresh-token.js";
+export * from "./email-verification-tokens.js";

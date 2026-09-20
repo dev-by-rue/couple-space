@@ -1,8 +1,9 @@
 # Manual smoke test — Nest-owned auth
 
 **Audience:** product, QA, junior engineers, and backend reviewers.  
-**Purpose:** Prove the API identity path works **without** Supabase Auth and **without** the Next.js UI.  
+**Purpose:** Prove the API identity path works **without** Supabase Auth; default path is curl/Postman, with an optional Ethereal + web click-through for real email verification.  
 **Design:** `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md`  
+**Email verification:** `docs/superpowers/specs/2026-09-18-email-verification-design.md`  
 **Plan:** `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`
 
 ---
@@ -11,12 +12,12 @@
 
 | Stakeholder | What you need from this doc |
 |---|---|
-| **Product / PM** | Confirm registration profile + email-verification gate exist; note that “verify email” is still a **dev shortcut**, not real mail |
-| **QA** | Pass/fail checklist and exact expected HTTP status codes |
+| **Product / PM** | Confirm registration profile + email-verification gate exist; web register lands on `/check-email` and does **not** auto-verify |
+| **QA** | Pass/fail checklist and exact expected HTTP status codes; optional Ethereal path for end-to-end mail |
 | **Junior engineer** | Copy-paste commands; what “good” looks like |
 | **Backend / security** | Cookie vs Bearer dual transport; refresh rotation; when `/auth/dev/verify` must stay off |
 
-If you only need the business outcome: *a new user can register, mark themselves verified (dev only), and load their profile twice with the same id; unauthenticated access is blocked.*
+If you only need the business outcome: *a new user can register, verify email (via Ethereal link or dev shortcut), and load their profile twice with the same id; unauthenticated access is blocked; unverified users cannot reach couple UI.*
 
 ---
 
@@ -26,7 +27,8 @@ If you only need the business outcome: *a new user can register, mark themselves
 |---|---|---|
 | 1 | Register creates a user with `emailVerified: false` | Product requires verification before couple activation later |
 | 2 | Profile includes `displayName` + `dateOfBirth` | Slice 1 registration is a real profile bootstrap |
-| 3 | Dev verify sets `emailVerified: true` | Stands in for “clicked email link” until a mailer exists |
+| 3 | Dev verify sets `emailVerified: true` | API smoke shortcut when `ENABLE_DEV_AUTH_ENDPOINTS=true`; production path is `POST /auth/verify-email` |
+| 3b | Register sends verify email (when SMTP configured) | Real journey: Ethereal inbox → click link → `/verify-email` |
 | 4 | `GET /me` works with **browser cookies** | Next.js web path |
 | 5 | `GET /me` works with **Bearer token** | Future native app path |
 | 6 | Same user `id` on every successful `/me` | Idempotent identity (no duplicate users per login) |
@@ -35,7 +37,9 @@ If you only need the business outcome: *a new user can register, mark themselves
 | 9 | Logout → `/me` fails | Session can be ended |
 | 10 | With `ENABLE_DEV_AUTH_ENDPOINTS=false`, verify is forbidden | Dev endpoint cannot ship “on” in prod-like envs |
 
-**Out of scope for this smoke:** couple create/invite, Next.js pages, real email delivery.
+**Out of scope for this smoke:** couple create/invite E2E (see optional checklist in section 12), password reset, production ESP setup.
+
+**Web note:** The Next.js register flow no longer auto-calls `POST /auth/dev/verify` in development. Engineers use Ethereal (section 10) or the curl `dev/verify` path below (section 5).
 
 ---
 
@@ -51,7 +55,20 @@ JWT_SECRET=<at-least-32-random-characters>
 COOKIE_SECURE=false
 ENABLE_DEV_AUTH_ENDPOINTS=true
 CORS_ORIGIN=http://localhost:3000
+WEB_ORIGIN=http://localhost:3000
 ```
+
+For the **optional Ethereal path** (section 10), also set SMTP credentials from [ethereal.email](https://ethereal.email) (create account → copy host/user/pass):
+
+```bash
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_USER=<from ethereal.email>
+SMTP_PASS=<from ethereal.email>
+SMTP_FROM="Couple Space <noreply@example.com>"
+```
+
+Do not commit real credentials. Use `.env` locally only.
 
 3. API running from the monorepo root:
 
@@ -72,7 +89,10 @@ pnpm --filter @couple-space/api dev
 | **Refresh token** | Longer-lived opaque secret used to get a new access token |
 | **Cookie jar** | File (`/tmp/cs.jar`) where `curl` stores `cs_access` / `cs_refresh` httpOnly cookies (simulates a browser) |
 | **Bearer** | `Authorization: Bearer <accessToken>` header (simulates a native app) |
-| **Dev verify** | Temporary `POST /auth/dev/verify` — **not** production email verification |
+| **Dev verify** | Flag-gated `POST /auth/dev/verify` — API/Postman smoke only; web must not auto-call it |
+| **Verify email** | `POST /auth/verify-email` with `{ "token": "..." }` — public; re-issues cookies/JWT |
+| **Resend** | `POST /auth/resend-verification` — authenticated; rate-limited (`EMAIL_VERIFY_RESEND_PER_HOUR`, default 5) |
+| **Ethereal** | Free browser SMTP inbox for local dev; messages appear at ethereal.email, not a real mailbox |
 
 ---
 
@@ -113,7 +133,7 @@ curl -s -c /tmp/cs.jar -H 'Content-Type: application/json' \
 
 **Fail examples:** validation error (weak password / bad DOB format); `email_taken` if email already exists.
 
-### 5.3 Dev-verify email (temporary)
+### 5.3 Dev-verify email (default API smoke shortcut)
 
 ```bash
 curl -s -b /tmp/cs.jar -X POST http://localhost:8080/auth/dev/verify | tee /tmp/cs-verify.json
@@ -121,7 +141,7 @@ curl -s -b /tmp/cs.jar -X POST http://localhost:8080/auth/dev/verify | tee /tmp/
 
 **Pass:** `emailVerified` is `true` in the JSON body.
 
-**Product note:** In production this step will be “user clicked link in email.” Do not treat `/auth/dev/verify` as a shipped feature.
+**Product note:** This is an engineer escape hatch when `ENABLE_DEV_AUTH_ENDPOINTS=true`. The shipped verification path is the email link consumed by `POST /auth/verify-email` (see section 10). Do not treat `/auth/dev/verify` as a user-facing feature.
 
 ### 5.4 Load profile — cookie (web path)
 
@@ -249,12 +269,87 @@ curl -s -o /dev/null -w "%{http_code}\n" -b /tmp/cs.jar -X POST \
 | Rotated refresh rejected | | |
 | Logout then `/me` → 401 | | |
 | Dev verify blocked when flag off | | |
+| *(Optional)* Ethereal mail after register | | Section 10 |
+| *(Optional)* Web link → `/verify-email` → verified | | Section 10 |
+| *(Optional)* Resend + 429 rate limit | | Section 10.4 |
+| *(Optional)* Unverified `/couple` → `/check-email` | | Section 10.5 |
 
-**Slice smoke is green** when all applicable rows are ✓.
+**Slice smoke is green** when all applicable rows are ✓ (optional rows when SMTP + web are running).
 
 ---
 
-## 9. Troubleshooting
+## 9. Optional — verify via API token (no dev shortcut)
+
+When SMTP is configured, register (section 5.2) sends a message to Ethereal. You can also verify without opening the web UI:
+
+1. Open the Ethereal inbox for your SMTP user and copy the `token` query param from the verify link.
+2. Call:
+
+```bash
+curl -s -c /tmp/cs-verify-email.jar -H 'Content-Type: application/json' \
+  -d '{"token":"<paste-raw-token>"}' \
+  http://localhost:8080/auth/verify-email | tee /tmp/cs-verify-email.json
+```
+
+**Pass:** `user.emailVerified` is `true`; response includes fresh `accessToken` / `refreshToken`; cookies set in jar.
+
+3. Confirm profile:
+
+```bash
+curl -s -b /tmp/cs-verify-email.jar http://localhost:8080/me
+```
+
+**Fail examples:** `400` with `invalid_or_expired_token` (bad, expired, or reused token).
+
+---
+
+## 10. Optional — Ethereal + web click-through
+
+Use this when you want the full product journey (register → inbox → link → couple UI). Requires SMTP env vars (section 3) and both API + web running:
+
+```bash
+pnpm --filter @couple-space/api dev
+pnpm --filter @couple-space/web dev
+```
+
+### 10.1 Register on web
+
+1. Open `http://localhost:3000/register`.
+2. Submit a new account (unique email).
+3. **Pass:** browser navigates to `/check-email` (not `/couple`). Web does **not** auto-call `/auth/dev/verify`.
+
+### 10.2 Open Ethereal and click the link
+
+1. Log in at [ethereal.email](https://ethereal.email) with the same SMTP account credentials.
+2. Open the newest “Verify your email” message.
+3. Click the link (`http://localhost:3000/verify-email?token=…`).
+
+**Pass:** page shows success; redirects to `/couple` (or login if session cookies were cleared).
+
+### 10.3 Confirm verified state
+
+- `GET /me` (browser session or curl with jar) shows `emailVerified: true`.
+- Navigating to `/couple` loads couple UI instead of redirecting to `/check-email`.
+
+### 10.4 Resend + rate limit
+
+From `/check-email` (or invite page while unverified), click **Resend verification email**.
+
+**Pass:** new message in Ethereal; prior unused token invalidated.
+
+Repeat resend until limit exceeded (default 5/hour):
+
+**Pass:** HTTP `429` with `resend_rate_limited`.
+
+### 10.5 Unverified gate
+
+Register a second user, do **not** click the link, then visit `/couple`.
+
+**Pass:** redirect to `/check-email`.
+
+---
+
+## 11. Troubleshooting
 
 | Symptom | Likely cause | What to do |
 |---|---|---|
@@ -263,22 +358,41 @@ curl -s -o /dev/null -w "%{http_code}\n" -b /tmp/cs.jar -X POST \
 | `email_taken` | Email already registered | Use a new email or delete the row |
 | Validation error on register | Password &lt; 12 chars or missing upper/lower/digit; bad DOB | Use `CorrectHorse1!` and `YYYY-MM-DD` |
 | `/auth/dev/verify` 403 | Flag off or not authenticated | Set `ENABLE_DEV_AUTH_ENDPOINTS=true`; send cookies/Bearer |
+| No email in Ethereal | SMTP_* missing or wrong | Create account at ethereal.email; fill `.env`; restart API |
+| Register OK but no mail | SMTP failure (non-fatal) | User row still created; use resend from `/check-email` after fixing SMTP |
+| `/auth/verify-email` 400 | Token expired, reused, or typo | Request new link via resend |
+| `/auth/resend-verification` 429 | Rate limit hit | Wait; default `EMAIL_VERIFY_RESEND_PER_HOUR=5` |
 | `/me` 401 with jar | Cookies not saved / wrong port | Confirm `-c`/`-b` and `API_PORT` |
 | Bearer `/me` 401 | Expired access token | Refresh or login again |
+| Web stuck on `/check-email` | User still unverified | Click Ethereal link or call `dev/verify` (API smoke only) |
 
 ---
 
-## 10. Related reading
+## 12. Extended checklist — two-user invite (optional)
+
+After both users can verify (Ethereal or one via `dev/verify`):
+
+1. User A registers + verifies → creates couple / sends invite.
+2. User B registers via invite link → lands on `/check-email` or invite page with resend.
+3. User B verifies → accepts invite → both reach `/couple`.
+
+This extends beyond the default API smoke; run when formation flows are in scope.
+
+---
+
+## 13. Related reading
 
 - Product rules (verification, couples): `docs/product/scope.md`
 - Auth architecture decisions: `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md`
+- Email verification design: `docs/superpowers/specs/2026-09-18-email-verification-design.md`
 - Implementation plan: `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`
 - Env template: `.env.example`
 
 ---
 
-## 11. Follow-ups (do not confuse with this smoke)
+## 14. Follow-ups (do not confuse with this smoke)
 
-- Real mailer + verify link (replaces `/auth/dev/verify`)
-- Next.js login/signup UI smoke (formation web task)
-- Couple create / invite / activate (later formation tasks)
+- Production ESP adapter (Resend/SES) replacing Ethereal
+- Password reset on the same `MailPort`
+- Optionally retire `dev/verify` once CI has a non-interactive verify strategy
+- Slice 2 conversation engine

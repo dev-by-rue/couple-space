@@ -341,16 +341,16 @@ Capture:
 - Drizzle on Postgres; Nest owns couple/invite authz (not RLS-as-primary)
 - Domain package for accept/activate invariants
 
-- [ ] **Step 2: Slice 1 DoD checklist**
-- [ ] Domain tests pass  
-- [ ] API tests pass (auth + couples)  
-- [ ] Migrations apply; `password_hash` is text  
-- [ ] Auth manual smoke green (`docs/engineering/auth-manual-smoke.md`)  
-- [ ] Web E2E checklist in Task 4 passes  
-- [ ] No session/community tables  
-- [ ] Audit events for auth + couple create/accept/revoke  
-- [ ] No `@supabase/`* auth packages in web  
-- [ ] **Step 3: Commit (only if user asked)**
+- [x] **Step 2: Slice 1 DoD checklist**
+- [x] Domain tests pass  
+- [x] API tests pass (auth + couples)  
+- [x] Migrations apply; `password_hash` is text  
+- [x] Auth manual smoke green (`docs/engineering/auth-manual-smoke.md`)  
+- [x] Web E2E checklist in Task 4 passes  
+- [x] No session/community tables  
+- [x] Audit events for auth + couple create/accept/revoke  
+- [x] No `@supabase/`* auth packages in web  
+- [x] **Step 3: Commit (only if user asked)**
 
 ```bash
 git add docs/architecture

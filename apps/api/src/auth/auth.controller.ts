@@ -19,6 +19,7 @@ import {
 import { CurrentUser } from "./current-user.decorator.js";
 import { loginSchema } from "./dto/login.schema.js";
 import { registerSchema } from "./dto/register.schema.js";
+import { verifyEmailSchema } from "./dto/verify-email.schema.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
 
 @Controller("auth")
@@ -80,9 +81,25 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Post("verify-email")
+  async verifyEmail(
+    @Body() body: unknown,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { token } = verifyEmailSchema.parse(body);
+    const result = await this.auth.verifyEmail(token);
+    setAuthCookies(response, result);
+    return result;
+  }
+
+  @Post("resend-verification")
+  @UseGuards(JwtAuthGuard)
+  async resendVerification(@CurrentUser() user: AuthUser) {
+    return this.auth.resendVerification(user.id);
+  }
+
   /**
-   * TEMPORARY: stands in for "click link in verification email".
-   * Remove/replace when a mailer + verify-token flow exists.
+   * TEMPORARY escape hatch alongside POST /auth/verify-email.
    * Disabled unless ENABLE_DEV_AUTH_ENDPOINTS=true.
    * Re-issues cookies so JWT email_verified matches the DB.
    */

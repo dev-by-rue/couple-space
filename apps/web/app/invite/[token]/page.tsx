@@ -3,6 +3,8 @@
 import { redirect, useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
+import { friendlyAuthErrorMessage } from "@/lib/auth-errors";
+import { useResendVerificationMutation } from "@/hooks/use-auth-mutations";
 import { Button } from "@/components/ui/button";
 
 type Me = {
@@ -34,9 +36,12 @@ export default function AcceptInvitePage() {
     },
   });
 
-  const devVerify = useMutation({
-    mutationFn: () => apiFetch("/auth/dev/verify", { method: "POST" }),
-    onSuccess: () => me.refetch(),
+  const resend = useResendVerificationMutation({
+    onSuccess: (data) => {
+      if (data.alreadyVerified) {
+        me.refetch();
+      }
+    },
   });
 
   if (me.isPending) {
@@ -57,20 +62,29 @@ export default function AcceptInvitePage() {
       </p>
 
       {!me.data.emailVerified ? (
-        <div className="space-y-2 rounded-md border p-3 text-sm">
-          <p>Your email is not verified yet.</p>
-          {process.env.NODE_ENV === "development" ? (
-            <Button
-              onClick={() => devVerify.mutate()}
-              disabled={devVerify.isPending}
-            >
-              Dev verify email
-            </Button>
-          ) : (
-            <p>
-              Check your inbox for a verification link (mailer not wired yet).
+        <div className="space-y-3 rounded-md border p-3 text-sm">
+          <p>Your email is not verified yet. Check your inbox for a verification link.</p>
+
+          {resend.isSuccess && !resend.data?.alreadyVerified ? (
+            <p className="text-muted-foreground">
+              {resend.data?.sent === false
+                ? "We could not send the email right now. Please try again shortly."
+                : "Verification email sent. Check your inbox."}
             </p>
-          )}
+          ) : null}
+
+          {resend.isError ? (
+            <p className="text-destructive" role="alert">
+              {friendlyAuthErrorMessage(resend.error.message)}
+            </p>
+          ) : null}
+
+          <Button
+            onClick={() => resend.mutate()}
+            disabled={resend.isPending}
+          >
+            {resend.isPending ? "Sending…" : "Resend verification email"}
+          </Button>
         </div>
       ) : null}
 
@@ -78,12 +92,14 @@ export default function AcceptInvitePage() {
         <p className="text-sm text-red-600">{accept.error.message}</p>
       ) : null}
 
-      <Button
-        onClick={() => accept.mutate()}
-        disabled={!me.data.emailVerified || accept.isPending}
-      >
-        {accept.isPending ? "Accepting…" : "Accept invite"}
-      </Button>
+      {me.data.emailVerified ? (
+        <Button
+          onClick={() => accept.mutate()}
+          disabled={accept.isPending}
+        >
+          {accept.isPending ? "Accepting…" : "Accept invite"}
+        </Button>
+      ) : null}
     </main>
   );
 }

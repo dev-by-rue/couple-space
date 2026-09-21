@@ -5,3 +5,8 @@ export * from "./couple-invitations.js";
 export * from "./audit-events.js";
 export * from "./refresh-token.js";
 export * from "./email-verification-tokens.js";
+export * from "./prompt-themes.js";
+export * from "./prompts.js";
+export * from "./conversation-sessions.js";
+export * from "./session-responses.js";
+export * from "./session-reveals.js";

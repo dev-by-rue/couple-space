@@ -15,7 +15,8 @@
     "check-types": "tsc --noEmit -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "generate": "drizzle-kit generate",
-    "migrate": "drizzle-kit migrate"
+    "migrate": "drizzle-kit migrate",
+    "seed": "node ./scripts/seed.mjs"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.0",

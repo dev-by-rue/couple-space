@@ -108,7 +108,7 @@ Under Open product questions:
   - `sessionViewerPhase(input): SessionViewerPhase`
   - `canViewerSeeAnswerText(input): boolean`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 `session-viewer-phase.test.ts`:
 
@@ -248,12 +248,12 @@ describe("canViewerSeeAnswerText", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — expect fail**
+- [x] **Step 2: Run tests — expect fail**
 
 Run: `cd packages/domain && pnpm exec vitest run src/session-viewer-phase.test.ts src/session-answer-visibility.test.ts`  
 Expected: FAIL (modules not found)
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `session-viewer-phase.ts`:
 
@@ -307,12 +307,12 @@ export function canViewerSeeAnswerText(input: AnswerVisibilityInput): boolean {
 
 Export from `index.ts`.
 
-- [ ] **Step 4: Run tests — expect pass**
+- [x] **Step 4: Run tests — expect pass**
 
 Run: `cd packages/domain && pnpm exec vitest run src/session-viewer-phase.test.ts src/session-answer-visibility.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Stop** — commit only if asked.
+- [x] **Step 5: Stop** — commit only if asked.
 
 ---
 
@@ -333,7 +333,7 @@ Expected: PASS
 - Produces tables: `prompt_themes`, `prompts`, `conversation_sessions`, `session_responses`, `session_reveals`
 - `prompts.kind` for T0: `"curated"` only (keep column ready for `"custom"` later — do not implement custom flow)
 
-- [ ] **Step 1: Add schema files**
+- [x] **Step 1: Add schema files**
 
 Match existing drizzle style (`uuid`, `text`, `timestamp withTimezone`, FKs to `couples` / `users`).
 
@@ -347,7 +347,7 @@ Match existing drizzle style (`uuid`, `text`, `timestamp withTimezone`, FKs to `
 
 `session-reveals.ts` — unique `(sessionId, userId)`; `revealedAt` timestamptz not null.
 
-- [ ] **Step 2: Export from schema index; generate + apply migration**
+- [x] **Step 2: Export from schema index; generate + apply migration**
 
 Run from `packages/database` (with DB env loaded as you do for other migrations):
 
@@ -359,11 +359,11 @@ pnpm build
 
 Expected: migration applies cleanly against local Supabase/Postgres; package build succeeds.
 
-- [ ] **Step 3: Seed ≥1 theme and ≥1 curated prompt**
+- [x] **Step 3: Seed ≥1 theme and ≥1 curated prompt**
 
 Minimal seed so `/start` is not empty (can expand copy from prototype `mocks/data.ts` themes later). Prefer a checked-in SQL seed or a one-shot seed script owned by database package — pick one approach and document the command in the PR description.
 
-- [ ] **Step 4: Stop** — commit only if asked.
+- [x] **Step 4: Stop** — commit only if asked.
 
 ---
 
@@ -408,7 +408,7 @@ type SessionDetailDto = {
 };
 ```
 
-- [ ] **Step 1: Write service tests for invariants** (mock Db or use test DB per existing couples.service.test patterns)
+- [x] **Step 1: Write service tests for invariants** (mock Db or use test DB per existing couples.service.test patterns)
 
 Cover:
 
@@ -418,12 +418,12 @@ Cover:
 4. After reveal for u1 → u1 sees partner text; simulate u2 GET → partner text still null for u2 until u2 reveals
 5. `POST /sessions` when couple not `active` → forbidden
 
-- [ ] **Step 2: Run tests — expect fail**
+- [x] **Step 2: Run tests — expect fail**
 
 Run: `cd apps/api && pnpm exec vitest run src/conversations/conversations.service.test.ts`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement module**
+- [x] **Step 3: Implement module**
 
 Authorization checklist in service:
 
@@ -437,11 +437,11 @@ Authorization checklist in service:
 
 Wire controller with `@UseGuards(JwtAuthGuard)` like `CouplesController`.
 
-- [ ] **Step 4: Run tests — expect pass**
+- [x] **Step 4: Run tests — expect pass**
 
 - [ ] **Step 5: Manual smoke with two users** (curl or existing smoke doc style) — create session, submit both, reveal one, confirm redaction
 
-- [ ] **Step 6: Stop** — commit only if asked.
+- [x] **Step 6: Stop** — commit only if asked.
 
 ---
 
@@ -455,13 +455,13 @@ Wire controller with `@UseGuards(JwtAuthGuard)` like `CouplesController`.
 
 - Produces: importable `@/components/ui/textarea`, `dialog`, `skeleton`, …
 
-- [ ] **Step 1: Add only missing primitives** with the repo’s shadcn CLI / established pattern — do **not** copy from `between-us-source`.
-- [ ] **Step 2: Verify Story-free compile**
+- [x] **Step 1: Add only missing primitives** with the repo’s shadcn CLI / established pattern — do **not** copy from `between-us-source`.
+- [x] **Step 2: Verify Story-free compile**
 
 Run: `cd apps/web && pnpm exec tsc --noEmit` (or `pnpm lint`)  
 Expected: clean for new ui files
 
-- [ ] **Step 3: Stop**
+- [x] **Step 3: Stop**
 
 ---
 
@@ -485,7 +485,7 @@ Expected: clean for new ui files
   - `useRevealSessionMutation()`
   - `sessionStatusLabel(phase): string` — e.g. answering → “Your turn”; waiting → “Waiting together”; ready_to_reveal → “Ready to reveal”; revealed → “Revealed”
 
-- [ ] **Step 1: Implement hooks** mirroring `hooks/use-couple.ts` (query keys `["themes"]`, `["sessions"]`, `["sessions", id]`; invalidate list+detail on mutations)
+- [x] **Step 1: Implement hooks** mirroring `hooks/use-couple.ts` (query keys `["themes"]`, `["sessions"]`, `["sessions", id]`; invalidate list+detail on mutations)
 
 Example mutation sketch:
 
@@ -503,12 +503,12 @@ export function useRevealSessionMutation() {
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `cd apps/web && pnpm exec tsc --noEmit`  
 Expected: PASS for new hooks (pages may still be missing)
 
-- [ ] **Step 3: Stop**
+- [x] **Step 3: Stop**
 
 ---
 

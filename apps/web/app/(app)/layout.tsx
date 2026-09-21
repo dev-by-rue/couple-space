@@ -1,24 +1,10 @@
 "use client";
 
 import { redirect } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
-
-type Me = {
-  id: string;
-  email: string;
-  emailVerified: boolean;
-  displayName: string;
-  dateOfBirth: string;
-  couple: null;
-};
+import { useMeQuery } from "@/hooks/use-me";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const me = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiFetch<Me>("/me"),
-    retry: false,
-  });
+  const me = useMeQuery();
 
   if (me.isPending) {
     return (

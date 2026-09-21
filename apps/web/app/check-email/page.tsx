@@ -4,18 +4,12 @@ import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GalleryVerticalEnd } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 import { safeNextPath } from "@/lib/auth-redirect";
 import { friendlyAuthErrorMessage } from "@/lib/auth-errors";
 import { useResendVerificationMutation } from "@/hooks/use-auth-mutations";
+import { ME_QUERY_KEY, useMeQuery } from "@/hooks/use-me";
 import { Button } from "@/components/ui/button";
-
-type Me = {
-  id: string;
-  email: string;
-  emailVerified: boolean;
-};
 
 function CheckEmailContent() {
   const router = useRouter();
@@ -23,16 +17,12 @@ function CheckEmailContent() {
   const queryClient = useQueryClient();
   const next = safeNextPath(searchParams.get("next"));
 
-  const me = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiFetch<Me>("/me"),
-    retry: false,
-  });
+  const me = useMeQuery();
 
   const resend = useResendVerificationMutation({
     onSuccess: async (data) => {
       if (data.alreadyVerified) {
-        await queryClient.invalidateQueries({ queryKey: ["me"] });
+        await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
         router.replace(next);
       }
     },
@@ -45,7 +35,7 @@ function CheckEmailContent() {
     }
     if (me.data?.emailVerified) {
       void (async () => {
-        await queryClient.invalidateQueries({ queryKey: ["me"] });
+        await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
         router.replace(next);
       })();
     }

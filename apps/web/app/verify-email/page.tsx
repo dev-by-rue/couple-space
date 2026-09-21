@@ -7,6 +7,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { safeNextPath } from "@/lib/auth-redirect";
 import { useVerifyEmailMutation } from "@/hooks/use-auth-mutations";
+import { ME_QUERY_KEY } from "@/hooks/use-me";
 import { Button } from "@/components/ui/button";
 
 function VerifyEmailContent() {
@@ -19,7 +20,7 @@ function VerifyEmailContent() {
 
   const verify = useVerifyEmailMutation({
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
       router.replace(next);
     },
   });

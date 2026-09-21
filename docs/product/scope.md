@@ -16,10 +16,10 @@ This document is the **active product source of truth**. Future ideas live in `d
 Prompt → Independent response → Mutual reveal → Guided discussion
 ```
 
-- **Reveal:** Soft lock. A partner may submit and wait. Waiting UI may show that the partner has not answered yet. **No partner content** until both have submitted.
+- **Reveal:** Soft lock. A partner may submit and wait. Waiting UI may show that the partner has not answered yet. **No partner answer content** until both have submitted. After both have submitted, **each partner reveals for themselves** (Nest-owned per-user reveal). One partner revealing does not reveal for the other.
 - **Guided discussion (MVP):**
   - **Curated follow-ups** packaged with platform prompts (custom prompts get a small generic set): **mutual reveal** (same soft-lock rules).
-  - **Partner-added questions:** directed — one poses, the other answers; answer visible to both on submit (not freeform messaging).
+  - **Partner-added questions:** directed — one poses, the other answers; answer visible to both on submit (not freeform messaging). MVP will evolve toward an anonymous `/start` catalog (see `docs/extraction/03-requirements.md`); promote that model fully here before implementing T3/T4.
 - **Couple thread / DMs:** not in MVP (abuse surface; planned only for later scale if explicitly promoted).
 - **Reflection / wrap-up, session history, browse/explore UX, journaling:** not defined as MVP requirements. Do not model until explicitly specified.
 
@@ -27,6 +27,7 @@ Prompt → Independent response → Mutual reveal → Guided discussion
 
 - MVP supports **platform-curated** prompts and **custom** prompts.
 - “Themes/topics/prompts” in MVP means a **content model plus enough selection to start a session**, not full discovery/search UX.
+- **Custom prompts (decided for extraction wave):** a partner may propose; the other **accepts or discards**; per-partner cap of **3** pending/queued customs. Implementation is a later plan (T3), not the walking skeleton.
 
 ## Verification
 
@@ -65,7 +66,7 @@ Any proposal that drifts toward these must be reviewed against this document bef
 ## Open product questions (do not invent answers)
 
 - Concrete meaning of **dual liability** (legal copy vs couple-level sanctions vs both).  
-- Whether a **custom prompt** requires partner acceptance before the session starts.  
+- ~~Whether a **custom prompt** requires partner acceptance before the session starts.~~ **Decided:** accept/discard with per-partner cap of 3 (see Prompts).  
 - One vs many **concurrent sessions** per couple.  
 - Dissolution confirmation UX.  
 - Exact rule for marking a session **completed**.  
@@ -74,4 +75,5 @@ Any proposal that drifts toward these must be reviewed against this document bef
 
 - Future directional roadmap: `docs/product/future-roadmap.md`  
 - Platform design: `docs/superpowers/specs/2026-08-29-couple-space-platform-design.md`  
+- Extraction requirements: `docs/extraction/03-requirements.md`  
 - Engineering / agent build brief: `docs/engineering/build-brief.md`  

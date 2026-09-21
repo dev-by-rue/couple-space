@@ -33,7 +33,7 @@ export default function CouplePage() {
       <CoupleMembersList members={couple.data.members} />
       <div className="mt-10">
         {firstVisit && (
-          <section className="relative mb-8 overflow-hidden rounded-lg bg-primary p-6">
+          <section className="relative mb-8 overflow-hidden rounded-lg bg-accent-soft p-6 shadow">
             <Button
               variant="ghost"
               className="absolute right-2 top-2"
@@ -43,7 +43,7 @@ export default function CouplePage() {
               <X />
             </Button>
             <Heart className="size-5 text-accent-foreground" />
-            <h2 className="mt-4 font-display text-2xl">
+            <h2 className="mt-4 font-display text-2xl text-foreground">
               This space belongs to both of you.
             </h2>
             <p className="mt-2 max-w-lg leading-relaxed text-muted-foreground">

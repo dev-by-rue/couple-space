@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
-import { Figtree, Geist_Mono } from "next/font/google";
+import { Figtree, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
+import { ThemeLab } from "@/components/dev/theme-lab";
 
 const figtree = Figtree({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const themeLabEnabled = process.env.NEXT_PUBLIC_THEME_LAB === "1";
 
 export const metadata: Metadata = {
   title: "Couple Space",
@@ -23,10 +31,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={cn("h-full antialiased font-sans", figtree.variable, geistMono.variable)}
+      data-palette="harbor"
+      className={cn(
+        "h-full antialiased font-sans",
+        figtree.variable,
+        newsreader.variable,
+        geistMono.variable,
+      )}
     >
       <body className="flex min-h-full flex-col">
         <Providers>{children}</Providers>
+        {themeLabEnabled ? <ThemeLab /> : null}
       </body>
     </html>
   );

@@ -3,9 +3,29 @@ import { NextResponse } from "next/server";
 type NinjaQuote = {
   quote: string;
   author?: string;
+  categories: string[];
 };
 
-/** Proxies API Ninjas — key stays server-side (apps/web/.env.local). */
+const ALLOWED_CATEGORIES = new Set([
+  "life",
+  "relationships",
+  "love",
+  "happiness",
+]);
+
+const DEFAULT_CATEGORY = "relationships";
+
+function parseCategories(raw: string | null): string {
+  if (!raw) return DEFAULT_CATEGORY;
+
+  const cleaned = raw
+    .split(",")
+    .map((c) => c.trim().toLowerCase())
+    .filter((c) => ALLOWED_CATEGORIES.has(c));
+
+  return cleaned.length > 0 ? cleaned.join(",") : DEFAULT_CATEGORY;
+}
+
 export async function GET(request: Request) {
   const baseUrl = process.env.NEXT_QUOTE_API_URL;
   const apiKey = process.env.NEXT_QUOTE_API_KEY;
@@ -17,8 +37,10 @@ export async function GET(request: Request) {
     );
   }
 
-  const categories =
-    new URL(request.url).searchParams.get("categories") ?? "relationships";
+  const categories = parseCategories(
+    new URL(request.url).searchParams.get("categories"),
+  );
+
 
   const endpoint = new URL(baseUrl);
   endpoint.searchParams.set("categories", categories);

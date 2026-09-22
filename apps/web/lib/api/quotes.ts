@@ -1,6 +1,7 @@
 export type RelationshipQuote = {
   quote: string;
   author: string | null;
+  categories: string[];
 };
 
 export async function fetchRelationshipQuote(

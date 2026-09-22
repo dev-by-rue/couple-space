@@ -4,10 +4,8 @@ import { useCoupleMeQuery } from "@/hooks/use-couple";
 import { CreateCouplePanel } from "@/components/organisms/create-couple-panel";
 import { CoupleMembersList } from "@/components/organisms/couple-members-list";
 import { InvitePartnerForm } from "@/components/organisms/invite-partner-form";
-import { X, Heart } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { WelcomeBanner } from "@/components/molecules/welcome-banner";
+import { StartConversation } from "@/components/molecules/start-conversation";
 
 export default function CouplePage() {
   const couple = useCoupleMeQuery();
@@ -30,6 +28,7 @@ export default function CouplePage() {
     <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-6">
       <CoupleMembersList members={couple.data.members} />
       <WelcomeBanner />
+      <StartConversation />
       {couple.data.status === "active" ? (
         <p className="text-sm">Couple active. Private space is ready.</p>
       ) : (

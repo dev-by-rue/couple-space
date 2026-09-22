@@ -43,11 +43,11 @@ export default function CouplePage() {
               <X />
             </Button>
             <Heart className="size-5 text-accent-foreground" />
-            <h2 className="mt-4 font-display text-2xl text-foreground">
+            <h2 className="mt-4 font-sans text-2xl text-foreground">
               This space belongs to both of you.
             </h2>
             <p className="mt-2 max-w-lg leading-relaxed text-muted-foreground">
-              There is no right way to answer. Take your time, be honest, and
+              There are no right ways to answer. Take your time, be honest, and
               meet each other with curiosity.
             </p>
           </section>

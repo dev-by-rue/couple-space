@@ -26,7 +26,7 @@ export function CoupleMembersList({ members }: CoupleMembersListProps) {
       <header className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{greetingForHour()}</p>
-          <h1 className="mt-1 font-display text-4xl leading-tight">You &amp; {partner?.displayName}</h1>
+          <h1 className="mt-1 font-sans text-4xl leading-tight">You &amp; {partner?.displayName}</h1>
         </div>
         <CoupleMark you={viewer?.displayName ?? ""} yourPartner={partner?.displayName ?? ""} />
       </header>

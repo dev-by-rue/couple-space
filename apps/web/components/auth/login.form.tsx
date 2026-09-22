@@ -32,7 +32,7 @@ export function LoginForm({
 }: LoginFormProps) {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "ruebencee@gmail.com", password: "Password1234" },
   });
 
   const login = useLoginMutation({

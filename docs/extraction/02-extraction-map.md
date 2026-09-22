@@ -6,36 +6,60 @@ Map visual / structural pieces onto **existing** `apps/web` conventions. Atomic 
 
 **Legend — Reuse:** as-is / adapt / rewrite / add-via-shadcn / skip
 
+**Citation note (important):** Lovable originally shipped some routes as dense single-line JSX. `routes/index.tsx` is now formatted (~152 lines). Prefer **symbol name + file** over stale “L31” blobs. Line ranges below match the tree as of 2026-09-22.
+
+**Two kinds of prototype UI**
+
+1. **Named exports** in `between-us-source/src/components/couple-space.tsx` — extract as molecules/organisms.
+2. **Inline route sections** in `routes/*.tsx` — not separate components in the prototype; decide whether to leave on the page or lift into a molecule when rewriting.
+
 ---
 
 ## UI components
 
-### Organisms
+### Hub — inline in `routes/index.tsx` (maps to `/couple`)
+
+These are **not** named components in `couple-space.tsx`. Visual reference only.
+
+| Prototype item | Type | Purpose | Where in MY structure | Reuse | Notes / risks |
+|----------------|------|---------|----------------------|-------|---------------|
+| Hub page composition (`Index`, L37–152) | page | Post-login couple home | `app/(app)/couple/page.tsx` | rewrite | Compose existing formation + new session list; Nest-backed |
+| Hub header greeting + title (L51–59) | inline | “Good evening” / “You & Partner” | Prefer `CoupleMembersList` + `greetingForHour` | adapt | Prototype hard-codes evening; web already has time-based greeting |
+| Invite-pending branch (L60–85) | inline + `InviteStatusCard` | Waiting education + disabled Start | Compose `InvitePartnerForm` / link display; optional chrome | rewrite | Don’t port toast / `example.com` from card |
+| Welcome banner (L88–106) | inline | First-visit dismissible | Already partial on `couple/page.tsx` | adapt | `bg-accent-soft` → semantic soft surface |
+| **Start CTA section (L107–115)** | inline | “A little time…” + link to `/start` | Page section or `molecules/start-conversation-cta.tsx` | rewrite | **Walking skeleton need**; copy still says “open your answers together” — change to per-user Reveal wording |
+| Conversations list section (L116–136) | inline + `ConversationCard` | Empty state or card grid | `couple/page.tsx` + `conversation-card` | rewrite | Empty dashed box is inline (L132–134) |
+| How it works collapsible (L137–144) | inline + `Steps` | Education | Collapsible + `how-it-works-steps` | rewrite | T1 polish OK; optional on active hub |
+| Settings footer (L145–147) | inline + `DisabledSettings` | Coming soon | optional | rewrite | Low priority |
+
+### Named components — `components/couple-space.tsx`
 
 | Prototype item | Type | Purpose | Where in MY structure | Reuse | Dependencies | Notes / risks |
 |----------------|------|---------|----------------------|-------|--------------|---------------|
-| Hub composition (`index.tsx` L24–31) | organism / page | Post-login couple home | `app/(app)/couple/page.tsx` + organisms | rewrite | `useCoupleMeQuery`, session list hooks | Evolve current page; keep Nest formation |
-| `CoupleMark` (`couple-space.tsx` L21–22) | organism | Dual initials | `components/organisms/couple-mark.tsx` | **adapt** | members from API | **Duplicate** — already exists; align waiting/accent mapping to tokens |
-| `CoupleMembersList` / greeting (web) | organism | Hub header | `couple-members-list.tsx` | as-is / adapt | `greetingForHour` | Keep; prototype hard-codes “Good evening” |
-| `InviteStatusCard` (L46–48) | organism | Invite-pending panel | Prefer existing `InvitePartnerForm` + link display; optional new organism for waiting chrome | rewrite | real invite APIs | **Do not** port toast stubs / example.com URL |
-| `ConversationCard` + `StatusPill` (L30–43) | molecule / organism | Session list item | `molecules/conversation-card.tsx`, status pill molecule | rewrite | session DTO + per-user reveal status | CTA copy must be **Reveal** / waiting / answer — not “Reveal together” |
-| `Steps` (L25–27) | molecule | Education | `molecules/how-it-works-steps.tsx` | rewrite | lucide | Update “Open together” copy to match per-user Reveal |
-| Welcome banner (`index.tsx` L31) | molecule / inline | First visit | Already partially on `couple/page.tsx` L35–54 | adapt | local or preference | Token: prototype `bg-accent-soft` → map to semantic soft surface |
-| `DisabledSettings` (L91–92) | molecule | Coming soon | optional footer | rewrite | tooltip atom when added | Low priority |
-| Start page shell (`start.tsx`) | page | Prompt selection | `app/(app)/start/page.tsx` | rewrite | themes query | Gate: couple active |
-| `ThemeCard` (L51–52) | molecule | Theme picker | `molecules/theme-card.tsx` | rewrite | — | Emoji `symbol` OK for MVP content |
-| Prompt list articles (`start.tsx` L34) | molecule | Prompt row + Start | `molecules/prompt-list-item.tsx` | rewrite | — | Later: mix anonymous partner prompts without attribution |
-| `PromptComposer` (L55–58) | organism | Custom prompt propose | `organisms/prompt-composer.tsx` | rewrite | textarea atom | Wire to propose/accept — **not** instant `startCustomPrompt` |
-| Conversation page (`conversation.$id.tsx`) | page | Session UX | `app/(app)/conversation/[id]/page.tsx` | rewrite | session hooks | States: answer / wait / reveal CTA / revealed |
-| Soft-lock banner + answer form (L42) | organism | Private answer | `organisms/session-answer-form.tsx` | rewrite | dialog, textarea | Confirm submit |
-| `WaitingState` (L70–71) | molecule | Waiting for partner submit | `molecules/session-waiting.tsx` | rewrite | waiting token map | Copy: reveal is per-user later |
-| Reveal CTA (missing in proto) | molecule | Per-user Reveal | `molecules/session-reveal-button.tsx` | **new** | Nest reveal | Final-shaped; do not build auto-reveal |
-| `RevealPanel` / `AnswerCard` (L61–67) | organism / molecule | Show answers after reveal | `organisms/session-reveal-panel.tsx`, `molecules/answer-card.tsx` | rewrite | — | Only after **viewer** revealed |
-| `FollowUpCard` (L74–80) | organism | Optional curated follow-up | `organisms/follow-up-card.tsx` | rewrite | — | Later ticket; soft-lock; optional choose |
-| `DirectedQuestionCard` (L83–88) | organism | Known directed Q | — | **skip** for MVP UI | — | Product chose anonymous `/start` pool instead; do not scaffold this as final |
-| `PageShell` (L13–14) | layout util | max-w 720 | shared layout class or `CoupleSpaceShell` organism | adapt | — | Align with current `max-w-3xl` or unify deliberately |
-| `PageSkeleton` (L17–18) | molecule | Loading | `molecules/couple-page-skeleton.tsx` | rewrite | skeleton atom | Add skeleton via shadcn if missing |
+| `PageShell` (L13–15) | layout | max-w 720 shell | layout class or thin shell | adapt | — | Align with `max-w-3xl` deliberately |
+| `PageSkeleton` (L17–19) | molecule | Loading | `molecules/couple-page-skeleton.tsx` | rewrite | `ui/skeleton` | |
+| `CoupleMark` (L21–23) | organism | Dual initials | `organisms/couple-mark.tsx` | **adapt** | members API | **Duplicate** — already exists |
+| `Steps` (L25–28) | molecule | Education | `molecules/how-it-works-steps.tsx` | rewrite | lucide | “Open together” → per-user Reveal copy |
+| `StatusPill` (L30–36) | molecule | Session status | `molecules/conversation-status-pill.tsx` | rewrite | `SessionViewerPhase` | Use Nest phase, not proto A/B/C/D |
+| `ConversationCard` (L38–44) | molecule | Session list item | `molecules/conversation-card.tsx` | rewrite | status pill, Link | CTA: never “Reveal together” |
+| `InviteStatusCard` (L46–49) | organism | Invite-pending panel | Prefer existing invite organisms | rewrite | real invite APIs | Stubs only in proto |
+| `ThemeCard` (L51–53) | molecule | Theme picker | `molecules/theme-card.tsx` | rewrite | — | |
+| `PromptComposer` (L55–59) | organism | Custom prompt | `organisms/prompt-composer.tsx` | rewrite | textarea | Later ticket (T3); not walking skeleton |
+| `AnswerCard` (L61–63) | molecule | One person’s answer | `molecules/answer-card.tsx` | rewrite | — | |
+| `RevealPanel` (L65–68) | organism | Show both answers | `organisms/session-reveal-panel.tsx` | rewrite | AnswerCard | Proto auto-reveals; we gate on per-user Reveal |
+| `WaitingState` (L70–72) | molecule | Waiting for partner submit | `molecules/session-waiting.tsx` | rewrite | — | Update copy for per-user Reveal |
+| `FollowUpCard` (L74–81) | organism | Optional follow-up | `organisms/follow-up-card.tsx` | rewrite | — | Later (T5) |
+| `DirectedQuestionCard` (L83–89) | organism | Known directed Q | — | **skip** | — | Anonymous `/start` pool instead |
+| `DisabledSettings` (L91–93) | molecule | Coming soon | optional | rewrite | tooltip | |
 | `PrototypeControls` (L95–100) | — | DEV only | — | **skip** | — | Never extract |
+| Reveal CTA | molecule | Per-user **Reveal** button | `molecules/session-reveal-button.tsx` | **new** | Nest reveal | **Missing in prototype** |
+
+### Start + conversation routes
+
+| Prototype item | Type | Purpose | Where in MY structure | Reuse | Notes |
+|----------------|------|---------|----------------------|-------|-------|
+| Start page (`routes/start.tsx` L23–34) | page | Theme/prompt selection | `app/(app)/start/page.tsx` | rewrite | Still dense single-line return; curated uses `ThemeCard`; prompt rows are **inline `<article>`** inside that return (not a named component) → lift to `prompt-list-item` |
+| Conversation page (`routes/conversation.$id.tsx` L24–42) | page | Session UX | `app/(app)/conversation/[id]/page.tsx` | rewrite | Soft-lock banner + answer form + confirm Dialog are **inline** in the return (L42) → lift to `session-answer-form`; then `WaitingState` / `RevealPanel` |
 
 ### Atoms (`components/ui`)
 

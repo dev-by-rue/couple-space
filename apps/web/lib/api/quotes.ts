@@ -11,6 +11,7 @@ export async function fetchRelationshipQuote(
   const res = await fetch(`/api/relationship-quote?${params}`);
   if (!res.ok) {
     const body = await res.text();
+    console.log(body)
     throw new Error(`Quote ${res.status}: ${body}`);
   }
   return res.json() as Promise<RelationshipQuote>;

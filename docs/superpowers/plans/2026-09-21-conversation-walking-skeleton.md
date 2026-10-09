@@ -14,6 +14,43 @@
 
 **Out of this plan (follow-on plans):** T1 invite-pending polish, T2 multi-theme, T3 custom propose/accept, T4 anonymous partner prompts, T5 optional follow-ups, T6 hardening pass.
 
+## Consolidated plan (2026-10-09) — start here
+
+Tasks 1–6 are done (domain, schema, Nest API, hooks). What remains, page by page. Build each page's components as that page needs them (Task 7 file list = reference, prototype = visuals only).
+
+**Local dev:** Homebrew `postgresql@15` on `127.0.0.1:5432` (not Supabase). Test couple (active): `ruebencee@gmail.com` / `partner@test.local`, both `Password1234`. Use a normal + private window to be both partners.
+
+1. [x] **Local DB ready** — migrations 0000–0004 applied, curated prompts seeded, active test couple created via the API.
+2. [x] **API smoke (two users)** — passed 2026-10-09. Repeatable steps (Postman + curl): `docs/engineering/conversation-api-smoke.md`.
+3. [ ] **`/couple` hub** — one session list sorted by what needs you (Answer privately → Reveal → Waiting for partner → View answers). Card = prompt title + status pill + one CTA. Empty state. Start only when couple is `active`.
+4. [ ] **`/start`** — theme cards → selected theme's prompts on one page. Curated only. Picking a prompt creates the session (`POST /sessions`) and routes to `/conversation/[id]`.
+5. [ ] **`/conversation/[id]`** — one page, four viewer states:
+
+   | Viewer state | Shows |
+   |---|---|
+   | Not answered | Prompt, "can't be changed after submitting" note, textarea, Submit → confirm dialog |
+   | Answered, partner hasn't | **Waiting on {partner}** — "Your answer is saved and can't be changed. {partner} can't see it. Once {partner} has answered, you'll both get a Reveal button — open the answers whenever you're ready." |
+   | Both answered, not revealed | **Reveal** button, no answer text |
+   | Revealed | Both answers |
+
+6. [ ] **Two-browser smoke** of the full loop (Task 8 Step 4).
+
+**Reveal table (what each partner sees via `GET /sessions/:id`):**
+
+| Step | A sees | B sees |
+|---|---|---|
+| A starts + submits | Own answer, waiting | Session exists, "Answer privately" — none of A's answer |
+| B submits | Reveal button, no text | Reveal button, no text |
+| A reveals | Both answers | Still only Reveal button |
+| B reveals | Both answers | Both answers |
+
+**Decided for T0:** unlimited concurrent sessions; no skip/decline; one sorted hub list (not sections) — all deliberately simple and easy to refactor after real-couple feedback.
+
+**Parked (decide + promote to `scope.md` before T3):**
+- Session cap per couple and the rule for "completed".
+- Skip/decline: suggested — always allowed, optional **preset** reason (no free text: avoids pressure and a DM-like channel).
+- Update docs that still say Supabase (build brief, setup runbook, platform spec) to local Postgres.
+
 ## Global Constraints
 
 - Behaviour from `scope.md` + extraction FRs — prototype is visual only
@@ -439,7 +476,7 @@ Wire controller with `@UseGuards(JwtAuthGuard)` like `CouplesController`.
 
 - [x] **Step 4: Run tests — expect pass**
 
-- [ ] **Step 5: Manual smoke with two users** (curl or existing smoke doc style) — create session, submit both, reveal one, confirm redaction
+- [x] **Step 5: Manual smoke with two users** (curl or existing smoke doc style) — create session, submit both, reveal one, confirm redaction
 
 - [x] **Step 6: Stop** — commit only if asked.
 

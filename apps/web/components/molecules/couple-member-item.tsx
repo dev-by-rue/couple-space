@@ -8,11 +8,10 @@ export function CoupleMemberItem({
   displayName,
   email,
   emailVerified,
-}: CoupleMemberItemProps) {
+}: Readonly<CoupleMemberItemProps>) {
   return (
     <li>
-      {displayName} ({email})
-      {emailVerified ? "" : " — unverified"}
+      {displayName} ({email}){emailVerified ? "" : " — unverified"}
     </li>
   );
 }

@@ -60,6 +60,9 @@ export async function GET(request: Request) {
   const data = (await res.json()) as NinjaQuote[];
   const quote = data[0];
 
+  console.log(quote)
+  console.log(categories)
+  console.log(data)
   if (!quote?.quote) {
     return NextResponse.json({ error: "No quote returned" }, { status: 502 });
   }

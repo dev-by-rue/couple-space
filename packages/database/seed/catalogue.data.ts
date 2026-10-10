@@ -1,4 +1,4 @@
-import { promptThemes, prompts } from "../src/schema/index.js";
+import type { promptThemes, prompts } from "../src/schema/index.js";
 
 type ThemeRow = typeof promptThemes.$inferInsert;
 type PromptRow = typeof prompts.$inferInsert;
@@ -39,7 +39,7 @@ const catalogue: ThemeSeed[] = [
   },
   {
     n: 3,
-    title: "Dreams & Plans",
+    title: "Dreams & plans",
     description: "Looking ahead together, without pressure.",
     symbol: "compass",
     questions: [
@@ -61,7 +61,7 @@ const catalogue: ThemeSeed[] = [
   },
   {
     n: 5,
-    title: "Money & Home",
+    title: "Money & home",
     description: "Talk gently about the life you share.",
     symbol: "house",
     questions: [
@@ -95,7 +95,7 @@ export const promptRows: PromptRow[] = catalogue.flatMap((theme) =>
   theme.questions.map((question, index) => ({
     id: id(theme.n * 10 + index + 1),
     themeId: id(theme.n),
-    title: index === 0 ? theme.title : `${theme.title} . ${index + 1}`,
+    title: index === 0 ? theme.title : `${theme.title} · ${index + 1}`,
     description: "A quiet question to answer in your own words.",
     text: question,
     kind: "curated",

@@ -16,7 +16,7 @@
     "dev": "tsc -p tsconfig.json --watch",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "seed": "node ./scripts/seed.mjs"
+    "seed": "tsx seed/catalogue.seed.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.0",

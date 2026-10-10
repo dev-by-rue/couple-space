@@ -28,6 +28,8 @@
 
 ## 2. Postman setup
 
+**Quickest:** import `docs/engineering/postman/couple-space.postman_collection.json` — it already contains everything below (variables, token scripts, cookies disabled) plus automated checks for the run sheet in §4. Run folders **1. Auth** → **3. Reveal flow** in the Collection Runner. The manual setup below is for reference.
+
 Postman shares **one cookie jar per domain**, so two users logged in at once would overwrite each other. Use **Bearer tokens** instead (the API accepts both).
 
 **Environment variables:** `baseUrl` = `http://localhost:8080`, plus empty `tokenA`, `tokenB`, `promptId`, `sessionId`.

@@ -1,15 +1,19 @@
 "use client";
 
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import type { LoginInput, RegisterInput } from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
 
 /**
- * Nest sets httpOnly cs_access / cs_refresh on success.
- * Web must never put access tokens in localStorage — apiFetch uses credentials: "include".
+ * Logs a user in via `POST /auth/login`.
+ *
+ * @remarks
+ * Nest sets the httpOnly `cs_access` / `cs_refresh` cookies on success. The web
+ * client must never put access tokens in `localStorage` — `apiFetch` sends
+ * cookies with `credentials: "include"`.
+ *
+ * @param options - Extra React Query mutation options (e.g. `onSuccess`)
+ * @returns The React Query mutation for logging in
  */
 export function useLoginMutation(
   options?: UseMutationOptions<unknown, Error, LoginInput>,
@@ -57,11 +61,7 @@ type ResendVerificationResponse = {
 };
 
 export function useResendVerificationMutation(
-  options?: UseMutationOptions<
-    ResendVerificationResponse,
-    Error,
-    void
-  >,
+  options?: UseMutationOptions<ResendVerificationResponse, Error, void>,
 ) {
   return useMutation({
     ...options,

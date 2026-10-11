@@ -19,7 +19,7 @@ export function AcceptInvitePanel({
   emailVerified,
   onAccepted,
   onVerifiedRefresh,
-}: AcceptInvitePanelProps) {
+}: Readonly<AcceptInvitePanelProps>) {
   const accept = useAcceptInviteMutation({
     onSuccess: () => onAccepted(),
   });

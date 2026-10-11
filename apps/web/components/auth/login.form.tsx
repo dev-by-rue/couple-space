@@ -29,7 +29,7 @@ export function LoginForm({
   onAuthenticated,
   next,
   className,
-}: LoginFormProps) {
+}: Readonly<LoginFormProps>) {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "ruebencee@gmail.com", password: "Password1234" },

@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { useMeQuery } from "@/hooks/use-me";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+type AppLayoutProps = {
+  children: React.ReactNode;
+};
+
+export default function AppLayout({ children }: Readonly<AppLayoutProps>) {
   const me = useMeQuery();
 
   if (me.isPending) {

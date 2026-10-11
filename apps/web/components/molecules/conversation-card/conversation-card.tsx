@@ -5,14 +5,20 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { ConversationStatusPill } from "@/components/molecules/conversation-status-pill/conversation-status-pill";
 
-export interface ConversationCardProps {
+type ConversationCardProps = {
+  /** The session to summarise, as returned by `GET /sessions`. */
   session: SessionListItem;
+  /** Extra classes merged onto the card. */
   className?: string;
-}
+};
 
 /**
- * Whole card is the link. The CTA is a styled <span>, not a <button>,
- * so there is no interactive element nested inside the link.
+ * A hub card linking to one conversation.
+ *
+ * @remarks
+ * The whole card is the link. The call to action is a `<span>` styled with
+ * `buttonVariants`, not a `<button>`, so no interactive element is nested
+ * inside the link.
  */
 export function ConversationCard({
   session,

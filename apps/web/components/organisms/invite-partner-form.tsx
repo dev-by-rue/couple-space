@@ -22,7 +22,9 @@ type InvitePartnerFormProps = {
   coupleId: string;
 };
 
-export function InvitePartnerForm({ coupleId }: InvitePartnerFormProps) {
+export function InvitePartnerForm({
+  coupleId,
+}: Readonly<InvitePartnerFormProps>) {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   const form = useForm<CreateInvitationInput>({

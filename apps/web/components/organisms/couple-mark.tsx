@@ -5,7 +5,7 @@ type CoupleMarkProps = {
   yourPartner: string;
 };
 
-export function CoupleMark({ you, yourPartner }: CoupleMarkProps) {
+export function CoupleMark({ you, yourPartner }: Readonly<CoupleMarkProps>) {
   return (
     <div
       className="flex -space-x-2"

@@ -40,8 +40,8 @@ function VerifyEmailContent() {
         <div className="space-y-4 text-center">
           <h1 className="text-2xl font-bold">Invalid verification link</h1>
           <p className="text-sm text-muted-foreground">
-            This link is missing or incomplete. Request a new verification
-            email from your account.
+            This link is missing or incomplete. Request a new verification email
+            from your account.
           </p>
           <div className="flex flex-col gap-2">
             <Button
@@ -111,7 +111,11 @@ function VerifyEmailContent() {
   );
 }
 
-function VerifyEmailShell({ children }: { children: React.ReactNode }) {
+type VerifyEmailShellProps = {
+  children: React.ReactNode;
+};
+
+function VerifyEmailShell({ children }: Readonly<VerifyEmailShellProps>) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

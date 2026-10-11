@@ -1,13 +1,16 @@
 "use client";
 
 /**
- * TEMPORARY — Theme Lab (dev exploration only)
+ * TEMPORARY — Theme Lab: a floating palette and dark-mode switcher for design exploration.
  *
- * Teardown checklist:
+ * @remarks
+ * Dev only; renders when `NEXT_PUBLIC_THEME_LAB=1`. Teardown checklist:
  * 1. Remove ThemeLab mount from `app/layout.tsx` and unset `NEXT_PUBLIC_THEME_LAB`
  * 2. Delete `apps/web/components/dev/`
  * 3. Delete the EXPLORATION PALETTES block at the bottom of `app/globals.css`
  * 4. Optionally clear localStorage keys `cs-theme-lab:palette` and `cs-theme-lab:dark`
+ *
+ * @packageDocumentation
  */
 
 import { useEffect, useState } from "react";

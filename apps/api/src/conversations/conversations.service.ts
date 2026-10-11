@@ -46,6 +46,7 @@ export class ConversationsService {
     return {
       themes: themes.map((theme) => ({
         id: theme.id,
+        slug: theme.slug,
         title: theme.title,
         description: theme.description,
         symbol: theme.symbol,

@@ -3,7 +3,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+type ProvidersProps = {
+  children: React.ReactNode;
+};
+
+export function Providers({ children }: Readonly<ProvidersProps>) {
   // One client per browser session — avoids sharing cache across users in SSR.
   const [queryClient] = useState(
     () =>

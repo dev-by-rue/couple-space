@@ -8,11 +8,23 @@ const PRIORITY_ORDER: SessionViewerPhase[] = [
   "revealed",
 ];
 
-export const sortSessionsByPriority = (
+/**
+ * Orders hub sessions so the ones needing the viewer come first.
+ *
+ * @remarks
+ * Priority follows {@link PRIORITY_ORDER}; ties are broken newest first by
+ * `updatedAt`. Returns a new array — React Query's cached data must not be
+ * mutated.
+ *
+ * @param sessions - Sessions from `GET /sessions`, in any order
+ * @returns A new, sorted array
+ */
+export function sortSessionsByPriority(
   sessions: SessionListItem[],
-): SessionListItem[] =>
-  sessions.toSorted(
+): SessionListItem[] {
+  return sessions.toSorted(
     (a, b) =>
       PRIORITY_ORDER.indexOf(a.phase) - PRIORITY_ORDER.indexOf(b.phase) ||
       b.updatedAt.localeCompare(a.updatedAt),
   );
+}

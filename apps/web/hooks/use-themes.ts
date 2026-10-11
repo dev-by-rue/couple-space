@@ -16,6 +16,7 @@ export type ThemeDto = {
   description: string;
   symbol: string;
   prompts: ThemePrompt[];
+  slug: string;
 };
 
 type ThemesResponse = {

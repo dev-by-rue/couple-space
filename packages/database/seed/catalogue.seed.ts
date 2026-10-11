@@ -24,6 +24,7 @@ await db.transaction(async (tx) => {
       target: promptThemes.id,
       set: {
         title: sql`excluded.title`,
+        slug: sql`excluded.slug`,
         description: sql`excluded.description`,
         symbol: sql`excluded.symbol`,
         sortOrder: sql`excluded.sort_order`,

@@ -28,6 +28,7 @@ pnpm dev                                 # from repo root; wait for web :3000 an
 | Date / time | Step reached | Notes |
 |---|---|---|
 | 2026-10-11 19:22 | Guide written — not started | |
+| 2026-10-11 | Guide updated: readable slugs chosen over ids → new Step 0 | Routes are now `/start/[slug]` |
 
 ---
 
@@ -35,14 +36,14 @@ pnpm dev                                 # from repo root; wait for web :3000 an
 
 | Topic | Decision |
 |---|---|
-| Routes | `/start` = all themes · `/start/[themeId]` = one theme + its prompts |
+| Routes | `/start` = all themes · `/start/[slug]` = one theme + its prompts (e.g. `/start/dreams-and-plans`) |
 | `/start` layout | All themes listed, centred, **closed** (no prompts shown) |
 | Theme page layout | Selected theme centred at top; prompts **side by side** on desktop (`md:grid-cols-3`), **stacked** on mobile |
 | Back navigation | Visible "← All themes" link **and** browser back works (it's a real route) |
 | Prompts | Curated only (custom prompts are T3) |
 | Picking a prompt | Creates the session (`POST /sessions`) and goes straight to `/conversation/[id]` |
 | Icons | `theme.symbol` holds a Lucide key (`coffee`, …); the web maps key → component, with a fallback |
-| URLs | Theme UUIDs for now (`/start/a0000000-…`). Readable slugs are parked |
+| URLs | Readable, stable **slugs** (`dreams-and-plans`) stored in a `slug` column — renaming a theme's title never breaks links. Ids stay as the internal key |
 | Animation | None beyond defaults (parked until after T0) |
 | Styling | Yours — the class names below are suggestions, change freely |
 
@@ -52,7 +53,9 @@ pnpm dev                                 # from repo root; wait for web :3000 an
 
 | Thing | Where | Notes |
 |---|---|---|
-| Themes data | `apps/web/hooks/use-themes.ts` → `useThemesQuery()` | Returns `{ themes: ThemeDto[] }`. `ThemeDto` = `id, title, description, symbol, prompts[]`. `ThemePrompt` = `id, title, description, text` |
+| Themes data | `apps/web/hooks/use-themes.ts` → `useThemesQuery()` | Returns `{ themes: ThemeDto[] }`. `ThemeDto` = `id, title, description, symbol, prompts[]` (+ `slug` after Step 0). `ThemePrompt` = `id, title, description, text` |
+| Themes API | `apps/api/src/conversations/conversations.service.ts` → `listThemes` | Maps DB rows to the response — Step 0 adds `slug` here |
+| Catalogue seed | `packages/database/seed/catalogue.data.ts` + `catalogue.seed.ts` | Typed data + upsert; `pnpm --filter @couple-space/database seed` |
 | Create session | `apps/web/hooks/use-sessions.ts` → `useCreateSessionMutation()` | Takes `{ promptId }`, returns `{ id }`. Already refreshes the hub's session list on success |
 | Logged-in layout | `apps/web/app/(app)/layout.tsx` | Anything under `app/(app)/` is automatically behind login + email verification |
 | Entry point | "Start a conversation" on `/couple` | Already links to `/start` |
@@ -67,20 +70,142 @@ pnpm dev                                 # from repo root; wait for web :3000 an
 
 ## The steps
 
-Files you'll create:
+Files you'll create or touch:
 
 ```
+packages/database/
+  src/schema/prompt-themes.ts        ← Step 0  (add slug column)
+  drizzle/0005_*.sql                 ← Step 0  (generated, then hand-edited)
+  seed/catalogue.data.ts             ← Step 0  (add slugs)
+  seed/catalogue.seed.ts             ← Step 0  (upsert slug)
+apps/api/src/conversations/
+  conversations.service.ts           ← Step 0  (return slug)
 apps/web/
+  hooks/use-themes.ts                ← Step 0  (slug on ThemeDto)
   components/molecules/
     theme-icon/theme-icon.tsx        ← Step 1
     theme-card/theme-card.tsx        ← Step 2
     prompt-card/prompt-card.tsx      ← Step 4
   app/(app)/start/
     page.tsx                         ← Step 3   (/start)
-    [themeId]/page.tsx               ← Step 5   (/start/[themeId])
+    [slug]/page.tsx                  ← Step 5   (/start/[slug])
 ```
 
 Order matters a little: each step is checkable on its own before the next.
+
+---
+
+### Step 0 — Add a `slug` to themes (DB → seed → API → web type)
+
+- [ ] **0.1** Add the column to the schema
+- [ ] **0.2** Generate the migration
+- [ ] **0.3** Hand-edit the migration so it works on a table that already has rows
+- [ ] **0.4** Apply the migration
+- [ ] **0.5** Add slugs to the seed data + upsert, run the seed
+- [ ] **0.6** Return `slug` from the API
+- [ ] **0.7** Add `slug` to the web type
+- [ ] **0.8** Check
+
+**What a slug is:** a URL-safe, lowercase, hyphenated name (`dreams-and-plans`) that is **stable** — you can reword the title later and the slug (and every link) stays the same. It's separate from `id` (the internal key) and `title` (what people read).
+
+#### 0.1 Schema
+
+`packages/database/src/schema/prompt-themes.ts` — add under `title`:
+
+```ts
+slug: text("slug").notNull().unique(),
+```
+
+`.unique()` = no two themes can share a slug, enforced by the database (so the URL always finds exactly one theme).
+
+#### 0.2 Generate
+
+```bash
+pnpm --filter @couple-space/database generate
+```
+
+Drizzle compares the schema to its last snapshot and writes a new `packages/database/drizzle/0005_<random_name>.sql`. Open it. It will look roughly like:
+
+```sql
+ALTER TABLE "prompt_themes" ADD COLUMN "slug" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "prompt_themes" ADD CONSTRAINT "prompt_themes_slug_unique" UNIQUE("slug");
+```
+
+(The exact constraint name may differ — keep whatever it generated.)
+
+#### 0.3 Hand-edit it (important)
+
+**The problem:** your table already has 6 themes. `ADD COLUMN … NOT NULL` would fail — those rows would have no slug, and NOT NULL forbids empty.
+
+**The fix — three phases in one migration:** add it as optional → fill it → then make it required. Replace the first line so the file reads:
+
+```sql
+ALTER TABLE "prompt_themes" ADD COLUMN "slug" text;--> statement-breakpoint
+UPDATE "prompt_themes" SET "slug" = "id"::text WHERE "slug" IS NULL;--> statement-breakpoint
+ALTER TABLE "prompt_themes" ALTER COLUMN "slug" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "prompt_themes" ADD CONSTRAINT "prompt_themes_slug_unique" UNIQUE("slug");
+```
+
+- The `UPDATE` gives each existing row a **temporary** unique slug (its own id). Step 0.5's seed immediately overwrites them with the real ones.
+- On a fresh/empty database the `UPDATE` simply touches 0 rows — still safe.
+- Keep the `--> statement-breakpoint` markers exactly; Drizzle uses them to split statements.
+- Editing a generated migration **before** it's applied is normal and fine. Never edit one after it has been applied.
+
+#### 0.4 Apply
+
+```bash
+pnpm --filter @couple-space/database migrate
+```
+
+✅ Ends with `migrations applied successfully!`
+
+#### 0.5 Seed data + upsert
+
+In `seed/catalogue.data.ts`:
+1. Add `slug: string;` to the `ThemeSeed` type.
+2. Add a `slug` to each theme in `catalogue`:
+
+   | n | slug |
+   |---|---|
+   | 1 | `everyday-moments` |
+   | 2 | `us-lately` |
+   | 3 | `dreams-and-plans` |
+   | 4 | `knowing-you` |
+   | 5 | `money-and-home` |
+   | 6 | `gratitude` |
+
+   Rules: lowercase, words joined by `-`, no `&`/commas/spaces (write `and`). **Never change a slug once real users have links** — titles can change, slugs shouldn't.
+3. In `themeRows`, add `slug: theme.slug,`.
+
+In `seed/catalogue.seed.ts`, add to the **themes** upsert `set`:
+
+```ts
+slug: sql`excluded.slug`,
+```
+
+Run: `pnpm --filter @couple-space/database seed` → `seeded 6 themes, 18 prompts`.
+
+#### 0.6 API
+
+`apps/api/src/conversations/conversations.service.ts` → `listThemes`, in the `themes.map(...)` object add:
+
+```ts
+slug: theme.slug,
+```
+
+(`theme` comes from `select()` on the table, so `slug` is already typed — TypeScript will autocomplete it.)
+
+The API in `pnpm dev` restarts on save. If it doesn't pick up the new column type, restart `pnpm dev` (the database package is rebuilt first).
+
+#### 0.7 Web type
+
+`apps/web/hooks/use-themes.ts` → add `slug: string;` to `ThemeDto`.
+
+#### 0.8 Check
+
+- `pnpm check-types` (repo root) passes.
+- Postman → **1. Auth → Login A**, then **2. → Themes (A)** → each theme has a `slug` (`"everyday-moments"`, …).
+- Re-run the seed once more → still 6 themes (no duplicates), slugs unchanged.
 
 ---
 
@@ -143,7 +268,7 @@ Notes:
 **Structure** (whole card is a link — same pattern as `ConversationCard`):
 
 ```
-Link href={`/start/${theme.id}`}   (card look + hover + focus ring)
+Link href={`/start/${theme.slug}`}   (card look + hover + focus ring)
 ├── ThemeIcon symbol={theme.symbol}   (e.g. className="size-6 text-primary")
 ├── title         (font-semibold)
 └── description   (text-sm text-muted-foreground)
@@ -192,7 +317,7 @@ Notes:
 
 ✅ **Check 3.3:**
 - `/couple` → "Start a conversation" → you land on `/start` and see **6 themes** in seed order (Everyday moments, Us lately, Dreams & plans, Knowing you, Money & home, Gratitude), each with its icon.
-- Clicking a theme goes to `/start/<uuid>` — a **404 is expected** until Step 5.
+- Clicking a theme goes to e.g. `/start/everyday-moments` — a **404 is expected** until Step 5.
 - Tab key moves between theme cards with a visible ring.
 
 ---
@@ -234,25 +359,25 @@ Tips:
 
 ---
 
-### Step 5 — `/start/[themeId]` page (one theme + prompts + create session)
+### Step 5 — `/start/[slug]` page (one theme + prompts + create session)
 
-- [ ] **5.1** Create `app/(app)/start/[themeId]/page.tsx` with `"use client"`
-- [ ] **5.2** Read `themeId`, find the theme
+- [ ] **5.1** Create `app/(app)/start/[slug]/page.tsx` with `"use client"`
+- [ ] **5.2** Read `slug`, find the theme
 - [ ] **5.3** Not-found state
 - [ ] **5.4** Layout: theme at top, prompts grid, "← All themes"
 - [ ] **5.5** Wire the create-session mutation + redirect
 - [ ] **5.6** Check in browser
 
-#### 5.2 Read the id and find the theme
+#### 5.2 Read the slug and find the theme
 
 ```tsx
-const { themeId } = useParams<{ themeId: string }>();
+const { slug } = useParams<{ slug: string }>();
 const themes = useThemesQuery();
 // after loading/error checks:
-const theme = themes.data.themes.find((t) => t.id === themeId);
+const theme = themes.data.themes.find((t) => t.slug === slug);
 ```
 
-- The folder name `[themeId]` is what makes `themeId` appear in `useParams()`.
+- The folder name `[slug]` is what makes `slug` appear in `useParams()`.
 - Same `useThemesQuery()` as `/start` → React Query already has the data cached, so this page appears instantly when coming from `/start`. On a direct visit/refresh it fetches once.
 
 #### 5.3 Not found
@@ -292,7 +417,8 @@ const createSession = useCreateSessionMutation({
 - If `createSession.isError`, show a short message above the grid ("Couldn't start that conversation — please try again."). Most likely real cause: couple not active (`403 couple_not_active`).
 
 ✅ **Check 5.6:**
-- `/start` → click a theme → `/start/<uuid>` shows that theme + **3 prompts** + "← All themes".
+- `/start` → click a theme → `/start/everyday-moments` (readable URL) shows that theme + **3 prompts** + "← All themes".
+- Type `/start/gratitude` straight into the address bar → the Gratitude theme loads (proves direct links/refresh work).
 - Resize the window: prompts are 3-across on desktop, stacked on a narrow window.
 - "← All themes" and the **browser back button** both return to `/start`.
 - Visit `/start/nonsense` → friendly not-found message with a way back.
@@ -322,7 +448,10 @@ const createSession = useCreateSessionMutation({
 | `/start` shows the error state | API not running (`pnpm dev`), or not logged in. Check Postman → **Themes (A)** |
 | Fewer than 6 themes | Re-run the catalogue seed: `pnpm --filter @couple-space/database seed` |
 | Icon shows ✨ (Sparkles) instead of the right one | `symbol` key not in `THEME_ICONS` — check spelling matches `packages/database/seed/catalogue.data.ts` |
-| `themeId` is `undefined` | Folder must be named exactly `[themeId]`, and the generic must match: `useParams<{ themeId: string }>()` |
+| `slug` is `undefined` | Folder must be named exactly `[slug]`, and the generic must match: `useParams<{ slug: string }>()` |
+| Migrate fails: `column "slug" … contains null values` | Step 0.3 edit missing — the migration must add the column as nullable, `UPDATE`, then `SET NOT NULL`. If it half-applied, ask for help before re-running |
+| Theme page always "not found" | API not returning `slug` (Step 0.6), or the seed wasn't re-run (slugs still the temporary ids). Check Postman → Themes (A) |
+| `generate` says "No schema changes" | The `slug` line isn't saved in `prompt-themes.ts`, or was added to the wrong table |
 | "Property 'themes' does not exist" / `data` possibly undefined | Missing `isPending` / `isError` early returns before using `data` |
 | Clicking a prompt does nothing | `onSelect` not wired, or button is `disabled`. Check Network tab for `POST /sessions` |
 | `POST /sessions` → 403 | Couple not active — `/couple` should show the invite form instead of Start |
@@ -333,7 +462,6 @@ const createSession = useCreateSessionMutation({
 
 ## Parked (not part of this guide)
 
-- Readable theme URLs (`/start/everyday-moments`) — needs a `slug` column
 - Skeleton loaders for `/start` (T6)
 - Theme colours / themed prompt titles
 - More questions; compound themes (Dreams & plans, Money & home) split or tagged

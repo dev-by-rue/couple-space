@@ -29,7 +29,7 @@ export function RegisterForm({
   onAuthenticated,
   next,
   className,
-}: RegisterFormProps) {
+}: Readonly<RegisterFormProps>) {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {

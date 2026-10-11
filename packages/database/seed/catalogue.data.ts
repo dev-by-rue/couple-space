@@ -12,6 +12,7 @@ type ThemeSeed = {
   description: string;
   symbol: string;
   questions: string[];
+  slug: string;
 };
 
 const catalogue: ThemeSeed[] = [
@@ -25,6 +26,7 @@ const catalogue: ThemeSeed[] = [
       "When do you feel most at ease in our everyday life?",
       "What ordinary ritual would you love us to make more time for?",
     ],
+    slug: "everyday-moments",
   },
   {
     n: 2,
@@ -36,6 +38,7 @@ const catalogue: ThemeSeed[] = [
       "Where could we be a little gentler with each other?",
       "What has felt different between us recently?",
     ],
+    slug: "us-lately",
   },
   {
     n: 3,
@@ -47,6 +50,7 @@ const catalogue: ThemeSeed[] = [
       "What is one hope you have not said out loud lately?",
       "Where would you like our life to feel more spacious?",
     ],
+    slug: "dreams-plans",
   },
   {
     n: 4,
@@ -58,6 +62,7 @@ const catalogue: ThemeSeed[] = [
       "What has been bringing you energy lately?",
       "What part of yourself are you growing into?",
     ],
+    slug: "knowing-you",
   },
   {
     n: 5,
@@ -69,6 +74,7 @@ const catalogue: ThemeSeed[] = [
       "What does feeling secure together mean to you?",
       "What shared responsibility could feel more balanced?",
     ],
+    slug: "money-home",
   },
   {
     n: 6,
@@ -80,12 +86,14 @@ const catalogue: ThemeSeed[] = [
       "What part of our relationship are you especially grateful for today?",
       "What quality in me have you noticed anew?",
     ],
+    slug: "gratitude",
   },
 ];
 
 export const themeRows: ThemeRow[] = catalogue.map((theme, index) => ({
   id: id(theme.n),
   title: theme.title,
+  slug: theme.slug,
   description: theme.description,
   symbol: theme.symbol,
   sortOrder: index,

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import type { SessionViewerPhase } from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
+import { sortSessionsByPriority } from "@/lib/session-sort";
 
 export type SessionListItem = {
   id: string;
@@ -54,6 +55,7 @@ export function useSessionsQuery() {
   return useQuery({
     queryKey: SESSIONS_QUERY_KEY,
     queryFn: () => apiFetch<SessionsResponse>("/sessions"),
+    select: (data) => sortSessionsByPriority(data.sessions),
   });
 }
 

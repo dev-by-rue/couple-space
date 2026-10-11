@@ -13,5 +13,6 @@ export const sortSessionsByPriority = (
 ): SessionListItem[] =>
   sessions.toSorted(
     (a, b) =>
-      PRIORITY_ORDER.indexOf(b.phase) || b.updatedAt.localeCompare(a.updatedAt),
+      PRIORITY_ORDER.indexOf(a.phase) - PRIORITY_ORDER.indexOf(b.phase) ||
+      b.updatedAt.localeCompare(a.updatedAt),
   );

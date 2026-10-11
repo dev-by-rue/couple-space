@@ -26,7 +26,7 @@ export default function CouplePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-6">
+    <main className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 p-6">
       <CoupleMembersList members={couple.data.members} />
       <WelcomeBanner />
       {couple.data.status === "active" ? (

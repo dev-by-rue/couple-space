@@ -9,7 +9,7 @@ type ThemeCardProps = {
 export function ThemeCard({ theme }: Readonly<ThemeCardProps>) {
   return (
     <Link
-      href={`/themes/${theme.slug}`}
+      href={`/start/${theme.slug}`}
       className="flex gap-2 ring-1 ring-foreground/10 rounded-md p-4 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex gap-4">

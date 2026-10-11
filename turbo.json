@@ -10,7 +10,8 @@
     },
     "dev": {
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "dependsOn": ["^build"]
     },
     "test": {
       "dependsOn": ["^build"],

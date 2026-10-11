@@ -22,8 +22,8 @@ Tasks 1–6 are done (domain, schema, Nest API, hooks). What remains, page by pa
 
 1. [x] **Local DB ready** — migrations 0000–0004 applied, curated prompts seeded, active test couple created via the API.
 2. [x] **API smoke (two users)** — passed 2026-10-09. Repeatable steps (Postman + curl): `docs/engineering/conversation-api-smoke.md`.
-3. [ ] **`/couple` hub** — one session list sorted by what needs you (Answer privately → Reveal → Waiting for partner → View answers). Card = prompt title + status pill + one CTA. Empty state. Start only when couple is `active`.
-4. [ ] **`/start`** — theme cards → selected theme's prompts on one page. Curated only. Picking a prompt creates the session (`POST /sessions`) and routes to `/conversation/[id]`.
+3. [x] **`/couple` hub** (done 2026-10-11; error/empty copy still placeholder) — one session list sorted by what needs you (Answer privately → Reveal → Waiting for partner → View answers). Card = prompt title + status pill + one CTA. Empty state. Start only when couple is `active`.
+4. [ ] **`/start`** — 📘 step-by-step guide with progress log: [`2026-10-11-start-page-guide.md`](2026-10-11-start-page-guide.md). Summary: `/start` lists all themes (closed) → `/start/[themeId]` shows that theme + its prompts (3-across desktop, stacked mobile) + "← All themes". Curated only. Picking a prompt creates the session (`POST /sessions`) and routes to `/conversation/[id]`.
 5. [ ] **`/conversation/[id]`** — one page, four viewer states:
 
    | Viewer state | Shows |

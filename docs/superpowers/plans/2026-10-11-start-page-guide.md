@@ -450,6 +450,7 @@ const createSession = useCreateSessionMutation({
 | Icon shows ✨ (Sparkles) instead of the right one | `symbol` key not in `THEME_ICONS` — check spelling matches `packages/database/seed/catalogue.data.ts` |
 | `slug` is `undefined` | Folder must be named exactly `[slug]`, and the generic must match: `useParams<{ slug: string }>()` |
 | Migrate fails: `column "slug" … contains null values` | Step 0.3 edit missing — the migration must add the column as nullable, `UPDATE`, then `SET NOT NULL`. If it half-applied, ask for help before re-running |
+| A change in `packages/database` / `packages/domain` has no effect (e.g. `slug` missing from the API) though the code is right | Apps load the packages' compiled `dist/` at startup. Restart `pnpm dev`. Still stale? A leftover API from an old session may own the port: `lsof -iTCP:8080 -sTCP:LISTEN` → if it started before your `pnpm dev`, stop it (`kill <pid>`) and restart `pnpm dev` (look for `EADDRINUSE` in the output) |
 | Theme page always "not found" | API not returning `slug` (Step 0.6), or the seed wasn't re-run (slugs still the temporary ids). Check Postman → Themes (A) |
 | `generate` says "No schema changes" | The `slug` line isn't saved in `prompt-themes.ts`, or was added to the wrong table |
 | "Property 'themes' does not exist" / `data` possibly undefined | Missing `isPending` / `isError` early returns before using `data` |

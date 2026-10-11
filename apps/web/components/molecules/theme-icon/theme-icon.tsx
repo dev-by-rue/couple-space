@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 const THEME_ICONS: Record<string, LucideIcon> = {
-  coffie: Coffee,
+  coffee: Coffee,
   compass: Compass,
   house: House,
   "calendar-heart": CalendarHeart,

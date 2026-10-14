@@ -5,12 +5,23 @@ const envSchema = z.object({
   API_PORT: z.coerce.number().default(8080),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
 
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be 32 characters long'),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be 32 characters long"),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().default(900),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().default(2592000),
-  
-  COOKIE_SECURE: z.enum(['true', 'false']).default("false").transform((val) => val === 'true'),
-  ENABLE_DEV_AUTH_ENDPOINTS: z.enum(['true', 'false']).default("false").transform((val) => val === 'true'),
+
+  COOKIE_SECURE: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((val) => val === "true"),
+  ENABLE_DEV_AUTH_ENDPOINTS: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((val) => val === "true"),
+  // Hosted sandbox without SMTP: treat every account as email-verified.
+  SANDBOX_AUTO_VERIFY: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((val) => val === "true"),
 
   INVITE_TTL_HOURS: z.coerce.number().positive().default(72),
   INVITE_RATE_LIMIT_PER_HOUR: z.coerce.number().positive().default(10),

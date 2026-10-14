@@ -45,6 +45,7 @@ export class AuthService {
       throw new ConflictException({ reason: "email_taken" });
     }
 
+    const autoVerify = loadEnv().SANDBOX_AUTO_VERIFY;
     const passwordHash = await hashPassword(input.password);
     const created = await this.db
       .insert(users)
@@ -53,7 +54,7 @@ export class AuthService {
         passwordHash,
         displayName: input.displayName,
         dateOfBirth: input.dateOfBirth,
-        emailVerified: false,
+        emailVerified: autoVerify,
       })
       .returning();
 
@@ -72,7 +73,8 @@ export class AuthService {
     });
 
     try {
-      await this.emailVerification.sendVerificationEmail(row.id, row.email);
+      if (autoVerify) return { ...pair, user: toPublicUser(row) };
+      // await this.emailVerification.sendVerificationEmail(row.id, row.email);
     } catch {
       // Account is already committed; SMTP failure must not roll back registration.
       // Client can resend from /check-email once mail is reachable.
@@ -90,12 +92,16 @@ export class AuthService {
       .from(users)
       .where(eq(users.email, input.email))
       .limit(1);
-    const row = rows[0];
+    let row = rows[0];
 
     // Same error whether missing user or bad password — reduces email enumeration.
     const ok = row && (await verifyPassword(row.passwordHash, input.password));
     if (!row || !ok) {
       throw new UnauthorizedException({ reason: "invalid_credentials" });
+    }
+
+    if (!row.emailVerified && loadEnv().SANDBOX_AUTO_VERIFY) {
+      row = await this.markEmailVerified(row.id);
     }
 
     const pair = await this.tokens.issueTokenPair({
@@ -198,8 +204,12 @@ export class AuthService {
     }
 
     const env = loadEnv();
-    const recentCount =
-      await this.emailVerification.countRecentResends(userId);
+
+    if (env.SANDBOX_AUTO_VERIFY) {
+      await this.markEmailVerified(userId);
+      return { ok: true, alreadyVerified: true };
+    }
+    const recentCount = await this.emailVerification.countRecentResends(userId);
     if (recentCount >= env.EMAIL_VERIFY_RESEND_PER_HOUR) {
       throw new HttpException(
         { reason: "resend_rate_limited" },
@@ -230,15 +240,8 @@ export class AuthService {
    * Access tokens embed email_verified — without rotation, accept/invite
    * gates still see the pre-verify claim and return 403 email_unverified.
    */
-  async devVerify(
-    userId: string,
-  ): Promise<TokenPair & { user: PublicUser }> {
-    const updated = await this.db
-      .update(users)
-      .set({ emailVerified: true, updatedAt: new Date() })
-      .where(eq(users.id, userId))
-      .returning();
-    const row = updated[0]!;
+  async devVerify(userId: string): Promise<TokenPair & { user: PublicUser }> {
+    const row = await this.markEmailVerified(userId);
 
     const pair = await this.tokens.issueTokenPair({
       id: row.id,
@@ -257,6 +260,15 @@ export class AuthService {
       ...pair,
       user: toPublicUser(row),
     };
+  }
+
+  private async markEmailVerified(userId: string) {
+    const updated = await this.db
+      .update(users)
+      .set({ emailVerified: true, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updated[0];
   }
 }
 

@@ -25,46 +25,52 @@ pnpm dev                                 # from repo root; wait for web :3000 an
 
 ### Progress log
 
-| Date / time | Step reached | Notes |
-|---|---|---|
-| 2026-10-11 19:22 | Guide written — not started | |
-| 2026-10-11 | Guide updated: readable slugs chosen over ids → new Step 0 | Routes are now `/start/[slug]` |
+
+| Date / time      | Step reached                                               | Notes                          |
+| ---------------- | ---------------------------------------------------------- | ------------------------------ |
+| 2026-10-11 19:22 | Guide written — not started                                |                                |
+| 2026-10-11       | Guide updated: readable slugs chosen over ids → new Step 0 | Routes are now `/start/[slug]` |
+
 
 ---
 
 ## Decisions already made (don't re-decide)
 
-| Topic | Decision |
-|---|---|
-| Routes | `/start` = all themes · `/start/[slug]` = one theme + its prompts (e.g. `/start/dreams-and-plans`) |
-| `/start` layout | All themes listed, centred, **closed** (no prompts shown) |
-| Theme page layout | Selected theme centred at top; prompts **side by side** on desktop (`md:grid-cols-3`), **stacked** on mobile |
-| Back navigation | Visible "← All themes" link **and** browser back works (it's a real route) |
-| Prompts | Curated only (custom prompts are T3) |
-| Picking a prompt | Creates the session (`POST /sessions`) and goes straight to `/conversation/[id]` |
-| Icons | `theme.symbol` holds a Lucide key (`coffee`, …); the web maps key → component, with a fallback |
-| URLs | Readable, stable **slugs** (`dreams-and-plans`) stored in a `slug` column — renaming a theme's title never breaks links. Ids stay as the internal key |
-| Animation | None beyond defaults (parked until after T0) |
-| Styling | Yours — the class names below are suggestions, change freely |
+
+| Topic             | Decision                                                                                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes            | `/start` = all themes · `/start/[slug]` = one theme + its prompts (e.g. `/start/dreams-and-plans`)                                                    |
+| `/start` layout   | All themes listed, centred, **closed** (no prompts shown)                                                                                             |
+| Theme page layout | Selected theme centred at top; prompts **side by side** on desktop (`md:grid-cols-3`), **stacked** on mobile                                          |
+| Back navigation   | Visible "← All themes" link **and** browser back works (it's a real route)                                                                            |
+| Prompts           | Curated only (custom prompts are T3)                                                                                                                  |
+| Picking a prompt  | Creates the session (`POST /sessions`) and goes straight to `/conversation/[id]`                                                                      |
+| Icons             | `theme.symbol` holds a Lucide key (`coffee`, …); the web maps key → component, with a fallback                                                        |
+| URLs              | Readable, stable **slugs** (`dreams-and-plans`) stored in a `slug` column — renaming a theme's title never breaks links. Ids stay as the internal key |
+| Animation         | None beyond defaults (parked until after T0)                                                                                                          |
+| Styling           | Yours — the class names below are suggestions, change freely                                                                                          |
+
 
 ---
 
 ## What already exists (reuse, don't rebuild)
 
-| Thing | Where | Notes |
-|---|---|---|
-| Themes data | `apps/web/hooks/use-themes.ts` → `useThemesQuery()` | Returns `{ themes: ThemeDto[] }`. `ThemeDto` = `id, title, description, symbol, prompts[]` (+ `slug` after Step 0). `ThemePrompt` = `id, title, description, text` |
-| Themes API | `apps/api/src/conversations/conversations.service.ts` → `listThemes` | Maps DB rows to the response — Step 0 adds `slug` here |
-| Catalogue seed | `packages/database/seed/catalogue.data.ts` + `catalogue.seed.ts` | Typed data + upsert; `pnpm --filter @couple-space/database seed` |
-| Create session | `apps/web/hooks/use-sessions.ts` → `useCreateSessionMutation()` | Takes `{ promptId }`, returns `{ id }`. Already refreshes the hub's session list on success |
-| Logged-in layout | `apps/web/app/(app)/layout.tsx` | Anything under `app/(app)/` is automatically behind login + email verification |
-| Entry point | "Start a conversation" on `/couple` | Already links to `/start` |
-| Card look | `ConversationCard` | `rounded-lg bg-card p-4 ring-1 ring-foreground/10 …` — reuse for consistency |
-| Button look | `buttonVariants` from `@/components/ui/button` | |
-| Folder convention | `components/molecules/<name>/<name>.tsx` | Same as the pill / card / loader |
-| API data | 6 themes × 3 prompts, seeded | Check anytime with Postman → **Themes (A)** |
 
-**Next.js 16 note** (see `apps/web/AGENTS.md`): read route params in client components with **`useParams()`** from `next/navigation`. The page `params` *prop* is a Promise in this version — avoid it in `"use client"` pages.
+| Thing             | Where                                                                | Notes                                                                                                                                                              |
+| ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Themes data       | `apps/web/hooks/use-themes.ts` → `useThemesQuery()`                  | Returns `{ themes: ThemeDto[] }`. `ThemeDto` = `id, title, description, symbol, prompts[]` (+ `slug` after Step 0). `ThemePrompt` = `id, title, description, text` |
+| Themes API        | `apps/api/src/conversations/conversations.service.ts` → `listThemes` | Maps DB rows to the response — Step 0 adds `slug` here                                                                                                             |
+| Catalogue seed    | `packages/database/seed/catalogue.data.ts` + `catalogue.seed.ts`     | Typed data + upsert; `pnpm --filter @couple-space/database seed`                                                                                                   |
+| Create session    | `apps/web/hooks/use-sessions.ts` → `useCreateSessionMutation()`      | Takes `{ promptId }`, returns `{ id }`. Already refreshes the hub's session list on success                                                                        |
+| Logged-in layout  | `apps/web/app/(app)/layout.tsx`                                      | Anything under `app/(app)/` is automatically behind login + email verification                                                                                     |
+| Entry point       | "Start a conversation" on `/couple`                                  | Already links to `/start`                                                                                                                                          |
+| Card look         | `ConversationCard`                                                   | `rounded-lg bg-card p-4 ring-1 ring-foreground/10 …` — reuse for consistency                                                                                       |
+| Button look       | `buttonVariants` from `@/components/ui/button`                       |                                                                                                                                                                    |
+| Folder convention | `components/molecules/<name>/<name>.tsx`                             | Same as the pill / card / loader                                                                                                                                   |
+| API data          | 6 themes × 3 prompts, seeded                                         | Check anytime with Postman → **Themes (A)**                                                                                                                        |
+
+
+**Next.js 16 note** (see `apps/web/AGENTS.md`): read route params in client components with `**useParams()`** from `next/navigation`. The page `params` *prop* is a Promise in this version — avoid it in `"use client"` pages.
 
 ---
 
@@ -162,17 +168,18 @@ pnpm --filter @couple-space/database migrate
 #### 0.5 Seed data + upsert
 
 In `seed/catalogue.data.ts`:
+
 1. Add `slug: string;` to the `ThemeSeed` type.
 2. Add a `slug` to each theme in `catalogue`:
 
-   | n | slug |
-   |---|---|
-   | 1 | `everyday-moments` |
-   | 2 | `us-lately` |
-   | 3 | `dreams-and-plans` |
-   | 4 | `knowing-you` |
-   | 5 | `money-and-home` |
-   | 6 | `gratitude` |
+  | n   | slug               |
+  | --- | ------------------ |
+  | 1   | `everyday-moments` |
+  | 2   | `us-lately`        |
+  | 3   | `dreams-and-plans` |
+  | 4   | `knowing-you`      |
+  | 5   | `money-and-home`   |
+  | 6   | `gratitude`        |
 
    Rules: lowercase, words joined by `-`, no `&`/commas/spaces (write `and`). **Never change a slug once real users have links** — titles can change, slugs shouldn't.
 3. In `themeRows`, add `slug: theme.slug,`.
@@ -248,6 +255,7 @@ export function ThemeIcon({
 ```
 
 Notes:
+
 - `const Icon = …` then `<Icon />` — a component stored in a variable must start with a **capital letter** for JSX to treat it as a component.
 - `aria-hidden` — the icon is decorative; the theme title next to it carries the meaning.
 - All seven icons were checked to exist in your installed `lucide-react`.
@@ -275,6 +283,7 @@ Link href={`/start/${theme.slug}`}   (card look + hover + focus ring)
 ```
 
 Tips:
+
 - Copy the outer classes from `ConversationCard` so cards feel like one family; add `text-center items-center` for the centred look.
 - Copy the `focus-visible:` ring classes too — keyboard users need to see where they are.
 - No prompt count / no prompts on this card — `/start` shows themes *closed*.
@@ -311,11 +320,13 @@ export default function StartPage() {
 ```
 
 Notes:
+
 - `themes.data.themes` — the hook has no `select`, so the array is inside `.themes` (unlike sessions).
 - Loading: a simple "Loading themes…" is fine for T0; a skeleton can come in T6.
 - `max-w-xl` + `mx-auto` keeps the column centred and readable on desktop.
 
 ✅ **Check 3.3:**
+
 - `/couple` → "Start a conversation" → you land on `/start` and see **6 themes** in seed order (Everyday moments, Us lately, Dreams & plans, Knowing you, Money & home, Gratitude), each with its icon.
 - Clicking a theme goes to e.g. `/start/everyday-moments` — a **404 is expected** until Step 5.
 - Tab key moves between theme cards with a visible ring.
@@ -350,6 +361,7 @@ Notes:
 ```
 
 Tips:
+
 - Show `prompt.text` (the question), not `prompt.title` ("Everyday moments · 2" isn't helpful here).
 - `type="button"` — always set it; a bare `<button>` defaults to `submit`, which bites inside forms.
 - `line-clamp-3` keeps side-by-side cards tidy; grid rows already equalise heights.
@@ -417,6 +429,7 @@ const createSession = useCreateSessionMutation({
 - If `createSession.isError`, show a short message above the grid ("Couldn't start that conversation — please try again."). Most likely real cause: couple not active (`403 couple_not_active`).
 
 ✅ **Check 5.6:**
+
 - `/start` → click a theme → `/start/everyday-moments` (readable URL) shows that theme + **3 prompts** + "← All themes".
 - Type `/start/gratitude` straight into the address bar → the Gratitude theme loads (proves direct links/refresh work).
 - Resize the window: prompts are 3-across on desktop, stacked on a narrow window.
@@ -442,22 +455,24 @@ const createSession = useCreateSessionMutation({
 
 ## If something goes wrong
 
-| Symptom | Likely cause / fix |
-|---|---|
-| Login says "Invalid email or password" | Wrong Postgres on port 5432. `brew services list` → only `postgresql@15` should be `started`. Users missing? Recreate via Postman folder **0. Setup** or `docs/engineering/conversation-api-smoke.md` §6 |
-| `/start` shows the error state | API not running (`pnpm dev`), or not logged in. Check Postman → **Themes (A)** |
-| Fewer than 6 themes | Re-run the catalogue seed: `pnpm --filter @couple-space/database seed` |
-| Icon shows ✨ (Sparkles) instead of the right one | `symbol` key not in `THEME_ICONS` — check spelling matches `packages/database/seed/catalogue.data.ts` |
-| `slug` is `undefined` | Folder must be named exactly `[slug]`, and the generic must match: `useParams<{ slug: string }>()` |
-| Migrate fails: `column "slug" … contains null values` | Step 0.3 edit missing — the migration must add the column as nullable, `UPDATE`, then `SET NOT NULL`. If it half-applied, ask for help before re-running |
+
+| Symptom                                                                                                                       | Likely cause / fix                                                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login says "Invalid email or password"                                                                                        | Wrong Postgres on port 5432. `brew services list` → only `postgresql@15` should be `started`. Users missing? Recreate via Postman folder **0. Setup** or `docs/engineering/conversation-api-smoke.md` §6                                                                                              |
+| `/start` shows the error state                                                                                                | API not running (`pnpm dev`), or not logged in. Check Postman → **Themes (A)**                                                                                                                                                                                                                        |
+| Fewer than 6 themes                                                                                                           | Re-run the catalogue seed: `pnpm --filter @couple-space/database seed`                                                                                                                                                                                                                                |
+| Icon shows ✨ (Sparkles) instead of the right one                                                                              | `symbol` key not in `THEME_ICONS` — check spelling matches `packages/database/seed/catalogue.data.ts`                                                                                                                                                                                                 |
+| `slug` is `undefined`                                                                                                         | Folder must be named exactly `[slug]`, and the generic must match: `useParams<{ slug: string }>()`                                                                                                                                                                                                    |
+| Migrate fails: `column "slug" … contains null values`                                                                         | Step 0.3 edit missing — the migration must add the column as nullable, `UPDATE`, then `SET NOT NULL`. If it half-applied, ask for help before re-running                                                                                                                                              |
 | A change in `packages/database` / `packages/domain` has no effect (e.g. `slug` missing from the API) though the code is right | Apps load the packages' compiled `dist/` at startup. Restart `pnpm dev`. Still stale? A leftover API from an old session may own the port: `lsof -iTCP:8080 -sTCP:LISTEN` → if it started before your `pnpm dev`, stop it (`kill <pid>`) and restart `pnpm dev` (look for `EADDRINUSE` in the output) |
-| Theme page always "not found" | API not returning `slug` (Step 0.6), or the seed wasn't re-run (slugs still the temporary ids). Check Postman → Themes (A) |
-| `generate` says "No schema changes" | The `slug` line isn't saved in `prompt-themes.ts`, or was added to the wrong table |
-| "Property 'themes' does not exist" / `data` possibly undefined | Missing `isPending` / `isError` early returns before using `data` |
-| Clicking a prompt does nothing | `onSelect` not wired, or button is `disabled`. Check Network tab for `POST /sessions` |
-| `POST /sessions` → 403 | Couple not active — `/couple` should show the invite form instead of Start |
-| Type errors after a `pnpm --filter … add` | Run a plain `pnpm install` at the repo root to relink packages |
-| Two sessions from one click | `disabled={createSession.isPending}` missing |
+| Theme page always "not found"                                                                                                 | API not returning `slug` (Step 0.6), or the seed wasn't re-run (slugs still the temporary ids). Check Postman → Themes (A)                                                                                                                                                                            |
+| `generate` says "No schema changes"                                                                                           | The `slug` line isn't saved in `prompt-themes.ts`, or was added to the wrong table                                                                                                                                                                                                                    |
+| "Property 'themes' does not exist" / `data` possibly undefined                                                                | Missing `isPending` / `isError` early returns before using `data`                                                                                                                                                                                                                                     |
+| Clicking a prompt does nothing                                                                                                | `onSelect` not wired, or button is `disabled`. Check Network tab for `POST /sessions`                                                                                                                                                                                                                 |
+| `POST /sessions` → 403                                                                                                        | Couple not active — `/couple` should show the invite form instead of Start                                                                                                                                                                                                                            |
+| Type errors after a `pnpm --filter … add`                                                                                     | Run a plain `pnpm install` at the repo root to relink packages                                                                                                                                                                                                                                        |
+| Two sessions from one click                                                                                                   | `disabled={createSession.isPending}` missing                                                                                                                                                                                                                                                          |
+
 
 ---
 
@@ -467,3 +482,4 @@ const createSession = useCreateSessionMutation({
 - Theme colours / themed prompt titles
 - More questions; compound themes (Dreams & plans, Money & home) split or tagged
 - Animation (after T0)
+

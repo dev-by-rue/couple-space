@@ -18,6 +18,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
+// Local test account, pre-filled in `next dev` only so it never ships to the hosted sandbox.
+const DEV_LOGIN_DEFAULTS: LoginInput =
+  process.env.NODE_ENV === "development"
+    ? { email: "ruebencee@gmail.com", password: "Password1234" }
+    : { email: "", password: "" };
+
 type LoginFormProps = {
   onAuthenticated: () => void;
   /** Sanitized post-auth path — used for register link `next` query only. */
@@ -32,7 +38,7 @@ export function LoginForm({
 }: Readonly<LoginFormProps>) {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "ruebencee@gmail.com", password: "Password1234" },
+    defaultValues: DEV_LOGIN_DEFAULTS,
   });
 
   const login = useLoginMutation({

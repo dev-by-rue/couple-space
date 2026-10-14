@@ -30,5 +30,9 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
-  return envSchema.parse(source);
+  // Hosts like Railway inject PORT; honour it when API_PORT isn't set.
+  return envSchema.parse({
+    ...source,
+    API_PORT: source.API_PORT ?? source.PORT,
+  });
 }

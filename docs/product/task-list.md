@@ -87,7 +87,7 @@ overrule any of them, but do it **before** the task that depends on it.
 
 | # | Question | Client decision | Blocks |
 | --- | --- | --- | --- |
-| Q1 | When is a session "completed"? | **Derived, no column:** completed when both partners have revealed the main prompt **and** no follow-up/discussion question is still in progress (every started child session is revealed by both, or archived). While a child is open, the session is **"In discussion"** and stays in the active list. Starting a new follow-up on a completed session moves it back to active. | P1-6 |
+| Q1 | When is a session "completed"? | **Derived, no column:** completed when both partners have revealed the main prompt **and** no follow-up/discussion question is still in progress (every started child session has been **submitted** by both, or archived — follow-ups have no reveal step, see Q22). While a child is open, the session is **"In discussion"** and stays in the active list. Starting a new follow-up on a completed session moves it back to active. | P1-6 |
 | Q2 | Concurrent sessions per couple? | Unlimited (already decided for T0) — revisit after beta feedback. | — |
 | Q3 | Can a partner skip/decline a prompt? | Yes, either partner; optional **preset** reason, no free text (already suggested in walking-skeleton plan). | P1-7 |
 | Q4 | Can a session be deleted/archived? | Archive only (hidden from hub, kept in history). No hard delete in MVP-1 except via account deletion. | P1-7 |
@@ -106,7 +106,8 @@ overrule any of them, but do it **before** the task that depends on it.
 | Q17 | Is the answer text encrypted beyond Railway's disk encryption? | Not for beta. Answers are never logged and are scrubbed from error reports (P1-18). Revisit app-level encryption before public launch. | P1-18 |
 | Q18 | Data retention after dissolution or deletion | Dissolved couple's session content is hard-deleted after 30 days. Audit rows are kept, without content. | P1-11, P1-12 |
 | Q19 | Can someone re-couple after leaving? | Yes, immediately, into a new couple. The old couple's history never carries over. | P1-11 |
-| Q21 | Partner-added discussion questions: one-sided ("directed") or both answer? | **Both answer.** After both have revealed, either partner can write their own follow-up question. It becomes a child session exactly like a curated follow-up: both answer independently, soft-lock, per-user reveal. Attributed to its author (it's inside a session they're both already in, so anonymity is pointless). Max 3 open partner-added questions per session. This replaces the "one poses, the other answers" wording in `scope.md`, which is one-sided pressure and DM-shaped. **Ships in MVP-2** (P2-7). | P2-7 |
+| Q21 | Partner-added discussion questions: one-sided ("directed") or both answer? | **Both answer.** After both have revealed, either partner can write their own follow-up question. It becomes a child session exactly like a curated follow-up: both answer independently with soft-lock; answers auto-show once both have submitted (Q22). Attributed to its author (it's inside a session they're both already in, so anonymity is pointless). Max 3 open partner-added questions per session. This replaces the "one poses, the other answers" wording in `scope.md`, which is one-sided pressure and DM-shaped. **Ships in MVP-2** (P2-7). | P2-7 |
+| Q22 | Do follow-ups (curated or partner-added) need their own Reveal tap? | **No.** Follow-ups keep blind answering (nothing visible until both have submitted), but answers **auto-show** to both as soon as the second partner submits. Only the main prompt keeps the per-user Reveal moment. Rejected alternative: instant visibility on submit — it lets the second answerer react instead of answer, exposes whoever goes first, and turns discussion into a two-person thread. Supersedes `scope.md` "answer visible to both on submit" for partner-added questions. | P1-8, P2-7 |
 | Q20 | Display name: required, and unique? | Required, not unique, 1–40 characters, editable. It's only ever shown to your partner in MVP-1. | P1-4 |
 
 - [ ] **D-4** Copy the answers to Q1–Q20 into `scope.md` and remove them from "Open product questions".
@@ -188,12 +189,12 @@ Goal: something you can hand to a real couple without hand-holding or embarrassm
 
 - [ ] **P1-6 · Session completion (Q1)** · M — couple-level session state, derived from the main session + its child sessions: `in_progress` → `in_discussion` (main revealed by both, a follow-up open) → `completed`. Domain function + tests in `packages/domain`. Hub: active (incl. "In discussion") first, completed in a "Past conversations" section below. **Depends on P1-8** (needs child sessions to exist).
 - [ ] **P1-7 · Skip / archive (Q3, Q4)** · M — `conversation_sessions.archived_at`, `archived_by_user_id`, `decline_reason` (enum). Endpoint + hub filter + domain tests. Audit event.
-- [ ] **P1-8 · Curated follow-ups (T5)** · L — see the ERD section for the recommended model (follow-ups are *child sessions*, so soft-lock + per-user reveal are reused unchanged).
+- [ ] **P1-8 · Curated follow-ups (T5)** · L — see the ERD section for the recommended model (follow-ups are *child sessions*, so soft-lock is reused unchanged). Per Q22, child sessions **skip the reveal step**: `canViewerSeeAnswerText` treats "both submitted" as visible when `parent_session_id` is set, and `sessionViewerPhase` goes `waiting_for_partner` → `revealed` for children (no `ready_to_reveal`). No `session_reveals` rows for children.
   - Schema: `prompts.parent_prompt_id`, `kind = 'follow_up'`; `conversation_sessions.parent_session_id`.
   - Seed: 2–3 follow-ups per curated prompt in `catalogue.data.ts`.
   - API: `GET /sessions/:id` includes `followUps` only when **both** have revealed (FR-19); `POST /sessions/:id/follow-ups` `{ promptId }` creates the child session; `GET /sessions` excludes children.
   - Web: optional follow-up list + "take it offline" card under revealed answers (FR-20, FR-22). Same four-state component reused for the child.
-  - Domain tests: follow-ups hidden until both revealed; child soft-lock.
+  - Domain tests: follow-ups hidden until both revealed the main prompt; child answers hidden until both submitted; child answers visible to both immediately after the second submit with no reveal row.
 
 **Safety, privacy, legal**
 
@@ -597,3 +598,4 @@ Phase 2 → Phase 3
 | 2026-10-14 | Task list + ERD written | App stops at `/conversation/[id]` (route missing) |
 | 2026-10-15 | Client decisions Q1–Q20 + ERD review E-1…E-12 added | Owner-only questions O-1…O-3 still open |
 | 2026-10-15 | Q1 revised (completion waits for open follow-ups, new "In discussion" state); Q21 + P2-7 partner-added questions added | Gap found by owner |
+| 2026-10-15 | Q22: follow-ups keep blind answering but auto-show (no Reveal tap) | Instant visibility on submit considered and rejected |

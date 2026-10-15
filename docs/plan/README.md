@@ -19,7 +19,7 @@ them, and they get copied into `scope.md` by task [D-4](03-product-decisions.md#
 | 03 | [Product decisions](03-product-decisions.md) | Q1…Q22, the rules the build follows |
 | 04 | [Owner answers](04-owner-answers.md) | O-1…O-3: legal setup, data region, monetisation |
 | **Tasks** | | |
-| | [Phase 0: core loop](tasks/phase-0-core-loop.md) | P0-*: the `/conversation/[id]` page and getting to EU. **Start here.** |
+| | [Phase 0: core loop](tasks/phase-0-core-loop.md) | P0-*: the `/conversation/[id]` page and getting to EU. **Start here.** Every task has a step-by-step guide with code in [`tasks/phase-0/`](tasks/phase-0/) |
 | | [Phase 1: MVP-1](tasks/phase-1-mvp-1.md) | P1-*: follow-ups, account, safety, ops, content, launch |
 | | [Phase 2: MVP-2](tasks/phase-2-couple-created.md) | P2-*: custom prompts, partner-added questions |
 | | [Phase 3: MVP-3](tasks/phase-3-community.md) | P3-*: community, publishing, moderation |
@@ -79,3 +79,4 @@ Phase 2 → Phase 3
 | 2026-10-15 | Q22: follow-ups keep blind answering but auto-show (no Reveal tap) | Instant visibility on submit considered and rejected |
 | 2026-10-15 | Owner answered O-1…O-3; release gates, P0-10 EU region, L-1…L-5, M-1 | First users: owner + partner, then cousin + wife |
 | 2026-10-15 | Split the single `docs/product/task-list.md` into this folder | Fixed stale text from before Q22 in ERD MVP-1 and the MVP table |
+| 2026-10-15 | Step-by-step guides with ready-to-paste code for every Phase 0 task; prototype reuse notes for P1-2 and P1-8 | Code adapted from `between-us-source` to `apps/web` (Base UI, existing hooks and tokens) |

@@ -7,19 +7,21 @@
 Tasks marked **🅰** are needed for [Gate A](../02-mvp-and-release-gates.md#release-gates) (family alpha).
 Everything else is needed for Gate B (couples you don't know personally).
 
+Tasks with a 📘 link have prototype code ready to reuse. Full step-by-step guides for Phase 1 get written when you start it, against the code as it is then.
+
 ---
 
 ## Navigation & account
 
 - [ ] **P1-1 · App header + logout** 🅰 · S — In `(app)/layout.tsx`: brand, "Conversations", "Start", and an account menu with **Log out**. `POST /logout` exists, but no web UI calls it today.
-- [ ] **P1-2 · Hub invite-pending parity (T1)** · M — See [`04-tickets.md` T1](../../extraction/04-tickets.md). Start disabled with a reason; steps/education; resend and revoke invite.
+- [ ] **P1-2 · Hub invite-pending parity (T1)** · M · [📘 prototype reuse](phase-1/P1-2-hub-invite-pending.md) — See [`04-tickets.md` T1](../../extraction/04-tickets.md). Start disabled with a reason; steps/education; resend and revoke invite.
 - [ ] **P1-3 · Replace placeholder error/empty copy** 🅰 · S — `/couple`, `/start`, `/start/[slug]` ("Error loading themes") and the conversation page. Remove the `!` non-null assertion in `start/[slug]/page.tsx`.
 - [ ] **P1-4 · Settings page `/settings`** · M — Change display name (`PATCH /users/me`, rules in [Q20](../03-product-decisions.md#q20)); change password (`POST /auth/change-password`, which revokes other refresh tokens).
 - [ ] **P1-5 · Password reset** · M — `password_reset_tokens` table ([ERD](../erd/mvp-1.md)), stored as a hash like `email_verification_tokens`. `POST /forgot-password`, `POST /reset-password`, web pages, and revoke all refresh tokens on success. Always return 200 from forgot-password so it can't be used to check which emails have accounts. At Gate A this can be "message me".
 
 ## Conversation engine completion
 
-- [ ] **P1-8 · Curated follow-ups (T5)** 🅰 · L — Follow-ups are *child sessions* ([ERD MVP-1](../erd/mvp-1.md)), so the hidden-until-both-submit rule is reused unchanged. Per [Q22](../03-product-decisions.md#q22), child sessions **skip the reveal step**: `canViewerSeeAnswerText` treats "both submitted" as visible when `parent_session_id` is set, and `sessionViewerPhase` goes from `waiting_for_partner` straight to `revealed` for children (no `ready_to_reveal`). No `session_reveals` rows for children.
+- [ ] **P1-8 · Curated follow-ups (T5)** 🅰 · L · [📘 prototype reuse](phase-1/P1-8-follow-ups.md) — Follow-ups are *child sessions* ([ERD MVP-1](../erd/mvp-1.md)), so the hidden-until-both-submit rule is reused unchanged. Per [Q22](../03-product-decisions.md#q22), child sessions **skip the reveal step**: `canViewerSeeAnswerText` treats "both submitted" as visible when `parent_session_id` is set, and `sessionViewerPhase` goes from `waiting_for_partner` straight to `revealed` for children (no `ready_to_reveal`). No `session_reveals` rows for children.
   - Schema: `prompts.parent_prompt_id`, `kind = 'follow_up'`; `conversation_sessions.parent_session_id`. One level only ([E-12](../erd/design-review.md#e-12)).
   - Seed: 2–3 follow-ups per curated prompt in `catalogue.data.ts`.
   - API: `GET /sessions/:id` includes `followUps` only when **both** have revealed (FR-19); `POST /sessions/:id/follow-ups` `{ promptId }` creates the child session; `GET /sessions` excludes children.

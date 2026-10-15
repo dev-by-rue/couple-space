@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 import type { AuthUser } from "../auth/auth-user.types.js";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
@@ -28,14 +28,14 @@ export class ConversationsController {
   }
 
   @Get("sessions/:id")
-  getSession(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+  getSession(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.conversations.getSession(user, id);
   }
 
   @Post("sessions/:id/responses")
   submitResponse(
     @CurrentUser() user: AuthUser,
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() body: unknown,
   ) {
     const input = submitResponseSchema.parse(body);
@@ -43,7 +43,7 @@ export class ConversationsController {
   }
 
   @Post("sessions/:id/reveal")
-  revealSession(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+  revealSession(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.conversations.revealSession(user, id);
   }
 }

@@ -73,7 +73,7 @@ What this changes in `scope.md`:
 
 - [ ] **D-1** Promote the three-release split into `scope.md` → "MVP foundation (implementation order)". Community stays MVP for *public launch*, just not for the *beta*.
 - [ ] **D-2** Move "custom prompts" from MVP-1 to MVP-2 (the walking skeleton is curated-only anyway).
-- [ ] **D-3** State that "guided discussion" in MVP-1 = **curated follow-ups only**; partner-added questions arrive with MVP-2.
+- [ ] **D-3** State that "guided discussion" in MVP-1 = **curated follow-ups only**; partner-added questions arrive with MVP-2 as *both-answer* child sessions (Q21), replacing the "directed" model.
 
 ---
 
@@ -87,7 +87,7 @@ overrule any of them, but do it **before** the task that depends on it.
 
 | # | Question | Client decision | Blocks |
 | --- | --- | --- | --- |
-| Q1 | When is a session "completed"? | **Derived, no column:** completed when both partners have revealed (follow-ups don't affect it). | P1-6 |
+| Q1 | When is a session "completed"? | **Derived, no column:** completed when both partners have revealed the main prompt **and** no follow-up/discussion question is still in progress (every started child session is revealed by both, or archived). While a child is open, the session is **"In discussion"** and stays in the active list. Starting a new follow-up on a completed session moves it back to active. | P1-6 |
 | Q2 | Concurrent sessions per couple? | Unlimited (already decided for T0) — revisit after beta feedback. | — |
 | Q3 | Can a partner skip/decline a prompt? | Yes, either partner; optional **preset** reason, no free text (already suggested in walking-skeleton plan). | P1-7 |
 | Q4 | Can a session be deleted/archived? | Archive only (hidden from hub, kept in history). No hard delete in MVP-1 except via account deletion. | P1-7 |
@@ -106,6 +106,7 @@ overrule any of them, but do it **before** the task that depends on it.
 | Q17 | Is the answer text encrypted beyond Railway's disk encryption? | Not for beta. Answers are never logged and are scrubbed from error reports (P1-18). Revisit app-level encryption before public launch. | P1-18 |
 | Q18 | Data retention after dissolution or deletion | Dissolved couple's session content is hard-deleted after 30 days. Audit rows are kept, without content. | P1-11, P1-12 |
 | Q19 | Can someone re-couple after leaving? | Yes, immediately, into a new couple. The old couple's history never carries over. | P1-11 |
+| Q21 | Partner-added discussion questions: one-sided ("directed") or both answer? | **Both answer.** After both have revealed, either partner can write their own follow-up question. It becomes a child session exactly like a curated follow-up: both answer independently, soft-lock, per-user reveal. Attributed to its author (it's inside a session they're both already in, so anonymity is pointless). Max 3 open partner-added questions per session. This replaces the "one poses, the other answers" wording in `scope.md`, which is one-sided pressure and DM-shaped. **Ships in MVP-2** (P2-7). | P2-7 |
 | Q20 | Display name: required, and unique? | Required, not unique, 1–40 characters, editable. It's only ever shown to your partner in MVP-1. | P1-4 |
 
 - [ ] **D-4** Copy the answers to Q1–Q20 into `scope.md` and remove them from "Open product questions".
@@ -185,7 +186,7 @@ Goal: something you can hand to a real couple without hand-holding or embarrassm
 
 **Conversation engine completion**
 
-- [ ] **P1-6 · Session completion (Q1)** · S — add `completed` to the hub view (derived: both revealed). Decide hub order: active first, completed in a "Past conversations" section below.
+- [ ] **P1-6 · Session completion (Q1)** · M — couple-level session state, derived from the main session + its child sessions: `in_progress` → `in_discussion` (main revealed by both, a follow-up open) → `completed`. Domain function + tests in `packages/domain`. Hub: active (incl. "In discussion") first, completed in a "Past conversations" section below. **Depends on P1-8** (needs child sessions to exist).
 - [ ] **P1-7 · Skip / archive (Q3, Q4)** · M — `conversation_sessions.archived_at`, `archived_by_user_id`, `decline_reason` (enum). Endpoint + hub filter + domain tests. Audit event.
 - [ ] **P1-8 · Curated follow-ups (T5)** · L — see the ERD section for the recommended model (follow-ups are *child sessions*, so soft-lock + per-user reveal are reused unchanged).
   - Schema: `prompts.parent_prompt_id`, `kind = 'follow_up'`; `conversation_sessions.parent_session_id`.
@@ -230,6 +231,7 @@ Promote the anonymous-pool model into `scope.md` first (open questions 1–4 in 
 - [ ] **P2-2 · Custom prompt propose / accept / discard (T3)** · L — `prompt_proposals` table (see ERD); cap 3 pending per proposer (domain fn + test); composer on `/start` "Your own" tab; partner inbox on hub.
 - [ ] **P2-3 · Anonymous partner prompts on `/start` (T4)** · L — couple-scoped prompts mixed into the catalogue without authorship; attribution revealed only after both reveal. API test that `author_user_id` never leaks pre-reveal.
 - [ ] **P2-4 · Generic follow-ups for custom prompts (Q11)** · S
+- [ ] **P2-7 · Partner-added discussion questions (Q21)** · M — inside a session both have revealed, "Ask your own question" composer → creates a child session (`prompts.kind = 'partner_question'`, `couple_id` + `author_user_id` set, `parent_prompt_id` = the main prompt). Reuses the P1-8 child-session machinery and the four-state page. Cap 3 open per session (domain fn + test). Update `scope.md` Guided discussion wording (D-3) and retire FR-23's "directed" model.
 - [ ] **P2-5 · Session history view** · M — "Past conversations" with search by theme. (Roadmap item — only once promoted.)
 - [ ] **P2-6 · Save / favourite prompts** · S — `saved_prompts (couple_id, prompt_id)`. (Roadmap item — only once promoted.)
 
@@ -482,7 +484,7 @@ erDiagram
     prompts {
         uuid couple_id FK "✏️ null = platform prompt"
         uuid author_user_id FK "✏️ never sent to non-author pre-reveal"
-        text kind "✏️ + custom"
+        text kind "✏️ + custom | partner_question (Q21)"
     }
     prompt_proposals {
         uuid id PK "🆕"
@@ -579,7 +581,7 @@ record every moderation action.
 P0-1 → P0-2 → P0-3 → P0-5 → P0-6 → P0-7 → P0-9        ← you can demo the full loop here
 H-11 → H-12 → H-2                                     ← schema fixes while the DB has no real data
    D-1…D-4 (scope decisions, an evening of writing)
-P1-1 → P1-3 → P1-8 (follow-ups) → P1-6/P1-7
+P1-1 → P1-3 → P1-8 (follow-ups) → P1-6 → P1-7
 P1-15 → P1-16 → P1-17 → P1-18 → P1-19                 ← ops, before strangers touch it
 P1-5 → P1-9 → P1-10 → P1-11 → P1-12 → P1-13
 P1-2 → P1-20 → P1-21 → P1-22…24                       ← private beta
@@ -594,3 +596,4 @@ Phase 2 → Phase 3
 | --- | --- | --- |
 | 2026-10-14 | Task list + ERD written | App stops at `/conversation/[id]` (route missing) |
 | 2026-10-15 | Client decisions Q1–Q20 + ERD review E-1…E-12 added | Owner-only questions O-1…O-3 still open |
+| 2026-10-15 | Q1 revised (completion waits for open follow-ups, new "In discussion" state); Q21 + P2-7 partner-added questions added | Gap found by owner |

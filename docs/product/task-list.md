@@ -112,13 +112,36 @@ overrule any of them, but do it **before** the task that depends on it.
 
 - [ ] **D-4** Copy the answers to Q1–Q20 into `scope.md` and remove them from "Open product questions".
 
-### 3.2 Questions only you can answer (as the real-world owner)
+### 3.2 Owner answers (2026-10-15)
 
-These depend on facts about you rather than product taste, so the client can't decide them:
+| # | Question | Owner's answer | What it means for the plan |
+| --- | --- | --- | --- |
+| O-1 | Legal entity / jurisdiction | Not trading yet. UK-based, idea stage; will research sole trader vs other options along the way. | No legal entity needed to build or to test with family. Setting one up becomes a **gate before any couple you don't personally know** signs up (tasks L-1…L-5 below). |
+| O-2 | Data region | Pin data to an **EU region**. Users for now: you + your partner, then your cousin + his wife. Nobody else. | Move Railway services to an EU region now, while there's no data worth keeping (P0-10). The first release is a **family alpha** of 2 couples, not a 3–5 couple beta (see §3.3). |
+| O-3 | Monetisation | Undecided; will research — believes the idea is viable. | Build nothing for it. Keep E-10: never put plan/billing columns on `users`; if it comes, billing hangs off `couples`. Research task M-1 after the alpha. |
 
-- [ ] **O-1** Legal entity and jurisdiction. Are you operating as a sole trader in the UK? This affects the privacy policy wording, the ICO registration fee and the age gate wording.
-- [ ] **O-2** Where real couples' data lives. Is the Railway region (EU or US) acceptable for UK users' intimate data? If not, pin the beta DB to an EU region.
-- [ ] **O-3** Monetisation intent, even if it's years away. You don't need to build anything, but say so if "premium" will mean per-couple subscriptions. The billing owner would then be the couple, not a user, and the ERD in §5.4 should allow for that.
+### 3.3 🟢 Client decision — release gates (follows from O-1 and O-2)
+
+Phase 1 was written for strangers. With two couples you know personally, split it into two gates so you can use the app with your partner much sooner:
+
+| Gate | Who | Must be done |
+| --- | --- | --- |
+| **A · Family alpha** | You + partner, cousin + wife | Phase 0 (incl. P0-10 EU region) · H-11, H-12, H-2 · P1-1 logout · P1-3 error copy · P1-8 follow-ups · P1-6 completion · P1-19 backups · P1-21 enough prompts to last a few weeks |
+| **B · Stranger beta** | Any couple you don't know personally | Everything else in Phase 1 **plus** L-1…L-5 (legal) |
+
+At Gate A, `SANDBOX_AUTO_VERIFY` can stay on and password reset can be "message me" — you know everyone. At Gate B neither is acceptable.
+
+**Legal & business (Gate B only — research, not code).** This is a checklist of things to find out, not legal advice; check each against the official source.
+
+- [ ] **L-1** Decide trading structure (sole trader vs limited company). Worth asking specifically about personal liability, given the app holds intimate data. Sources: gov.uk "Set up as a sole trader" / "Set up a limited company".
+- [ ] **L-2** Check whether you need to pay the ICO data protection fee (ico.org.uk has a short self-assessment).
+- [ ] **L-3** ⚠️ **Special category data.** Answers about sex life and relationships are likely "special category" data under UK GDPR (Article 9), which normally needs **explicit consent** and extra safeguards. Read the ICO guidance on special category data before Gate B — it may affect the register flow (an explicit consent step) and Q17 (encryption).
+- [ ] **L-4** Data protection impact assessment (DPIA). The ICO has a template; for this kind of data it's likely expected, and it's a good forcing function for Q7/Q8/Q17/Q18.
+- [ ] **L-5** Privacy policy + terms (P1-13) written against L-1…L-4, naming the EU data region.
+
+**Monetisation (after Gate A)**
+
+- [ ] **M-1** Research models that don't distort the private experience (e.g. per-couple subscription, paid journeys/themes). Write findings into `future-roadmap.md`. Nothing in the schema changes until a model is chosen.
 
 ---
 
@@ -127,7 +150,7 @@ These depend on facts about you rather than product taste, so the client can't d
 ### Phase 0 — Unblock the core loop (do this first)
 
 Goal: two people can go hub → start → answer → wait → reveal → see both answers, on Railway.
-Reference: walking-skeleton plan step 5, [`2026-09-21-conversation-walking-skeleton.md`](../superpowers/plans/2026-09-21-conversation-walking-skeleton.md).
+Reference: the older walking-skeleton plan, [`2026-09-21-conversation-walking-skeleton.md`](../superpowers/plans/2026-09-21-conversation-walking-skeleton.md) → "Consolidated plan" checklist item **5 (`/conversation/[id]`, four viewer states)**. That plan has its own numbering (checklist items 1–6 and Tasks 1–8). This file replaces it, so from here on use the IDs in this file (P0-1, P0-2, …).
 
 - [ ] **P0-1 · `/conversation/[id]` route shell** · S
   - Create `apps/web/app/(app)/conversation/[id]/page.tsx` (`"use client"`, read id with `useParams()` — Next 16 note in `apps/web/AGENTS.md`).
@@ -168,14 +191,19 @@ Reference: walking-skeleton plan step 5, [`2026-09-21-conversation-walking-skele
 - [ ] **P0-8 · Clean the sandbox data** · S
   - Delete orphan sessions created while the page 404'd (SQL on Railway Postgres, or reset the DB — seed is idempotent).
 
+- [ ] **P0-10 · Move Railway to an EU region (O-2)** · S
+  - Set the region for `Postgres`, `api` and `web` to an EU region (Railway service settings; check Railway docs for how region changes work for a database with a volume).
+  - Simplest path while the data is test-only: create a fresh Postgres in the EU region, point `api` at it, redeploy — migrations + seed run on pre-deploy. This also clears the orphan sessions (P0-8).
+  - Record the region in `docs/deployment/railway.md`.
+
 - [ ] **P0-9 · Two-browser smoke, local then Railway** · S
   - Follow the reveal table in the walking-skeleton plan with a normal + private window.
   - Extend `docs/engineering/conversation-api-smoke.md` with a "web" section.
-  - Tick walking-skeleton steps 5 and 6.
+  - Also tick checklist items 5 and 6 in the walking-skeleton plan's "Consolidated plan" section so that older doc doesn't look unfinished.
 
-### Phase 1 — Private beta (MVP-1)
+### Phase 1 — Family alpha → private beta (MVP-1)
 
-Goal: something you can hand to a real couple without hand-holding or embarrassment.
+Goal: something you can hand to a real couple without hand-holding or embarrassment. Tasks needed for **Gate A** (family alpha) are listed in §3.3; the rest are Gate B.
 
 **Navigation & account**
 
@@ -220,8 +248,9 @@ Goal: something you can hand to a real couple without hand-holding or embarrassm
 
 **Beta launch checklist**
 
-- [ ] **P1-22** Beta environment on Railway (separate DB from sandbox).
-- [ ] **P1-23** Invite 3–5 couples; collect feedback with a simple form (outside the app — no in-app DM surface).
+- [ ] **P1-22** Beta environment on Railway (separate DB from sandbox, EU region).
+- [ ] **P1-23a** Gate A: you + partner use it for a couple of weeks, then your cousin + his wife. Keep a simple notes file of friction points.
+- [ ] **P1-23b** Gate B: invite 3–5 couples you don't know personally; collect feedback with a simple form (outside the app — no in-app DM surface).
 - [ ] **P1-24** Review feedback → revisit Q2, Q3, Q6 and the MVP-2 plan.
 
 ### Phase 2 — Couple-created prompts (MVP-2)
@@ -283,7 +312,7 @@ The diagrams in §5.2 to §5.4 already include these decisions.
 | E-7 | **Deletion vs audit.** `audit_events.actor_user_id` has no FK, which is good. But `metadata` could contain content. | Account deletion (Q8) must not leave intimate text behind in audit metadata. | Rule: audit metadata holds **ids and enums only, never answer or prompt text**. Add a code-review checklist line for it. |
 | E-8 | **Purge job.** Q18 needs something to hard-delete dissolved-couple content after 30 days. | No scheduler exists yet. | A Railway cron service running a script in `packages/database`, scheduled daily. Purge sessions where `couples.dissolved_at < now() - 30 days`. |
 | E-9 | **Timezones.** All timestamps except `refresh_tokens.expires_at` are `timestamptz`. | That's correct. Mixed types cause off-by-an-hour bugs around BST. | Fix the one outlier (H-2). Keep storing UTC and format in the browser. |
-| E-10 | **Billing owner (future).** | If premium ever happens, the payer is likely the couple, but couples dissolve. | Nothing to build now. Don't put user-level plan columns on `users`. If needed later, `subscriptions` hangs off `couples` (pending O-3). |
+| E-10 | **Billing owner (future).** | If premium ever happens, the payer is likely the couple, but couples dissolve. | Nothing to build now. Don't put user-level plan columns on `users`. If needed later, `subscriptions` hangs off `couples` (O-3: undecided, see M-1). |
 | E-11 | **Couple-level identity for community.** | The community's public actor is the couple, so a handle has to outlive name changes but not dissolution. | `community_profiles` keyed by `couple_id` (§5.4). Dissolution withdraws the profile and its posts. |
 | E-12 | **Follow-up depth.** Child sessions could nest forever. | UI and queries get messy. | One level only. A follow-up session can't have its own follow-ups. Enforce with a domain check on create. |
 
@@ -579,13 +608,16 @@ record every moderation action.
 ## 6. Suggested order at a glance
 
 ```
+P0-10 (EU region: first, while the data is throwaway; also does P0-8)
 P0-1 → P0-2 → P0-3 → P0-5 → P0-6 → P0-7 → P0-9        ← you can demo the full loop here
 H-11 → H-12 → H-2                                     ← schema fixes while the DB has no real data
    D-1…D-4 (scope decisions, an evening of writing)
-P1-1 → P1-3 → P1-8 (follow-ups) → P1-6 → P1-7
-P1-15 → P1-16 → P1-17 → P1-18 → P1-19                 ← ops, before strangers touch it
+P1-1 → P1-3 → P1-8 (follow-ups) → P1-6 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
+P1-7
+P1-15 → P1-16 → P1-17 → P1-18                         ← ops, before strangers touch it
 P1-5 → P1-9 → P1-10 → P1-11 → P1-12 → P1-13
-P1-2 → P1-20 → P1-21 → P1-22…24                       ← private beta
+L-1…L-5 (legal research, in parallel with the code)
+P1-2 → P1-20 → P1-22 → P1-23b → P1-24                  ← Gate B: private beta
 Phase 2 → Phase 3
 ```
 
@@ -599,3 +631,4 @@ Phase 2 → Phase 3
 | 2026-10-15 | Client decisions Q1–Q20 + ERD review E-1…E-12 added | Owner-only questions O-1…O-3 still open |
 | 2026-10-15 | Q1 revised (completion waits for open follow-ups, new "In discussion" state); Q21 + P2-7 partner-added questions added | Gap found by owner |
 | 2026-10-15 | Q22: follow-ups keep blind answering but auto-show (no Reveal tap) | Instant visibility on submit considered and rejected |
+| 2026-10-15 | Owner answered O-1…O-3; added release gates (§3.3), P0-10 EU region, L-1…L-5 legal, M-1 | First users: owner + partner, then cousin + wife |

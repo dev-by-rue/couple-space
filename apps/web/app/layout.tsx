@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree, Geist_Mono, Newsreader } from "next/font/google";
+import { Figtree, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
@@ -10,7 +10,7 @@ const figtree = Figtree({
   variable: "--font-sans",
 });
 
-const newsreader = Newsreader({
+const brico = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-display",
 });
@@ -35,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(
         "h-full antialiased font-sans",
         figtree.variable,
-        newsreader.variable,
+        brico.variable,
         geistMono.variable,
       )}
     >

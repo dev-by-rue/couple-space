@@ -1,6 +1,6 @@
 /**
  * Reads the HTTP status out of an error thrown by `apiFetch`
- * 
+ *
  * @param error - Any error caught from a query or mutation.
  * @returns The status code, or `undefined` if it is not an API error (eg offline error)
  */
@@ -12,11 +12,11 @@ export function apiErrorStatus(error: unknown): number | undefined {
 
 /**
  * Reads NestJs `reason` code out of an `apiFetch` error.
- * 
+ *
  * @remarks
  * Nest exceptions in this API are thrown as `new Exception({ reason })`,
  * so the response body will be `{ "reason": "..." }`.
- * 
+ *
  * @param error - Any error caught from a query or mutation.
  * @returns The reason code, or `undefined` if it is not an API error.
  */

@@ -56,10 +56,14 @@ export function SessionAnswerForm({
     .length;
 
   return (
-    <form id={FORM_ID} className="flex flex-col gap-4">
+    <form
+      id={FORM_ID}
+      className="flex flex-col gap-4"
+      onSubmit={form.handleSubmit(({ text }) => handleSubmission(text))}
+    >
       <p className="flex items-center gap-3 rounded-lg bg-secondary p-4 text-sm leading-relaxed text-secondary-foreground">
         <LockKeyholeIcon aria-hidden="true" className="size-4 shrink-0 mr-1" />
-        Your partner will see once both of you have answered.
+        Your partner will see once both of you have answered. {answerLength}
       </p>
       {partnerSubmitted ? (
         <p className="flex items-center gap-3 rounded-lg bg-primary p-4 text-sm leading-relaxed text-primary-foreground">
@@ -83,6 +87,7 @@ export function SessionAnswerForm({
             readOnly={isSubmitting}
             aria-invalid={!!errors.text || undefined}
             className="min-h-56 rezise-none rounded-lg bg-card p-5 text-base leading-9 md:text-base"
+            {...form.register("text")}
           />
           <FieldDescription className="flex justify-between gap-4">
             <span>You can&apos;t change your answer after submitting.</span>

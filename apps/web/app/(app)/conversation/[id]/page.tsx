@@ -17,6 +17,7 @@ import { SessionPromptHeader } from "@/components/molecules/session-prompt-heade
 import { apiErrorReason, apiErrorStatus } from "@/lib/api/api-error";
 import { SessionAnswerForm } from "@/components/organisms/session-answer-form/session-answer-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { SessionWaiting } from "@/components/molecules/session-waiting/session-waiting";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
@@ -66,6 +67,7 @@ export default function ConversationPage() {
   const partner = data.responses.find(
     (response) => response.userId !== me.data.id,
   );
+  const own = data.responses.find((r) => r.userId === me.data.id);
   const partnerName = partner?.displayName ?? "Your partner";
 
   return (
@@ -98,7 +100,13 @@ export default function ConversationPage() {
           }
         />
       )}
-      {data.phase === "waiting_for_partner" && <p>Waiting (P0-3)</p>}
+      {data.phase === "waiting_for_partner" && (
+        <SessionWaiting
+          partnerName={partnerName}
+          viewerName={me.data.displayName}
+          ownAnswer={own?.text ?? null}
+        />
+      )}
       {data.phase === "ready_to_reveal" && <p>Reveal button (P0-5)</p>}
       {data.phase === "revealed" && <p>Both answers (P0-5)</p>}
     </main>

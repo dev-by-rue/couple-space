@@ -4,22 +4,43 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { useMeQuery } from "@/hooks/use-me";
-import { useSessionQuery } from "@/hooks/use-sessions";
+import {
+  sessionQueryKey,
+  useSessionQuery,
+  useSubmitResponseMutation,
+} from "@/hooks/use-sessions";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { RedirectTo } from "@/components/organisms/redirect-to/redirect-to";
 import { SessionPageSkeleton } from "@/components/molecules/session-page-skeleton/session-page-skeleton";
 import { SessionPromptHeader } from "@/components/molecules/session-prompt-header/session-prompt-header";
-import { apiErrorStatus } from "@/lib/api/api-error";
+import { apiErrorReason, apiErrorStatus } from "@/lib/api/api-error";
+import { SessionAnswerForm } from "@/components/organisms/session-answer-form/session-answer-form";
+import { useQueryClient } from "@tanstack/react-query";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
 
+function submissionErrorMessage(error: Error): string {
+  if (apiErrorReason(error) === "already_submitted") {
+    return "You've already answered this one. Refreshing...";
+  }
+  return "Your answer didn't send. Your text is still here - try again";
+}
+
 export default function ConversationPage() {
+  const client = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const me = useMeQuery();
   const session = useSessionQuery(id);
 
+  const submit = useSubmitResponseMutation({
+    onError: (error) => {
+      if (apiErrorReason(error) === "already_submitted") {
+        void client.invalidateQueries({ queryKey: sessionQueryKey(id) });
+      }
+    },
+  });
   if (session.isPending || me.isPending) return <SessionPageSkeleton />;
 
   if (session.isError) {
@@ -42,6 +63,11 @@ export default function ConversationPage() {
 
   const { data } = session;
 
+  const partner = data.responses.find(
+    (response) => response.userId !== me.data.id,
+  );
+  const partnerName = partner?.displayName ?? "Your partner";
+
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-8 p-6">
       <Link
@@ -57,7 +83,21 @@ export default function ConversationPage() {
 
       <SessionPromptHeader prompt={data.prompt} />
 
-      {data.phase === "answering" && <p>Answer form (P0-2)</p>}
+      {data.phase === "answering" && (
+        <SessionAnswerForm
+          partnerName={partnerName}
+          partnerSubmitted={data.partnerSubmitted}
+          errorMessage={
+            submit.isError ? submissionErrorMessage(submit.error) : undefined
+          }
+          handleSubmission={(text) =>
+            submit.mutate({
+              sessionId: id,
+              text,
+            })
+          }
+        />
+      )}
       {data.phase === "waiting_for_partner" && <p>Waiting (P0-3)</p>}
       {data.phase === "ready_to_reveal" && <p>Reveal button (P0-5)</p>}
       {data.phase === "revealed" && <p>Both answers (P0-5)</p>}

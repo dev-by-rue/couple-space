@@ -74,7 +74,7 @@ export class AuthService {
 
     try {
       if (autoVerify) return { ...pair, user: toPublicUser(row) };
-      // await this.emailVerification.sendVerificationEmail(row.id, row.email);
+      await this.emailVerification.sendVerificationEmail(row.id, row.email);
     } catch {
       // Account is already committed; SMTP failure must not roll back registration.
       // Client can resend from /check-email once mail is reachable.

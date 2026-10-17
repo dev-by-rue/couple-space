@@ -1,4 +1,4 @@
-import type { CoupleStatus } from "./couple-status.js";
+import type { CoupleStatus } from "../couple-status.js";
 
 export type CanActivateCoupleInput = {
   coupleStatus: CoupleStatus;

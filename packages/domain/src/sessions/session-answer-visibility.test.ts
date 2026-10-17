@@ -38,7 +38,7 @@ describe("canViewerSeeAnswerText", () => {
     ).toBe(true);
   });
 
-  it("hides unsubmitted author text", () => {
+  it("lets the author see their own unsubmitted draft", () => {
     expect(
       canViewerSeeAnswerText({
         viewerId: "u1",
@@ -46,6 +46,18 @@ describe("canViewerSeeAnswerText", () => {
         authorSubmitted: false,
         bothSubmitted: false,
         viewerHasRevealed: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("never shows a partner's unsubmitted draft", () => {
+    expect(
+      canViewerSeeAnswerText({
+        viewerId: "u1",
+        answerAuthorId: "u2",
+        authorSubmitted: false,
+        bothSubmitted: false,
+        viewerHasRevealed: true,
       }),
     ).toBe(false);
   });

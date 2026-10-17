@@ -41,7 +41,7 @@ source, ready-to-paste code adapted to `apps/web`, and a check. Tick the box her
 ```
 packages/domain/src/
   answer-rules.ts                          P0-2   (new)
-  session-open.ts + .test.ts               P0-7   (new)
+  sessions/session-open.ts + .test.ts      P0-7   (new)
   session-answer-visibility.ts + .test.ts  P0-4   (change)
   index.ts                                 P0-2, P0-7
 apps/api/src/conversations/

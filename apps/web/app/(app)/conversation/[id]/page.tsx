@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useMeQuery } from "@/hooks/use-me";
 import {
   sessionQueryKey,
+  useRevealSessionMutation,
   useSaveDraftMutation,
   useSessionQuery,
   useSubmitResponseMutation,
@@ -21,6 +22,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SessionWaiting } from "@/components/molecules/session-waiting/session-waiting";
 import { useMemo } from "react";
 import { debounce } from "@/lib/debounce";
+import { SessionRevealButton } from "@/components/molecules/session-reveal-button/session-reveal-button";
+import { SessionRevealPanel } from "@/components/organisms/session-reveal-panel/session-reveal-panel";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
@@ -38,6 +41,7 @@ export default function ConversationPage() {
   const me = useMeQuery();
   const session = useSessionQuery(id);
 
+  const reveal = useRevealSessionMutation();
   const saveDraft = useSaveDraftMutation();
   const saveDraftMutate = saveDraft.mutate;
   const saveDraftSoon = useMemo(
@@ -124,8 +128,21 @@ export default function ConversationPage() {
           ownAnswer={own?.text ?? null}
         />
       )}
-      {data.phase === "ready_to_reveal" && <p>Reveal button (P0-5)</p>}
-      {data.phase === "revealed" && <p>Both answers (P0-5)</p>}
+      {data.phase === "ready_to_reveal" && (
+        <SessionRevealButton
+          partnerName={partnerName}
+          isRevealing={reveal.isPending}
+          errorMessage={
+            reveal.isError
+              ? "Couldn't reveal just now. Please try again"
+              : undefined
+          }
+          onReveal={() => reveal.mutate(id)}
+        />
+      )}
+      {data.phase === "revealed" && (
+        <SessionRevealPanel responses={data.responses} viewerId={me.data.id} />
+      )}
     </main>
   );
 }

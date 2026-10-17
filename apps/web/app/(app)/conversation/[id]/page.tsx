@@ -20,6 +20,7 @@ import { SessionAnswerForm } from "@/components/organisms/session-answer-form/se
 import { useQueryClient } from "@tanstack/react-query";
 import { SessionWaiting } from "@/components/molecules/session-waiting/session-waiting";
 import { useMemo } from "react";
+import { debounce } from "@/lib/debounce";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
@@ -105,7 +106,7 @@ export default function ConversationPage() {
           partnerSubmitted={data.partnerSubmitted}
           isSubmitting={submit.isPending}
           errorMessage={
-            submit.isError ? submitErrorMessage(submit.error) : undefined
+            submit.isError ? submissionErrorMessage(submit.error) : undefined
           }
           defaultText={own?.text ?? ""}
           onTextChange={saveDraftSoon}

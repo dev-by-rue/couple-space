@@ -25,8 +25,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   ANSWER_MAX_LENGTH,
-  SubmitAnswerInput,
   submitAnswerSchema,
+  type SubmitAnswerInput,
 } from "@couple-space/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ListCheckIcon, LockKeyholeIcon } from "lucide-react";
@@ -35,12 +35,15 @@ import { useForm, useWatch } from "react-hook-form";
 type SessionAnswerFormProps = {
   partnerName: string;
   partnerSubmitted: boolean;
+  /** True while the answer is being sent (the mutation's `isPending`). */
+  isSubmitting: boolean;
   errorMessage?: string;
-  /** For saving a draft of the partners answers. */
+  /** The saved draft to start from. */
   defaultText?: string;
   draftStatus: DraftSaveStatus;
   onTextChange?: (text: string) => void;
-  handleSubmission: (text: string) => void;
+  /** Called with the validated, trimmed answer after the viewer confirms. */
+  onSubmit: (text: string) => void;
 };
 
 const FORM_ID = "session-answer-form";
@@ -48,11 +51,12 @@ const FORM_ID = "session-answer-form";
 export function SessionAnswerForm({
   partnerName,
   partnerSubmitted,
+  isSubmitting,
   errorMessage,
-  defaultText,
+  defaultText = "",
   draftStatus,
   onTextChange,
-  handleSubmission,
+  onSubmit,
 }: Readonly<SessionAnswerFormProps>) {
   const form = useForm<SubmitAnswerInput>({
     resolver: zodResolver(submitAnswerSchema),
@@ -62,7 +66,7 @@ export function SessionAnswerForm({
     },
   });
 
-  const { errors, isValid, isSubmitting } = form.formState;
+  const { errors, isValid } = form.formState;
   const answerLength = useWatch({ control: form.control, name: "text" }).trim()
     .length;
 
@@ -70,11 +74,12 @@ export function SessionAnswerForm({
     <form
       id={FORM_ID}
       className="flex flex-col gap-4"
-      onSubmit={form.handleSubmit(({ text }) => handleSubmission(text))}
+      onSubmit={form.handleSubmit(({ text }) => onSubmit(text))}
     >
       <p className="flex items-center gap-3 rounded-lg bg-secondary p-4 text-sm leading-relaxed text-secondary-foreground">
         <LockKeyholeIcon aria-hidden="true" className="size-4 shrink-0 mr-1" />
-        Your partner will see once both of you have answered.
+        Only you can see this until you&apos;ve both answered and your partner
+        chooses to reveal.
       </p>
       {partnerSubmitted ? (
         <p className="flex items-center gap-3 rounded-lg bg-primary p-4 text-sm leading-relaxed text-primary-foreground">
@@ -97,7 +102,7 @@ export function SessionAnswerForm({
             placeholder="Take your time... "
             readOnly={isSubmitting}
             aria-invalid={!!errors.text || undefined}
-            className="min-h-56 rezise-none rounded-lg bg-card p-5 text-base leading-9 md:text-base"
+            className="min-h-56 resize-none rounded-lg bg-card p-5 text-base leading-9 md:text-base"
             {...form.register("text", {
               onChange: (event) => onTextChange?.(event.target.value),
             })}

@@ -12,6 +12,7 @@ import {
   InvalidOrExpiredTokenError,
 } from "./email-verification.service.js";
 import { AuthService } from "./auth.service.js";
+import { users } from "@couple-space/database";
 
 describe("AuthService.register", () => {
   let service: AuthService;
@@ -20,7 +21,11 @@ describe("AuthService.register", () => {
     select: vi.fn(() => ({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
-          limit: vi.fn(async () => []),
+          limit: vi.fn(
+            async (): Promise<
+              Pick<typeof users.$inferSelect, "id" | "email">[]
+            > => [],
+          ),
         })),
       })),
     })),

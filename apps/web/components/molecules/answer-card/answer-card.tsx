@@ -29,9 +29,9 @@ export function AnswerCard({
           )}
         >
           {authorName.slice(0, 1).toUpperCase()}
-          <h3 className="font-semibold">{isOwn ? "You" : authorName}</h3>
-          <p className="text-base leading-8 whitespace-pre-wrap">{text}</p>
         </span>
+        <h3 className="font-semibold">{isOwn ? "You" : authorName}</h3>
+        <p className="text-base leading-8 whitespace-pre-wrap">{text}</p>
       </header>
     </article>
   );

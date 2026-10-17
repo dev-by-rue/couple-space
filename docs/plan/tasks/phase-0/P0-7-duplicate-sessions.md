@@ -56,7 +56,7 @@ already handles the missing case (also listed in P1-3).
 
 ### Step 2 · Domain: what counts as "open"
 
-Create `packages/domain/src/session-open.ts`:
+Create `packages/domain/src/sessions/session-open.ts`:
 
 ```ts
 export type SessionOpenInput = {
@@ -79,10 +79,10 @@ export function isSessionOpen(input: SessionOpenInput): boolean {
 Export it from `packages/domain/src/index.ts`:
 
 ```ts
-export * from "./session-open.js";
+export * from "./sessions/session-open.js";
 ```
 
-Create `packages/domain/src/session-open.test.ts`:
+Create `packages/domain/src/sessions/session-open.test.ts`:
 
 ```ts
 import { describe, expect, it } from "vitest";

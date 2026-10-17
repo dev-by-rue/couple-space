@@ -26,6 +26,7 @@ import {
   buildSessionDetailDto,
   type SessionDetailDto,
 } from "./session-detail.mapper.js";
+import type { SaveDraftInput } from "./dto/save-draft.schema.js";
 
 @Injectable()
 export class ConversationsService {
@@ -60,6 +61,34 @@ export class ConversationsService {
           })),
       })),
     };
+  }
+
+  async saveDraft(
+    user: AuthUser,
+    sessionId: string,
+    input: SaveDraftInput,
+  ): Promise<void> {
+    await this.requireSessionMember(user, sessionId);
+
+    const [existing] = await this.db
+      .select()
+      .from(sessionResponses)
+      .where(
+        and(
+          eq(sessionResponses.sessionId, sessionId),
+          eq(sessionResponses.userId, user.id),
+        ),
+      );
+
+    if (!existing)
+      throw new NotFoundException({ reason: "response_row_missing" });
+    if (existing.submittedAt != null)
+      throw new ConflictException({ reason: "already_submitted" });
+
+    await this.db
+      .update(sessionResponses)
+      .set({ body: input.text, updatedAt: new Date() })
+      .where(eq(sessionResponses.id, existing.id));
   }
 
   async listSessions(user: AuthUser) {
@@ -162,7 +191,10 @@ export class ConversationsService {
     return { id: session.id };
   }
 
-  async getSession(user: AuthUser, sessionId: string): Promise<SessionDetailDto> {
+  async getSession(
+    user: AuthUser,
+    sessionId: string,
+  ): Promise<SessionDetailDto> {
     return this.loadDetail(user, sessionId);
   }
 

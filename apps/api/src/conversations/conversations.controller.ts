@@ -6,6 +6,8 @@ import {
   Post,
   UseGuards,
   ParseUUIDPipe,
+  HttpCode,
+  Put,
 } from "@nestjs/common";
 import type { AuthUser } from "../auth/auth-user.types.js";
 import { CurrentUser } from "../auth/current-user.decorator.js";
@@ -13,6 +15,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
 import { ConversationsService } from "./conversations.service.js";
 import { createSessionSchema } from "./dto/create-session.schema.js";
 import { submitResponseSchema } from "./dto/submit-response.schema.js";
+import { saveDraftSchema } from "./dto/save-draft.schema.js";
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -59,5 +62,16 @@ export class ConversationsController {
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     return this.conversations.revealSession(user, id);
+  }
+
+  @Put("sessions/:id/responses/draft")
+  @HttpCode(204)
+  saveDraft(
+    @CurrentUser() user: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: unknown,
+  ) {
+    const input = saveDraftSchema.parse(body);
+    return this.conversations.saveDraft(user, id, input);
   }
 }

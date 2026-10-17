@@ -19,19 +19,30 @@ export function AnswerCard({
         className,
       )}
     >
-      <header className="flex items-center gap-3">
-        <span
+      <header className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "grid size-9 place-items-center rounded-full text-sm font-semibold",
+              isOwn
+                ? "bg-accent-soft text-accent-foreground"
+                : "bg-waiting-soft text-waiting-foreground",
+            )}
+          >
+            {authorName.slice(0, 1).toUpperCase()}
+          </span>
+          <h3 className="font-semibold">{isOwn ? "You" : authorName}</h3>
+        </div>
+        <p
           className={cn(
-            "grid size-9 place-items-center rounded-full text-sm font-semibold",
+            "text-base leading-8 whitespace-pre-wrap px-3 py-1 rounded font-semibold",
             isOwn
               ? "bg-accent-soft text-accent-foreground"
               : "bg-waiting-soft text-waiting-foreground",
           )}
         >
-          {authorName.slice(0, 1).toUpperCase()}
-        </span>
-        <h3 className="font-semibold">{isOwn ? "You" : authorName}</h3>
-        <p className="text-base leading-8 whitespace-pre-wrap">{text}</p>
+          {text}
+        </p>
       </header>
     </article>
   );

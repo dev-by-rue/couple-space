@@ -45,6 +45,7 @@ type CreateSessionResponse = {
   id: string;
 };
 
+export const WAITING_POLL_MS = 20_000;
 export const SESSIONS_QUERY_KEY = ["sessions"] as const;
 
 export function sessionQueryKey(id: string) {
@@ -56,14 +57,32 @@ export function useSessionsQuery() {
     queryKey: SESSIONS_QUERY_KEY,
     queryFn: () => apiFetch<SessionsResponse>("/sessions"),
     select: (data) => sortSessionsByPriority(data.sessions),
+    staleTime: 0,
   });
 }
 
+/**
+ * Loads one session for the viewer, keeping it fresh while they wait.
+ *
+ * @remarks
+ * There are no notifications yet, so the page polls, but only in
+ * `waiting_for_partner`, the one phase where the partner's action changes
+ * what the viewer sees. React Query pauses polling in background tabs.
+ *
+ * @param id - Session id from the route
+ * @returns The React Query result for `GET /sessions/:id`
+ */
 export function useSessionQuery(id: string) {
   return useQuery({
     queryKey: sessionQueryKey(id),
     queryFn: () => apiFetch<SessionDetailDto>(`/sessions/${id}`),
     enabled: Boolean(id),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: (query) =>
+      query.state.data?.phase === "waiting_for_partner"
+        ? WAITING_POLL_MS
+        : false,
   });
 }
 

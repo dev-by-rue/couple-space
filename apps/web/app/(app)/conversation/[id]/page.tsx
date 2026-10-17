@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useMeQuery } from "@/hooks/use-me";
 import {
   sessionQueryKey,
+  useSaveDraftMutation,
   useSessionQuery,
   useSubmitResponseMutation,
 } from "@/hooks/use-sessions";
@@ -18,6 +19,7 @@ import { apiErrorReason, apiErrorStatus } from "@/lib/api/api-error";
 import { SessionAnswerForm } from "@/components/organisms/session-answer-form/session-answer-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { SessionWaiting } from "@/components/molecules/session-waiting/session-waiting";
+import { useMemo } from "react";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
@@ -35,6 +37,17 @@ export default function ConversationPage() {
   const me = useMeQuery();
   const session = useSessionQuery(id);
 
+  const saveDraft = useSaveDraftMutation();
+  const saveDraftMutate = saveDraft.mutate;
+  const saveDraftSoon = useMemo(
+    () =>
+      debounce(
+        (text: string) => saveDraftMutate({ sessionId: id, text }),
+        1000,
+      ),
+    [saveDraftMutate, id],
+  );
+
   const submit = useSubmitResponseMutation({
     onError: (error) => {
       if (apiErrorReason(error) === "already_submitted") {
@@ -42,6 +55,7 @@ export default function ConversationPage() {
       }
     },
   });
+
   if (session.isPending || me.isPending) return <SessionPageSkeleton />;
 
   if (session.isError) {
@@ -89,15 +103,17 @@ export default function ConversationPage() {
         <SessionAnswerForm
           partnerName={partnerName}
           partnerSubmitted={data.partnerSubmitted}
+          isSubmitting={submit.isPending}
           errorMessage={
-            submit.isError ? submissionErrorMessage(submit.error) : undefined
+            submit.isError ? submitErrorMessage(submit.error) : undefined
           }
-          handleSubmission={(text) =>
-            submit.mutate({
-              sessionId: id,
-              text,
-            })
-          }
+          defaultText={own?.text ?? ""}
+          onTextChange={saveDraftSoon}
+          draftStatus={saveDraft.status}
+          onSubmit={(text) => {
+            saveDraftSoon.cancel();
+            submit.mutate({ sessionId: id, text });
+          }}
         />
       )}
       {data.phase === "waiting_for_partner" && (

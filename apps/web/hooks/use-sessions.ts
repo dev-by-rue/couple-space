@@ -135,3 +135,20 @@ export function useRevealSessionMutation(
     },
   });
 }
+
+export function useSaveDraftMutation(
+  options?: UseMutationOptions<
+    void,
+    Error,
+    { sessionId: string; text: string }
+  >,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: ({ sessionId, text }) =>
+      apiFetch<void>(`/sessions/${sessionId}/responses/draft`, {
+        method: "PUT",
+        body: JSON.stringify({ text }),
+      }),
+  });
+}

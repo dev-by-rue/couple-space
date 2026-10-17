@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  DraftStatus,
+  type DraftSaveStatus,
+} from "@/components/atoms/draft-status/draft-status";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +36,10 @@ type SessionAnswerFormProps = {
   partnerName: string;
   partnerSubmitted: boolean;
   errorMessage?: string;
+  /** For saving a draft of the partners answers. */
+  defaultText?: string;
+  draftStatus: DraftSaveStatus;
+  onTextChange?: (text: string) => void;
   handleSubmission: (text: string) => void;
 };
 
@@ -41,13 +49,16 @@ export function SessionAnswerForm({
   partnerName,
   partnerSubmitted,
   errorMessage,
+  defaultText,
+  draftStatus,
+  onTextChange,
   handleSubmission,
 }: Readonly<SessionAnswerFormProps>) {
   const form = useForm<SubmitAnswerInput>({
     resolver: zodResolver(submitAnswerSchema),
     mode: "onChange",
     defaultValues: {
-      text: "",
+      text: defaultText,
     },
   });
 
@@ -63,7 +74,7 @@ export function SessionAnswerForm({
     >
       <p className="flex items-center gap-3 rounded-lg bg-secondary p-4 text-sm leading-relaxed text-secondary-foreground">
         <LockKeyholeIcon aria-hidden="true" className="size-4 shrink-0 mr-1" />
-        Your partner will see once both of you have answered. {answerLength}
+        Your partner will see once both of you have answered.
       </p>
       {partnerSubmitted ? (
         <p className="flex items-center gap-3 rounded-lg bg-primary p-4 text-sm leading-relaxed text-primary-foreground">
@@ -87,10 +98,12 @@ export function SessionAnswerForm({
             readOnly={isSubmitting}
             aria-invalid={!!errors.text || undefined}
             className="min-h-56 rezise-none rounded-lg bg-card p-5 text-base leading-9 md:text-base"
-            {...form.register("text")}
+            {...form.register("text", {
+              onChange: (event) => onTextChange?.(event.target.value),
+            })}
           />
           <FieldDescription className="flex justify-between gap-4">
-            <span>You can&apos;t change your answer after submitting.</span>
+            <DraftStatus status={draftStatus} />
             <span
               className={
                 answerLength > ANSWER_MAX_LENGTH

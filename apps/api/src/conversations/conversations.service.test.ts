@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { ConflictException, ForbiddenException } from "@nestjs/common";
+import { describe, expect, it, vi } from "vitest";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { DB } from "../db/db.module.js";
 import { ConversationsService } from "./conversations.service.js";
@@ -164,6 +168,91 @@ describe("ConversationsService", () => {
         { promptId: "a0000000-0000-4000-8000-000000000011" },
       ),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  describe("createSession on a retired prompt", () => {
+    const retiredPrompt = {
+      id: "a0000000-0000-4000-8000-000000000011",
+      kind: "curated",
+      retiredAt: new Date("2026-10-01T00:00:00Z"),
+    };
+
+    function mockDbFor(existingSessions: { id: string }[]) {
+      const mockDb = { select: vi.fn() };
+
+      mockDb.select
+        // membership
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [
+                { coupleId: "c1", userId: "u1", status: "active" },
+              ]),
+            })),
+          })),
+        })
+        // couple
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [{ id: "c1", status: "active" }]),
+            })),
+          })),
+        })
+        // members
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => [{ userId: "u1" }, { userId: "u2" }]),
+          })),
+        })
+        // prompt
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [retiredPrompt]),
+            })),
+          })),
+        })
+        // sessions on the same prompt
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => existingSessions),
+          })),
+        })
+        // reveals (nobody has revealed, so any session is open)
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => []),
+          })),
+        });
+
+      return mockDb;
+    }
+
+    async function serviceWith(mockDb: object) {
+      const module = await Test.createTestingModule({
+        providers: [ConversationsService, { provide: DB, useValue: mockDb }],
+      }).compile();
+      return module.get(ConversationsService);
+    }
+
+    const user = { id: "u1", email: "a@example.com", emailVerified: true };
+
+    it("refuses to start a new session", async () => {
+      const service = await serviceWith(mockDbFor([]));
+
+      await expect(
+        service.createSession(user, { promptId: retiredPrompt.id }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("still returns the couple's open session", async () => {
+      const service = await serviceWith(mockDbFor([{ id: "s1" }]));
+
+      await expect(
+        service.createSession(user, { promptId: retiredPrompt.id }),
+      ).resolves.toEqual({ id: "s1" });
+    });
   });
 
   it("rejects double submit", async () => {

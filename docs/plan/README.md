@@ -27,8 +27,8 @@ them, and they get copied into `scope.md` by task [D-4](03-product-decisions.md#
 |           | [Legal and business](tasks/legal-and-business.md)    | L-_, M-_: research before strangers sign up                                                                                                                 |
 | **ERD**   |                                                      |                                                                                                                                                             |
 |           | [Design review](erd/design-review.md)                | E-1…E-12: modelling issues and their decisions                                                                                                              |
-|           | [Current schema](erd/current-schema.md)              | What's in the database today (migration `0005`)                                                                                                             |
-|           | [MVP-1 additions](erd/mvp-1.md)                      | Follow-ups as child sessions, snapshots, archive, password reset                                                                                            |
+|           | [Current schema](erd/current-schema.md)              | What's in the database today (migration `0008`)                                                                                                             |
+|           | [MVP-1 additions](erd/mvp-1.md)                      | Follow-ups as child sessions, archive, password reset                                                                                                       |
 |           | [MVP-2 additions](erd/mvp-2.md)                      | Custom prompts, proposals, saved prompts                                                                                                                    |
 |           | [MVP-3 sketch](erd/mvp-3.md)                         | Community tables (don't build until P3-1)                                                                                                                   |
 
@@ -81,3 +81,4 @@ Phase 2 → Phase 3
 | 2026-10-15 | Split the single `docs/product/task-list.md` into this folder                                                | Fixed stale text from before Q22 in ERD MVP-1 and the MVP table                          |
 | 2026-10-15 | Step-by-step guides with ready-to-paste code for every Phase 0 task; prototype reuse notes for P1-2 and P1-8 | Code adapted from `between-us-source` to `apps/web` (Base UI, existing hooks and tokens) |
 | 2026-10-18 | Phase 0 complete. Tested by myelf and Rache                                                                  | To keep using and actioning feedback                                                     |
+| 2026-10-18 | H-2, H-15, H-11, H-12 done (migrations `0006`–`0008`)                                                        | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |

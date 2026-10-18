@@ -40,6 +40,7 @@ export function ThemeLab() {
     const storedPalette = window.localStorage.getItem(STORAGE_PALETTE);
     const storedDark = window.localStorage.getItem(STORAGE_DARK) === "1";
     const nextPalette = isPaletteId(storedPalette) ? storedPalette : "harbor";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPalette(nextPalette);
     setDark(storedDark);
     applyTheme(nextPalette, storedDark);

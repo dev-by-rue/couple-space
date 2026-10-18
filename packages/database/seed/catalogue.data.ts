@@ -6,12 +6,24 @@ type PromptRow = typeof prompts.$inferInsert;
 const id = (n: number) =>
   `a0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
+/**
+ * A question, or a retired one that stays in the list so its id never moves.
+ */
+type QuestionSeed = string | { text: string; retired: true };
+
+/**
+ * A theme and its questions.
+ *
+ * Prompt ids come from each question's position, so the list is append-only:
+ * never reorder, remove or reword a question. To change one, retire it and
+ * add the new wording at the end. A theme holds at most 9 questions.
+ */
 type ThemeSeed = {
   n: number;
   title: string;
   description: string;
   symbol: string;
-  questions: string[];
+  questions: QuestionSeed[];
   slug: string;
 };
 
@@ -105,8 +117,9 @@ export const promptRows: PromptRow[] = catalogue.flatMap((theme) =>
     themeId: id(theme.n),
     title: index === 0 ? theme.title : `${theme.title} · ${index + 1}`,
     description: "A quiet question to answer in your own words.",
-    text: question,
+    text: typeof question === "string" ? question : question.text,
     kind: "curated",
     sortOrder: index,
+    retiredAt: typeof question === "string" ? null : new Date(),
   })),
 );

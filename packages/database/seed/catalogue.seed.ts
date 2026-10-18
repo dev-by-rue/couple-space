@@ -44,6 +44,8 @@ await db.transaction(async (tx) => {
         text: sql`excluded.text`,
         kind: sql`excluded.kind`,
         sortOrder: sql`excluded.sort_order`,
+        // Keep the first retirement date on reruns; clear it to un-retire.
+        retiredAt: sql`case when excluded.retired_at is null then null else coalesce(${prompts.retiredAt}, excluded.retired_at) end`,
         updatedAt: new Date(),
       },
     });

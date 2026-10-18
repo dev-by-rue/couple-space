@@ -30,8 +30,9 @@ MVP diagrams already include these decisions. Each issue has its own heading so 
 *Why it matters:* if you fix a typo or reword a prompt, every past conversation silently changes the
 question both partners answered.
 
-*Decision:* snapshot `prompt_title_snapshot` and `prompt_text_snapshot` onto `conversation_sessions` at
-create time ([Q13](../03-product-decisions.md#q13), H-11).
+*Decision:* never reword a prompt; retire it and add a new one ([Q13](../03-product-decisions.md#q13), H-11).
+Prompt ids come from each question's position in `seed/catalogue.data.ts`, so that list is
+append-only. *Revised 2026-10-18:* snapshot columns on `conversation_sessions` were dropped.
 
 ## E-2
 

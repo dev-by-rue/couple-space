@@ -1,6 +1,6 @@
 # ERD · Current schema
 
-[← Plan index](../README.md) · As of migration `0005` (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
+[← Plan index](../README.md) · As of migration `0008` (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
 
 ```mermaid
 erDiagram
@@ -24,7 +24,7 @@ erDiagram
         text email UK
         text password_hash "argon2id"
         boolean email_verified
-        text display_name
+        text display_name "1–40 chars (CHECK)"
         date date_of_birth
         timestamptz created_at
         timestamptz updated_at
@@ -55,9 +55,9 @@ erDiagram
     }
     refresh_tokens {
         uuid id PK
-        uuid user_id FK "nullable (H-2)"
+        uuid user_id FK "on delete cascade"
         text token_hash
-        timestamp expires_at "no tz (H-2)"
+        timestamptz expires_at
         timestamptz revoked_at
         timestamptz created_at
     }
@@ -94,6 +94,7 @@ erDiagram
         text text
         text kind "curated"
         int sort_order
+        timestamptz retired_at "null = active (Q14)"
     }
     conversation_sessions {
         uuid id PK
@@ -106,7 +107,7 @@ erDiagram
         uuid id PK
         uuid session_id FK "unique (session_id, user_id)"
         uuid user_id FK
-        text body "draft until submitted_at set"
+        text body "≤ 5,000 chars; non-empty once submitted (CHECK)"
         timestamptz submitted_at "null = not submitted"
         timestamptz created_at
         timestamptz updated_at

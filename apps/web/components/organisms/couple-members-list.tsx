@@ -2,7 +2,6 @@
 
 import type { CoupleMe } from "@/hooks/use-couple";
 import { useMeQuery } from "@/hooks/use-me";
-import { CoupleMemberItem } from "@/components/molecules/couple-member-item";
 import { CoupleMark } from "@/components/organisms/couple-mark";
 import { greetingForHour } from "@/lib/greeting";
 

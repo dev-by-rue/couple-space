@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { isSessionOpen, sessionViewerPhase } from "@couple-space/domain";
 import {
   conversationSessions,
@@ -41,7 +41,7 @@ export class ConversationsService {
     const allPrompts = await this.db
       .select()
       .from(prompts)
-      .where(eq(prompts.kind, "curated"))
+      .where(and(eq(prompts.kind, "curated"), isNull(prompts.retiredAt)))
       .orderBy(asc(prompts.sortOrder), asc(prompts.title));
 
     return {
@@ -201,6 +201,12 @@ export class ConversationsService {
       );
 
       if (open) return { id: open.id };
+    }
+
+    // Checked after the reuse above so a couple mid-conversation on a
+    // retired prompt can still get back into it.
+    if (prompt.retiredAt) {
+      throw new NotFoundException({ reason: "prompt_retired" });
     }
 
     const session = await this.db.transaction(async (tx) => {

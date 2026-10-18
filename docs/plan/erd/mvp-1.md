@@ -14,12 +14,9 @@ erDiagram
     prompts {
         uuid parent_prompt_id FK "✏️ null for top-level prompts"
         text kind "✏️ curated | follow_up"
-        timestamptz retired_at "✏️ E-2"
     }
     conversation_sessions {
         uuid parent_session_id FK "✏️ null for top-level; max depth 1 (E-12)"
-        text prompt_title_snapshot "✏️ E-1"
-        text prompt_text_snapshot "✏️ E-1"
         timestamptz archived_at "✏️ Q4"
         uuid archived_by_user_id FK "✏️"
         text decline_reason "✏️ preset enum, Q3"

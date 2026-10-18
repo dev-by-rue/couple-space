@@ -113,8 +113,12 @@ Blocks: P2-4.
 ## Q13
 
 **If we reword a curated prompt, should old sessions change?** **No.** A session keeps the exact wording
-both partners answered. Snapshot the prompt title and text onto the session
+both partners answered. Prompts are never reworded: to change one, retire it ([Q14](#q14)) and add the new
+wording as a new prompt. Typo fixes may be made in place. No snapshot columns
 ([E-1](erd/design-review.md#e-1)). Blocks: H-11.
+
+*Revised 2026-10-18:* originally "snapshot the title and text onto the session". Dropped as unneeded
+while retire-and-replace gives the same guarantee.
 
 ## Q14
 

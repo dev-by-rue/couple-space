@@ -6,8 +6,8 @@
 
 ## Schema (do early)
 
-- [ ] **H-11 · Prompt snapshot + retirement ([Q13](../03-product-decisions.md#q13), [Q14](../03-product-decisions.md#q14), [E-1](../erd/design-review.md#e-1), [E-2](../erd/design-review.md#e-2))** · S — Add `conversation_sessions.prompt_title_snapshot` and `prompt_text_snapshot` (backfilled from `prompts`) and `prompts.retired_at`. Read the snapshot in `loadDetail` and `listSessions`, and filter retired prompts out of `listThemes`.
-- [ ] **H-12 · DB `CHECK` constraints ([Q16](../03-product-decisions.md#q16), [Q20](../03-product-decisions.md#q20))** · S — `session_responses.body` ≤ 5,000 chars; `submitted_at IS NULL OR length(body) > 0`; `users.display_name` 1–40 chars.
+- [x] **H-11 · Prompt retirement ([Q13](../03-product-decisions.md#q13), [Q14](../03-product-decisions.md#q14), [E-1](../erd/design-review.md#e-1), [E-2](../erd/design-review.md#e-2))** · S — Add `prompts.retired_at`. Filter retired prompts out of `listThemes`; `createSession` refuses a retired prompt unless the couple already has an open session on it. The seed marks a question retired with `{ text, retired: true }`. *Snapshot columns dropped (2026-10-18): prompts are never reworded, they are retired and replaced (Q13).*
+- [x] **H-12 · DB `CHECK` constraints ([Q16](../03-product-decisions.md#q16), [Q20](../03-product-decisions.md#q20))** · S — `session_responses.body` ≤ 5,000 chars; `submitted_at IS NULL OR length(body) > 0`; `users.display_name` 1–40 chars. Also lowered the domain `displayName` limit from 100 to 40 to match.
 - [x] **H-2 · Fix `refresh_tokens` ([E-9](../erd/design-review.md#e-9))** · S — `expires_at` is `timestamp` **without** a time zone and `user_id` is nullable. Make them `timestamptz` and `notNull`.
 - [ ] **H-13 · Membership end date ([E-4](../erd/design-review.md#e-4))** · S — Add `couple_memberships.left_at`. Can ship with P1-11.
 - [ ] **H-3 · Foreign-key indexes** · S — Postgres doesn't index foreign keys automatically. Add indexes on `conversation_sessions(couple_id)`, `couple_memberships(couple_id)`, `couple_invitations(couple_id)`, `prompts(theme_id)` and `refresh_tokens(user_id)`.

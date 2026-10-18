@@ -1,0 +1,3 @@
+ALTER TABLE "users" ADD CONSTRAINT "users_display_name_length" CHECK (length("users"."display_name") between 1 and 40);--> statement-breakpoint
+ALTER TABLE "session_responses" ADD CONSTRAINT "session_responses_body_max_length" CHECK (length("session_responses"."body") <= 5000);--> statement-breakpoint
+ALTER TABLE "session_responses" ADD CONSTRAINT "session_responses_submitted_body_not_empty" CHECK ("session_responses"."submitted_at" is null or length("session_responses"."body") > 0);

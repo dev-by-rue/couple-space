@@ -17,4 +17,5 @@ export const prompts = pgTable("prompts", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  retiredAt: timestamp("retired_at", { withTimezone: true }),
 });

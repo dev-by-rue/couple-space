@@ -43,6 +43,13 @@
       "when": 1791748346191,
       "tag": "0005_simple_sabra",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792350222808,
+      "tag": "0006_sticky_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

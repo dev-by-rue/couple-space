@@ -34,7 +34,7 @@ export function ConversationCard({
 
 ## Doc comments (TSDoc — tsdoc.org)
 
-Only add a doc comment when it explains something the code doesn't (the *why*, a caveat, a safety rule). When there is one, use this structure:
+Only add a doc comment when it explains something the code doesn't (the _why_, a caveat, a safety rule). When there is one, use this structure:
 
 1. **Summary** — one sentence, ending with a full stop.
 2. Blank ` *` line.
@@ -42,6 +42,7 @@ Only add a doc comment when it explains something the code doesn't (the *why*, a
 4. **`@param name - description`** — note the hyphen (functions and hooks only).
 5. **`@returns description`** (functions and hooks only).
 6. **`@throws`** if it can throw (optional).
+7. Do not include the task reference in the comment, it should be written as production, if amendments are needed to the same component and it's tsdocs. Amend/overwrite at that time.
 
 Functions and hooks:
 

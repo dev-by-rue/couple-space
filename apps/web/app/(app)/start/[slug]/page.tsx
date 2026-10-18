@@ -45,9 +45,15 @@ export default function Page() {
           <PromptCard
             key={prompt.id}
             prompt={prompt}
+            disabled={createSession.isPending}
             onSelect={(promptId) => createSession.mutate({ promptId })}
           />
         ))}
+        {createSession.isError ? (
+          <p role="alert" className="text-sm text-destructive">
+            Couldn&apos;t start that conversation. Please try again.
+          </p>
+        ) : null}
       </div>
     </main>
   );

@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { sessionViewerPhase } from "@couple-space/domain";
+import { isSessionOpen, sessionViewerPhase } from "@couple-space/domain";
 import {
   conversationSessions,
   coupleMemberships,
@@ -165,6 +165,42 @@ export class ConversationsService {
 
     if (!prompt) {
       throw new NotFoundException({ reason: "prompt_not_found" });
+    }
+
+    const samePrompt = await this.db
+      .select({ id: conversationSessions.id })
+      .from(conversationSessions)
+      .where(
+        and(
+          eq(conversationSessions.coupleId, ctx.coupleId),
+          eq(conversationSessions.promptId, prompt.id),
+        ),
+      );
+
+    if (samePrompt.length > 0) {
+      const reveals = await this.db
+        .select({
+          sessionId: sessionReveals.sessionId,
+          userId: sessionReveals.userId,
+        })
+        .from(sessionReveals)
+        .where(
+          inArray(
+            sessionReveals.sessionId,
+            samePrompt.map((session) => session.id),
+          ),
+        );
+
+      const open = samePrompt.find((session) =>
+        isSessionOpen({
+          memberIds: ctx.memberIds,
+          revealedUserIds: reveals
+            .filter((revealed) => revealed.sessionId === session.id)
+            .map((revealed) => revealed.userId),
+        }),
+      );
+
+      if (open) return { id: open.id };
     }
 
     const session = await this.db.transaction(async (tx) => {

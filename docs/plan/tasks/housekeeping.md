@@ -8,7 +8,7 @@
 
 - [ ] **H-11 · Prompt snapshot + retirement ([Q13](../03-product-decisions.md#q13), [Q14](../03-product-decisions.md#q14), [E-1](../erd/design-review.md#e-1), [E-2](../erd/design-review.md#e-2))** · S — Add `conversation_sessions.prompt_title_snapshot` and `prompt_text_snapshot` (backfilled from `prompts`) and `prompts.retired_at`. Read the snapshot in `loadDetail` and `listSessions`, and filter retired prompts out of `listThemes`.
 - [ ] **H-12 · DB `CHECK` constraints ([Q16](../03-product-decisions.md#q16), [Q20](../03-product-decisions.md#q20))** · S — `session_responses.body` ≤ 5,000 chars; `submitted_at IS NULL OR length(body) > 0`; `users.display_name` 1–40 chars.
-- [ ] **H-2 · Fix `refresh_tokens` ([E-9](../erd/design-review.md#e-9))** · S — `expires_at` is `timestamp` **without** a time zone and `user_id` is nullable. Make them `timestamptz` and `notNull`.
+- [x] **H-2 · Fix `refresh_tokens` ([E-9](../erd/design-review.md#e-9))** · S — `expires_at` is `timestamp` **without** a time zone and `user_id` is nullable. Make them `timestamptz` and `notNull`.
 - [ ] **H-13 · Membership end date ([E-4](../erd/design-review.md#e-4))** · S — Add `couple_memberships.left_at`. Can ship with P1-11.
 - [ ] **H-3 · Foreign-key indexes** · S — Postgres doesn't index foreign keys automatically. Add indexes on `conversation_sessions(couple_id)`, `couple_memberships(couple_id)`, `couple_invitations(couple_id)`, `prompts(theme_id)` and `refresh_tokens(user_id)`.
 - [ ] **H-4 · Enforce statuses in the DB ([E-6](../erd/design-review.md#e-6))** · S — Turn the `text` status columns into Postgres enums or `CHECK` constraints that mirror the `packages/domain` status lists.
@@ -24,7 +24,7 @@
   - `apps/web` `tsc --noEmit`: `Cannot find name 'LayoutProps'` in `app/layout.tsx`. Next generates that type; run `next typegen` (or a build) first, or type the props explicitly.
   - `apps/api` `tsc --noEmit`: `supertest/types` can't be found in `test/app.e2e-spec.ts`, and there's a mock typing error in `auth.service.test.ts`.
   - Add `check-types` scripts to `apps/web` and `apps/api` so `pnpm check-types` covers them (today it only runs `domain` and `database`).
-- [ ] **H-15 · Failing auth test** · S — `auth.service.test.ts` › "creates user with emailVerified false and issues tokens" fails on `main` (the mocked verification email isn't sent). Most likely caused by the `SANDBOX_AUTO_VERIFY` change in `a4507ede`; make the test set the flag explicitly for both cases.
+- [x] **H-15 · Failing auth test** · S — `auth.service.test.ts` › "creates user with emailVerified false and issues tokens" fails on `main` (the mocked verification email isn't sent). Most likely caused by the `SANDBOX_AUTO_VERIFY` change in `a4507ede`; make the test set the flag explicitly for both cases.
 - [ ] **H-10 · Web tests** · M — Once the flows settle, add a Playwright test for the two-browser reveal flow. It's the one web test worth having.
 
 ## Docs & repo

@@ -67,6 +67,7 @@ describe("AuthService.register", () => {
     process.env.DATABASE_URL ??= "postgres://auth-service-test";
     process.env.JWT_SECRET ??= "test-secret-at-least-32-characters-long";
     process.env.EMAIL_VERIFY_RESEND_PER_HOUR = "5";
+    process.env.SANDBOX_AUTO_VERIFY = "false";
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -336,6 +337,7 @@ describe("AuthService.resendVerification", () => {
     process.env.JWT_SECRET ??= "test-secret-at-least-32-characters-long";
     process.env.EMAIL_VERIFY_RESEND_PER_HOUR = "5";
     mockEmailVerification.countRecentResends.mockResolvedValue(0);
+    process.env.SANDBOX_AUTO_VERIFY = "false";
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

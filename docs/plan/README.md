@@ -81,4 +81,4 @@ Phase 2 → Phase 3
 | 2026-10-15 | Split the single `docs/product/task-list.md` into this folder                                                | Fixed stale text from before Q22 in ERD MVP-1 and the MVP table                          |
 | 2026-10-15 | Step-by-step guides with ready-to-paste code for every Phase 0 task; prototype reuse notes for P1-2 and P1-8 | Code adapted from `between-us-source` to `apps/web` (Base UI, existing hooks and tokens) |
 | 2026-10-18 | Phase 0 complete. Tested by myelf and Rache                                                                  | To keep using and actioning feedback                                                     |
-| 2026-10-18 | H-2, H-15, H-11, H-12 done (migrations `0006`–`0008`)                                                        | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |
+| 2026-10-18 | H-2, H-15, H-11, H-12, H-14 done (migrations `0006`–`0008`); lint + `pnpm check-types` green               | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |

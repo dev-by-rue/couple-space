@@ -19,7 +19,7 @@
 - [ ] **H-5 · One sort order** · S — `listSessions` orders by `updatedAt ASC`, and the web re-sorts anyway. Pick one place.
 - [ ] **H-7 · Quote route** · S — `app/api/relationship-quote` is a Next API route, but the walking-skeleton constraints say "no Next BFF". Either document it as the one exception or move it to Nest.
 - [ ] **H-9 · Consistent loading** · S — The couple hub shows raw `Loading couple…` text while other pages use `PageLoading`. Make them match.
-- [ ] **H-14 · Broken lint and type-check tooling** · S — Found while verifying the Phase 0 guides (2026-10-15), all on an unmodified checkout:
+- [x] **H-14 · Broken lint and type-check tooling** · S — *Done 2026-10-18: ESLint pinned to 9, `supertest/types` import removed, `check-types` added to both apps (web runs `next typegen` first); `pnpm check-types` covers all 4 packages.* Found while verifying the Phase 0 guides (2026-10-15), all on an unmodified checkout:
   - `apps/web` ESLint crashes on every file: `eslint-plugin-react@7.37` isn't compatible with ESLint 10 (`contextOrFilename.getFilename is not a function`). Pin ESLint 9 or update the React plugin/config.
   - `apps/web` `tsc --noEmit`: `Cannot find name 'LayoutProps'` in `app/layout.tsx`. Next generates that type; run `next typegen` (or a build) first, or type the props explicitly.
   - `apps/api` `tsc --noEmit`: `supertest/types` can't be found in `test/app.e2e-spec.ts`, and there's a mock typing error in `auth.service.test.ts`.

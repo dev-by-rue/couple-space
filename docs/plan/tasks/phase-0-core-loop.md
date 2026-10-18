@@ -15,25 +15,25 @@ source, ready-to-paste code adapted to `apps/web`, and a check. Tick the box her
 
 ---
 
-- [ ] **P0-10 · Move Railway to an EU region** ([O-2](../04-owner-answers.md#o-2)) · S · [📘 guide](phase-0/P0-10-eu-region.md)
+- [x] **P0-10 · Move Railway to an EU region** ([O-2](../04-owner-answers.md#o-2)) · S · [📘 guide](phase-0/P0-10-eu-region.md)
   - Builds: Railway settings, fresh EU Postgres
-- [ ] **P0-1 · `/conversation/[id]` route shell** · S · [📘 guide](phase-0/P0-1-route-shell.md)
+- [x] **P0-1 · `/conversation/[id]` route shell** · S · [📘 guide](phase-0/P0-1-route-shell.md)
   - Builds: `ParseUUIDPipe`, `lib/api-error.ts`, `SessionPageSkeleton`, `SessionPromptHeader`, the page
-- [ ] **P0-2 · Answering state** ([Q15](../03-product-decisions.md#q15), [Q16](../03-product-decisions.md#q16)) · M · [📘 guide](phase-0/P0-2-answering-state.md)
+- [x] **P0-2 · Answering state** ([Q15](../03-product-decisions.md#q15), [Q16](../03-product-decisions.md#q16)) · M · [📘 guide](phase-0/P0-2-answering-state.md)
   - Builds: `ANSWER_MAX_LENGTH`, `SessionAnswerForm` (from the prototype's inline form)
-- [ ] **P0-3 · Waiting state** · S · [📘 guide](phase-0/P0-3-waiting-state.md)
+- [x] **P0-3 · Waiting state** · S · [📘 guide](phase-0/P0-3-waiting-state.md)
   - Builds: `AnswerCard`, `SessionWaiting` (from the prototype's `AnswerCard`, `WaitingState`)
-- [ ] **P0-4 · Draft autosave** ([Q5](../03-product-decisions.md#q5)), *optional* · M · [📘 guide](phase-0/P0-4-draft-autosave.md)
+- [x] **P0-4 · Draft autosave** ([Q5](../03-product-decisions.md#q5)), _optional_ · M · [📘 guide](phase-0/P0-4-draft-autosave.md)
   - Builds: Visibility rule change, `PUT …/draft`, `useSaveDraftMutation`, debounced form
-- [ ] **P0-5 · Ready-to-reveal + revealed** · M · [📘 guide](phase-0/P0-5-reveal.md)
+- [x] **P0-5 · Ready-to-reveal + revealed** · M · [📘 guide](phase-0/P0-5-reveal.md)
   - Builds: `SessionRevealButton` (new), `SessionRevealPanel` (from the prototype's `RevealPanel`)
-- [ ] **P0-6 · Keep both screens fresh** ([Q6](../03-product-decisions.md#q6)) · S · [📘 guide](phase-0/P0-6-keep-fresh.md)
+- [x] **P0-6 · Keep both screens fresh** ([Q6](../03-product-decisions.md#q6)) · S · [📘 guide](phase-0/P0-6-keep-fresh.md)
   - Builds: Polling only while waiting; `staleTime: 0` for session + hub
-- [ ] **P0-7 · Stop duplicate sessions** · S · [📘 guide](phase-0/P0-7-duplicate-sessions.md)
+- [x] **P0-7 · Stop duplicate sessions** · S · [📘 guide](phase-0/P0-7-duplicate-sessions.md)
   - Builds: Disabled prompt cards, `isSessionOpen` + tests, reuse the open session in `createSession`
-- [ ] **P0-8 · Clean the sandbox data** · S · [📘 guide](phase-0/P0-8-clean-sandbox.md)
+- [x] **P0-8 · Clean the sandbox data** · S · [📘 guide](phase-0/P0-8-clean-sandbox.md)
   - Builds: SQL, only if you keep the old DB
-- [ ] **P0-9 · Two-browser smoke test** · S · [📘 guide](phase-0/P0-9-two-browser-smoke.md)
+- [x] **P0-9 · Two-browser smoke test** · S · [📘 guide](phase-0/P0-9-two-browser-smoke.md)
   - Builds: Checklist, saved into `conversation-api-smoke.md`
 
 ## Files Phase 0 creates or changes
@@ -67,17 +67,17 @@ apps/web/
 
 ## Prototype components: where they end up
 
-| Prototype (`between-us-source/src/…`) | Phase 0 | Later |
-| --- | --- | --- |
-| `routes/conversation.$id.tsx` → `ConversationPage` | Page in P0-1 | |
-| `PageShell` | `max-w-3xl` main in P0-1 | |
-| `PageSkeleton` | `SessionPageSkeleton` in P0-1 | Hub/start skeletons in P1-20 |
-| Inline answer form + confirm `Dialog` | `SessionAnswerForm` in P0-2 | |
-| `WaitingState` | `SessionWaiting` in P0-3 | |
-| `AnswerCard` | `AnswerCard` in P0-3 | Reused by follow-ups (P1-8) |
-| `RevealPanel` | `SessionRevealPanel` in P0-5 | |
-| *(no Reveal button in prototype)* | `SessionRevealButton` in P0-5 | |
-| `FollowUpCard` | — | [P1-8](phase-1/P1-8-follow-ups.md) |
-| `Steps`, `InviteStatusCard` | — | [P1-2](phase-1/P1-2-hub-invite-pending.md) |
-| `PromptComposer` | — | P2-2 |
-| `DirectedQuestionCard`, `PrototypeControls` | **Never**: replaced by Q21 / dev-only | |
+| Prototype (`between-us-source/src/…`)              | Phase 0                               | Later                                      |
+| -------------------------------------------------- | ------------------------------------- | ------------------------------------------ |
+| `routes/conversation.$id.tsx` → `ConversationPage` | Page in P0-1                          |                                            |
+| `PageShell`                                        | `max-w-3xl` main in P0-1              |                                            |
+| `PageSkeleton`                                     | `SessionPageSkeleton` in P0-1         | Hub/start skeletons in P1-20               |
+| Inline answer form + confirm `Dialog`              | `SessionAnswerForm` in P0-2           |                                            |
+| `WaitingState`                                     | `SessionWaiting` in P0-3              |                                            |
+| `AnswerCard`                                       | `AnswerCard` in P0-3                  | Reused by follow-ups (P1-8)                |
+| `RevealPanel`                                      | `SessionRevealPanel` in P0-5          |                                            |
+| _(no Reveal button in prototype)_                  | `SessionRevealButton` in P0-5         |                                            |
+| `FollowUpCard`                                     | —                                     | [P1-8](phase-1/P1-8-follow-ups.md)         |
+| `Steps`, `InviteStatusCard`                        | —                                     | [P1-2](phase-1/P1-2-hub-invite-pending.md) |
+| `PromptComposer`                                   | —                                     | P2-2                                       |
+| `DirectedQuestionCard`, `PrototypeControls`        | **Never**: replaced by Q21 / dev-only |                                            |

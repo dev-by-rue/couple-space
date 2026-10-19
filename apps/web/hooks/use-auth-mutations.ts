@@ -4,6 +4,12 @@ import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import type { LoginInput, RegisterInput } from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
 
+type ResendVerificationResponse = {
+  ok: true;
+  alreadyVerified?: true;
+  sent?: false;
+};
+
 /**
  * Logs a user in via `POST /auth/login`.
  *
@@ -54,12 +60,6 @@ export function useVerifyEmailMutation(
   });
 }
 
-type ResendVerificationResponse = {
-  ok: true;
-  alreadyVerified?: true;
-  sent?: false;
-};
-
 export function useResendVerificationMutation(
   options?: UseMutationOptions<ResendVerificationResponse, Error, void>,
 ) {
@@ -69,5 +69,14 @@ export function useResendVerificationMutation(
       apiFetch<ResendVerificationResponse>("/auth/resend-verification", {
         method: "POST",
       }),
+  });
+}
+
+export function useLogoutMutation(
+  options?: UseMutationOptions<unknown, Error, void>,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: () => apiFetch("/auth/logout", { method: "POST" }),
   });
 }

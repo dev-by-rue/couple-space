@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { useMeQuery } from "@/hooks/use-me";
+import { AppHeader } from "@/components/organisms/app-header/app-header";
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -26,5 +27,10 @@ export default function AppLayout({ children }: Readonly<AppLayoutProps>) {
     redirect("/check-email");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <AppHeader />
+      {children}
+    </>
+  );
 }

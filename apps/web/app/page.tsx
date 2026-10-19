@@ -9,8 +9,14 @@ export default function Home() {
         The original safe space for couples.
       </p>
       <div className="flex gap-3">
-        <Button render={<Link href="/login" />}>Log in</Button>
-        <Button variant="outline" render={<Link href="/register" />}>
+        <Button nativeButton={false} render={<Link href="/login" />}>
+          Log in
+        </Button>
+        <Button
+          nativeButton={false}
+          variant="outline"
+          render={<Link href="/register" />}
+        >
           Register
         </Button>
       </div>

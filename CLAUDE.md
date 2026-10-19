@@ -14,6 +14,7 @@ button"):
   "fix it on main".
 - Editing docs under `docs/plan/` is fine when the task is about the plan.
 - If a task is ambiguous or touches a product rule, ask or flag it. Don't invent product rules.
+- When reviewing the tasks always ask if I want the code instead of the instruction, code must include tests where necessary.
 
 ## Match the existing patterns
 
@@ -29,7 +30,6 @@ pattern, library or folder structure without saying so and asking first. Current
   `isError` down as props.
 - **Data:** React Query hooks in `apps/web/hooks/`, calling `apiFetch` from `lib/api.ts`. Components
   don't call `apiFetch` directly.
-- **UI atoms are Base UI (shadcn), not Radix:** use `render={<Button … />}`, never `asChild`.
 - **Components:** `components/{atoms,molecules,organisms}/<name>/<name>.tsx`; props as a `type`,
   `Readonly<…>`, callback props named `on…`. Full rules in `apps/web/CLAUDE.md`.
 - **Domain package:** files grouped by area (`sessions/`, `schemas/`, `invitations/`), exported from

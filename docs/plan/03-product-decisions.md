@@ -25,7 +25,7 @@ Each decision has its own heading, so you can link it directly (for example `03-
 | [Q10](#q10) | Real email verification? | Yes, from Gate B | P1-10 |
 | [Q11](#q11) | Follow-ups for custom prompts? | Small generic set | P2-4 |
 | [Q12](#q12) | Dual liability? | Parked until MVP-3 | P3-1 |
-| [Q13](#q13) | Rewording a prompt changes old sessions? | No, snapshot | H-11 |
+| [Q13](#q13) | Rewording a prompt changes old sessions? | No, retire and replace | H-11 |
 | [Q14](#q14) | Removing a prompt? | Retire, never delete | H-11 |
 | [Q15](#q15) | Show *when* the partner answered? | No timestamp shown | P0-2 |
 | [Q16](#q16) | Answer length? | 1–5,000 characters | P0-2, H-12 |

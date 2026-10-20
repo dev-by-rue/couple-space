@@ -1,9 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 import { DB } from "../db/db.module.js";
 import { CouplesService } from "./couples.service.js";
+import {
+  queryResult,
+  makeUser,
+  makeMembership,
+  makeInvitation,
+  makeMember,
+} from "../../test/factories.js";
 
-describe("CouplesService.createCouple", () => {
+describe("CouplesService", () => {
   let service: CouplesService;
 
   const mockDb = {
@@ -15,72 +22,81 @@ describe("CouplesService.createCouple", () => {
     vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CouplesService,
-        { provide: DB, useValue: mockDb },
-      ],
+      providers: [CouplesService, { provide: DB, useValue: mockDb }],
     }).compile();
 
     service = module.get(CouplesService);
   });
 
-  it("creates a forming couple when user has no active membership", async () => {
-    mockDb.select.mockReturnValue({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(async () => []),
-        })),
-      })),
-    });
-
-    mockDb.transaction.mockImplementation(async (fn) => {
-      const tx = {
-        insert: vi.fn(() => ({
-          values: vi.fn(() => {
-            // Drizzle builders are thenable AND expose .returning()
-            const builder = {
+  describe("createCouple", () => {
+    it("creates a forming couple when user has no active membership", async () => {
+      mockDb.select.mockReturnValue(queryResult([]));
+      mockDb.transaction.mockImplementation(async (fn) => {
+        const tx = {
+          insert: vi.fn(() => ({
+            values: vi.fn(() => ({
+              ...queryResult([]),
               returning: vi.fn(async () => [
                 { id: "couple-1", status: "forming" },
               ]),
-              then: (
-                resolve: (value: unknown) => void,
-                reject?: (reason: unknown) => void,
-              ) => Promise.resolve(undefined).then(resolve, reject),
-            };
-            return builder;
-          }),
-        })),
-      };
-      return fn(tx);
+            })),
+          })),
+        };
+        return fn(tx);
+      });
+
+      const result = await service.createCouple(makeUser());
+
+      expect(result).toEqual({ coupleId: "couple-1", status: "forming" });
+      expect(mockDb.transaction).toHaveBeenCalled();
     });
 
-    const result = await service.createCouple({
-      id: "user-1",
-      email: "a@example.com",
-      emailVerified: true,
-    });
+    it("rejects when user already has an active membership", async () => {
+      mockDb.select.mockReturnValue(queryResult([makeMembership()]));
 
-    expect(result).toEqual({ coupleId: "couple-1", status: "forming" });
-    expect(mockDb.transaction).toHaveBeenCalled();
+      await expect(service.createCouple(makeUser())).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+    });
   });
 
-  it("rejects when user already has an active membership", async () => {
-    mockDb.select.mockReturnValue({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(async () => [
-            { id: "m1", userId: "user-1", status: "active" },
-          ]),
-        })),
-      })),
+  describe("getMyCouple", () => {
+    /** Queues the four selects in the order getMyCouple runs them. */
+    function arrangeCouple({
+      invitations = [],
+    }: { invitations?: ReturnType<typeof makeInvitation>[] } = {}) {
+      mockDb.select
+        .mockReturnValueOnce(queryResult([makeMembership()]))
+        .mockReturnValueOnce(
+          queryResult([{ id: "couple-1", status: "forming" }]),
+        )
+        .mockReturnValueOnce(queryResult([makeMember()]))
+        .mockReturnValueOnce(queryResult(invitations));
+    }
+
+    it("returns the pending invitation", async () => {
+      const invitation = makeInvitation();
+      arrangeCouple({ invitations: [invitation] });
+
+      const result = await service.getMyCouple(makeUser());
+
+      expect(result.pendingInvitation).toEqual(invitation);
     });
 
-    await expect(
-      service.createCouple({
-        id: "user-1",
-        email: "a@example.com",
-        emailVerified: true,
-      }),
-    ).rejects.toBeInstanceOf(ConflictException);
+    it("returns null when there is no pending invitation", async () => {
+      arrangeCouple();
+
+      const result = await service.getMyCouple(makeUser());
+
+      expect(result.pendingInvitation).toBeNull();
+    });
+
+    it("throws no_couple when the user has no active membership", async () => {
+      mockDb.select.mockReturnValueOnce(queryResult([]));
+
+      await expect(service.getMyCouple(makeUser())).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
   });
 });

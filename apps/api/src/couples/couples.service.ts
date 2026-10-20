@@ -8,12 +8,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, count, eq, gte } from "drizzle-orm";
+import { and, count, eq, gte, desc } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
-import {
-  canAcceptInvitation,
-  canActivateCouple,
-} from "@couple-space/domain";
+import { canAcceptInvitation, canActivateCouple } from "@couple-space/domain";
 import {
   auditEvents,
   coupleInvitations,
@@ -112,14 +109,36 @@ export class CouplesService {
         ),
       );
 
+    const [invitation] = await this.db
+      .select({
+        email: coupleInvitations.email,
+        expiresAt: coupleInvitations.expiresAt,
+        token: coupleInvitations.token,
+      })
+      .from(coupleInvitations)
+      .where(
+        and(
+          eq(coupleInvitations.coupleId, mine.coupleId),
+          eq(coupleInvitations.status, "pending"),
+          gte(coupleInvitations.expiresAt, new Date()),
+        ),
+      )
+      .orderBy(desc(coupleInvitations.createdAt))
+      .limit(1);
+
     return {
       coupleId: couple.id,
       status: couple.status,
       members,
+      pendingInvitation: invitation ?? null,
     };
   }
 
-  async createInvitation(user: AuthUser, coupleId: string, input: CreateInvitationInput) {
+  async createInvitation(
+    user: AuthUser,
+    coupleId: string,
+    input: CreateInvitationInput,
+  ) {
     const env = loadEnv();
 
     const membership = await this.db
@@ -144,7 +163,10 @@ export class CouplesService {
       .where(eq(couples.id, coupleId))
       .limit(1);
 
-    if (!couple || (couple.status !== "forming" && couple.status !== "active")) {
+    if (
+      !couple ||
+      (couple.status !== "forming" && couple.status !== "active")
+    ) {
       throw new ForbiddenException({ reason: "couple_not_invitable" });
     }
 
@@ -160,7 +182,10 @@ export class CouplesService {
       );
 
     if (Number(inviteCount) >= env.INVITE_RATE_LIMIT_PER_HOUR) {
-      throw new HttpException({ reason: "rate_limited" }, HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        { reason: "rate_limited" },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const token = randomBytes(32).toString("base64url");
@@ -221,7 +246,8 @@ export class CouplesService {
       // Idempotent: same user already accepted this invite.
       if (
         invitation.status === "accepted" &&
-        invitation.email.trim().toLowerCase() === dbUser.email.trim().toLowerCase()
+        invitation.email.trim().toLowerCase() ===
+          dbUser.email.trim().toLowerCase()
       ) {
         const [couple] = await tx
           .select()
@@ -244,10 +270,7 @@ export class CouplesService {
 
       const gate = canAcceptInvitation({
         invitationStatus: invitation.status as
-          | "pending"
-          | "accepted"
-          | "revoked"
-          | "expired",
+          "pending" | "accepted" | "revoked" | "expired",
         invitationExpiresAt: invitation.expiresAt,
         now: new Date(),
         inviteeEmailVerified: dbUser.emailVerified,
@@ -257,7 +280,10 @@ export class CouplesService {
       });
 
       if (!gate.ok) {
-        if (gate.reason === "email_unverified" || gate.reason === "email_mismatch") {
+        if (
+          gate.reason === "email_unverified" ||
+          gate.reason === "email_mismatch"
+        ) {
           throw new ForbiddenException({ reason: gate.reason });
         }
         if (gate.reason === "already_in_couple") {
@@ -309,10 +335,7 @@ export class CouplesService {
 
       const activate = canActivateCouple({
         coupleStatus: couple.status as
-          | "forming"
-          | "active"
-          | "dissolving"
-          | "dissolved",
+          "forming" | "active" | "dissolving" | "dissolved",
         activeMemberships: activeMembers.map((m) => ({
           emailVerified: m.emailVerified,
         })),

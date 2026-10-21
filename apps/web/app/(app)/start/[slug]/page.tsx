@@ -29,8 +29,6 @@ export default function Page() {
       </main>
     );
 
-  const theme = themes.data.themes.find((theme) => theme.slug === slug);
-
   const theme = themes.data?.themes.find((theme) => theme.slug === slug);
 
   if (!theme)

@@ -27,7 +27,7 @@ export default function CouplePage() {
 
   if (couple.isError) {
     return (
-      <main className="p-6 text-sm text-red-600">
+      <main className="flex min-h-svh items-center">
         <ErrorState
           title="We couldn't load your space"
           onRetry={() => void couple.refetch()}

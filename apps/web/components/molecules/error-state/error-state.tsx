@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 type ErrorStateProps = {
   title: string;
   message?: string;
-  onRetry: () => void;
+  onRetry?: () => void;
 };
 
 export function ErrorState({

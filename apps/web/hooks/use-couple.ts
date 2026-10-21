@@ -17,7 +17,7 @@ export type CoupleMe = {
     displayName: string;
     emailVerified: boolean;
   }>;
-  pendingInvitation: PendingInvitation;
+  pendingInvitation: PendingInvitation | null;
 };
 
 export type PendingInvitation = {
@@ -141,6 +141,22 @@ export function useSendNewInviteLinkMutation(
     onSettled: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: COUPLE_ME_QUERY_KEY });
       await onSettled?.(...args);
+    },
+  });
+}
+export function useRevokeInviteMutation(
+  options?: UseMutationOptions<unknown, Error, { token: string }>,
+) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...rest } = options ?? {};
+
+  return useMutation({
+    ...rest,
+    mutationFn: ({ token }) =>
+      apiFetch(`/invitations/${token}/revoke`, { method: "POST" }),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: COUPLE_ME_QUERY_KEY });
+      await onSuccess?.(...args);
     },
   });
 }

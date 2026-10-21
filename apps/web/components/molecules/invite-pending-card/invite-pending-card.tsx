@@ -8,6 +8,9 @@ export type InvitePendingCardProps = {
   inviteeEmail: string;
   inviteUrl: string;
   isSending: boolean;
+  isCancelling: boolean;
+  isError: boolean;
+  onCancelInvite: () => void;
   onSendNewLink: () => void;
 };
 
@@ -15,6 +18,9 @@ export function InvitePendingCard({
   inviteeEmail,
   inviteUrl,
   isSending,
+  isCancelling,
+  isError,
+  onCancelInvite,
   onSendNewLink,
 }: Readonly<InvitePendingCardProps>) {
   const [copied, setCopied] = useState<boolean>(false);
@@ -40,10 +46,28 @@ export function InvitePendingCard({
           <CopyIcon aria-hidden="true" />
           {copied ? "Link copied" : "Copy invite link"}
         </Button>
-        <Button variant="outline" disabled={isSending} onClick={onSendNewLink}>
+        <Button
+          variant="outline"
+          disabled={isSending || isCancelling}
+          onClick={onSendNewLink}
+        >
           {isSending ? "Creating…" : "Send a new link"}
         </Button>
       </div>
+      <Button
+        variant="ghost"
+        className="mt-3 w-full"
+        disabled={isSending || isCancelling}
+        onClick={onCancelInvite}
+      >
+        {isCancelling ? "Cancelling…" : "Cancel invite"}
+      </Button>
+      {isError ? (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          Something went wrong. Please try again.
+        </p>
+      ) : null}
+
       <p aria-live="polite" className="sr-only">
         {copied ? "Invite link copied" : ""}
       </p>

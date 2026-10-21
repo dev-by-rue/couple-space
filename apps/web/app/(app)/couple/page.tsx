@@ -2,6 +2,7 @@
 
 import {
   useCoupleMeQuery,
+  useRevokeInviteMutation,
   useSendNewInviteLinkMutation,
 } from "@/hooks/use-couple";
 import { CreateCouplePanel } from "@/components/organisms/create-couple-panel";
@@ -16,6 +17,7 @@ import { HowItWorksSteps } from "@/components/molecules/how-it-works/how-it-work
 export default function CouplePage() {
   const couple = useCoupleMeQuery();
   const sendNewLink = useSendNewInviteLinkMutation();
+  const revokeInvite = useRevokeInviteMutation();
 
   if (couple.isPending) {
     return <main className="p-6 text-sm">Loading couple…</main>;
@@ -49,12 +51,17 @@ export default function CouplePage() {
               inviteUrl={`${window.location.origin}/invite/${pendingInvitation.token}`}
               inviteeEmail={pendingInvitation.email}
               isSending={sendNewLink.isPending}
+              isCancelling={revokeInvite.isPending}
+              isError={revokeInvite.isError || sendNewLink.isError}
               onSendNewLink={() =>
                 sendNewLink.mutate({
                   coupleId,
                   token: pendingInvitation.token,
                   email: pendingInvitation.email,
                 })
+              }
+              onCancelInvite={() =>
+                revokeInvite.mutate({ token: pendingInvitation.token })
               }
             />
           ) : (

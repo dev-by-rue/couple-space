@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type StartConversationProps = {
@@ -13,7 +13,8 @@ export function StartConversation({
     <section>
       <h2 className="text-2xl">A little time for the two of you</h2>
       <p className="mt-2 leading-relaxed text-muted-foreground">
-        Choose a question, answer separately, and open your answers together.
+        Choose a question, answer privately, and reveal when you&apos;re both
+        ready.
       </p>
       {disabledReason ? (
         <>

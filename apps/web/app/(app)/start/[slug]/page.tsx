@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PageLoading } from "@/components/organisms/page-loading/page-loading";
 import { RedirectTo } from "@/components/organisms/redirect-to/redirect-to";
 import { useCreateSessionMutation } from "@/hooks/use-sessions";
+import { ErrorState } from "@/components/molecules/error-state/error-state";
 
 export default function Page() {
   const router = useRouter();
@@ -17,13 +18,18 @@ export default function Page() {
 
   const themes = useThemesQuery();
 
-  if (themes.isLoading) return <PageLoading message="Loading themes..." />;
+  if (themes.isPending) return <PageLoading message="Loading prompts…" />;
   if (themes.isError)
     return (
-      <div>
-        <p>Error loading themes</p>
-      </div>
+      <main className="flex min-h-svh items-center">
+        <ErrorState
+          title="We couldn't load this theme"
+          onRetry={() => void themes.refetch()}
+        />
+      </main>
     );
+
+  const theme = themes.data.themes.find((theme) => theme.slug === slug);
 
   const theme = themes.data?.themes.find((theme) => theme.slug === slug);
 

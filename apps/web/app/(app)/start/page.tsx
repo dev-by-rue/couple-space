@@ -2,21 +2,21 @@
 
 import { useThemesQuery } from "@/hooks/use-themes";
 import { ThemeCard } from "@/components/molecules/theme-card/theme-card";
+import { ErrorState } from "@/components/molecules/error-state/error-state";
+import { PageLoading } from "@/components/organisms/page-loading/page-loading";
 
 export default function StartPage() {
   const themes = useThemesQuery();
 
-  if (themes.isLoading)
-    return (
-      <div>
-        <p>Loading themes...</p>
-      </div>
-    );
+  if (themes.isPending) return <PageLoading message="Loading themes…" />;
   if (themes.isError)
     return (
-      <div>
-        <p>Error loading themes</p>
-      </div>
+      <main className="flex min-h-svh items-center">
+        <ErrorState
+          title="We couldn't load the themes"
+          onRetry={() => void themes.refetch()}
+        />
+      </main>
     );
 
   return (
@@ -25,11 +25,17 @@ export default function StartPage() {
       <p className="text-sm text-muted-foreground">
         Pick a theme to get started with your conversation.
       </p>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {themes.data?.themes.map((theme) => (
-          <ThemeCard key={theme.id} theme={theme} />
-        ))}
-      </div>
+      {themes.data.themes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No themes are available right now. Please check back soon.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {themes.data.themes.map((theme) => (
+            <ThemeCard key={theme.id} theme={theme} />
+          ))}
+        </div>
+      )}
     </main>
   );
 }

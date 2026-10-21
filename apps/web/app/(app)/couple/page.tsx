@@ -13,6 +13,8 @@ import { StartConversation } from "@/components/molecules/start-conversation";
 import { ConversationList } from "@/components/organisms/conversation-list/conversation-list";
 import { InvitePendingCard } from "@/components/molecules/invite-pending-card/invite-pending-card";
 import { HowItWorksSteps } from "@/components/molecules/how-it-works/how-it-works";
+import { ErrorState } from "@/components/molecules/error-state/error-state";
+import { PageLoading } from "@/components/organisms/page-loading/page-loading";
 
 export default function CouplePage() {
   const couple = useCoupleMeQuery();
@@ -20,12 +22,17 @@ export default function CouplePage() {
   const revokeInvite = useRevokeInviteMutation();
 
   if (couple.isPending) {
-    return <main className="p-6 text-sm">Loading couple…</main>;
+    return <PageLoading message="We're getting your space ready..." />;
   }
 
   if (couple.isError) {
     return (
-      <main className="p-6 text-sm text-red-600">{couple.error.message}</main>
+      <main className="p-6 text-sm text-red-600">
+        <ErrorState
+          title="We couldn't load your space"
+          onRetry={() => void couple.refetch()}
+        />
+      </main>
     );
   }
 

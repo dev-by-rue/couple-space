@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Figtree, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,19 @@ const themeLabEnabled = process.env.NEXT_PUBLIC_THEME_LAB === "1";
 export const metadata: Metadata = {
   title: "Couple Space",
   description: "Private couple space",
+  applicationName: "Couple Space",
+  appleWebApp: {
+    capable: true,
+    title: "Couple Space",
+    statusBarStyle: "default",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F7F3F0",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

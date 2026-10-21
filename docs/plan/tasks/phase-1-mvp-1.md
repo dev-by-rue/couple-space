@@ -37,7 +37,15 @@ Tasks with a 📘 link have prototype code ready to reuse. Full step-by-step gui
 - [ ] **P1-11 · Leave couple / dissolution ([Q7](../03-product-decisions.md#q7), [Q18](../03-product-decisions.md#q18), [Q19](../03-product-decisions.md#q19))** · L — `POST /couples/me/leave` with confirmation. The statuses already exist in the domain (`dissolving`/`dissolved`, `left`). Block all session endpoints for non-active couples. Audit events, `couples.dissolved_at`, `couple_memberships.left_at` (H-13), and the 30-day purge job ([E-8](../erd/design-review.md#e-8)).
 - [ ] **P1-12 · Account deletion ([Q8](../03-product-decisions.md#q8))** · L — `DELETE /users/me` with password re-entry. Dissolves the couple and deletes responses and reveals. Audit rows stay but contain no content ([E-7](../erd/design-review.md#e-7)). Add `users.deleted_at` if you want a grace period.
 - [ ] **P1-13 · Legal + trust pages** · M — Privacy policy, terms, and a "How your answers stay private" explainer (your reveal table in plain English). Written against [L-1…L-5](legal-and-business.md). Data export (`GET /users/me/export`, JSON) is S once P1-12 exists.
-- [ ] **P1-14 · Email nudges (optional)** · M — "Partner answered", "Ready to reveal". **No prompt or answer text in emails** (lock-screen privacy). Needs a `users.email_notifications` boolean.
+- [ ] **P1-14 · Email nudges (optional)** · M — Push ([P1-25…P1-27](#notifications-installable-app--push)) covers "new conversation" for Gate A; revisit this after it ships. "Partner answered", "Ready to reveal". **No prompt or answer text in emails** (lock-screen privacy). Needs a `users.email_notifications` boolean.
+
+## Notifications (installable app + push)
+
+Decision: [Q23](../03-product-decisions.md#q23). Web push only, no native app. Do these in order: you can both install the app after P1-25, and pushes start arriving after P1-27.
+
+- [ ] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
+- [ ] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
+- [ ] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
 
 ## Security & ops
 

@@ -8,6 +8,7 @@ import { CouplesModule } from "./couples/couples.module.js";
 import { DbModule } from "./db/db.module.js";
 import { HealthController } from "./health.controller.js";
 import { MailModule } from "./mail/mail.module.js";
+import { PushModule } from "./push/push.module.js";
 import { UsersModule } from "./users/users.module.js";
 
 @Module({
@@ -19,6 +20,7 @@ import { UsersModule } from "./users/users.module.js";
     UsersModule,
     CouplesModule,
     ConversationsModule,
+    PushModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

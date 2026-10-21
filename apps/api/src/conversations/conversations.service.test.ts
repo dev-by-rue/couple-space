@@ -7,6 +7,9 @@ import {
 import { Test } from "@nestjs/testing";
 import { DB } from "../db/db.module.js";
 import { ConversationsService } from "./conversations.service.js";
+import { PushService } from "../push/push.service.js";
+
+const fakePush = () => ({ notifyNewConversation: vi.fn() });
 import { buildSessionDetailDto } from "./session-detail.mapper.js";
 
 describe("buildSessionDetailDto", () => {
@@ -157,6 +160,7 @@ describe("ConversationsService", () => {
       providers: [
         ConversationsService,
         { provide: DB, useValue: mockDb },
+        { provide: PushService, useValue: fakePush() },
       ],
     }).compile();
 
@@ -231,7 +235,11 @@ describe("ConversationsService", () => {
 
     async function serviceWith(mockDb: object) {
       const module = await Test.createTestingModule({
-        providers: [ConversationsService, { provide: DB, useValue: mockDb }],
+        providers: [
+          ConversationsService,
+          { provide: DB, useValue: mockDb },
+          { provide: PushService, useValue: fakePush() },
+        ],
       }).compile();
       return module.get(ConversationsService);
     }
@@ -312,6 +320,7 @@ describe("ConversationsService", () => {
       providers: [
         ConversationsService,
         { provide: DB, useValue: mockDb },
+        { provide: PushService, useValue: fakePush() },
       ],
     }).compile();
 
@@ -324,5 +333,108 @@ describe("ConversationsService", () => {
         { text: "again" },
       ),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  describe("createSession notifications", () => {
+    const user = { id: "u1", email: "a@example.com", emailVerified: true };
+    const prompt = {
+      id: "a0000000-0000-4000-8000-000000000011",
+      kind: "curated",
+      retiredAt: null,
+    };
+
+    function mockDbFor(existingSessions: { id: string }[]) {
+      const tx = {
+        insert: vi.fn(() => ({
+          values: vi.fn(() => ({
+            returning: vi.fn(async () => [{ id: "s-new" }]),
+          })),
+        })),
+      };
+      const mockDb = {
+        select: vi.fn(),
+        transaction: vi.fn(async (fn: (t: typeof tx) => unknown) => fn(tx)),
+      };
+
+      mockDb.select
+        // membership
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [
+                { coupleId: "c1", userId: "u1", status: "active" },
+              ]),
+            })),
+          })),
+        })
+        // couple
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [{ id: "c1", status: "active" }]),
+            })),
+          })),
+        })
+        // members
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => [{ userId: "u1" }, { userId: "u2" }]),
+          })),
+        })
+        // prompt
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [prompt]),
+            })),
+          })),
+        })
+        // sessions on the same prompt
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => existingSessions),
+          })),
+        })
+        // reveals (nobody has revealed, so any session is open)
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => []),
+          })),
+        });
+
+      return mockDb;
+    }
+
+    async function setup(existingSessions: { id: string }[]) {
+      const push = fakePush();
+      const module = await Test.createTestingModule({
+        providers: [
+          ConversationsService,
+          { provide: DB, useValue: mockDbFor(existingSessions) },
+          { provide: PushService, useValue: push },
+        ],
+      }).compile();
+      return { service: module.get(ConversationsService), push };
+    }
+
+    it("pings the partner when a new session is created", async () => {
+      const { service, push } = await setup([]);
+
+      await expect(
+        service.createSession(user, { promptId: prompt.id }),
+      ).resolves.toEqual({ id: "s-new" });
+      expect(push.notifyNewConversation).toHaveBeenCalledWith({
+        starterId: "u1",
+        partnerIds: ["u2"],
+        sessionId: "s-new",
+      });
+    });
+
+    it("sends nothing when the open session is reused", async () => {
+      const { service, push } = await setup([{ id: "s1" }]);
+
+      await service.createSession(user, { promptId: prompt.id });
+      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+    });
   });
 });

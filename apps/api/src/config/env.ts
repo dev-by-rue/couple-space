@@ -36,6 +36,12 @@ const envSchema = z.object({
   SMTP_USER: z.string().min(1).default("unused"),
   SMTP_PASS: z.string().min(1).default("unused"),
   SMTP_FROM: z.string().min(1).default("noreply@example.com"),
+
+  // Web push. Leave unset locally to turn sending off. Never rotate them on a
+  // live environment: every existing subscription is tied to the public key.
+  VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+  VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+  VAPID_SUBJECT: z.string().min(1).default("mailto:noreply@example.com"),
 });
 
 export type Env = z.infer<typeof envSchema>;

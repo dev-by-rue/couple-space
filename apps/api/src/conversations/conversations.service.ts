@@ -19,6 +19,7 @@ import {
   type Db,
 } from "@couple-space/database";
 import { DB } from "../db/db.module.js";
+import { PushService } from "../push/push.service.js";
 import type { AuthUser } from "../auth/auth-user.types.js";
 import type { CreateSessionInput } from "./dto/create-session.schema.js";
 import type { SubmitResponseInput } from "./dto/submit-response.schema.js";
@@ -30,7 +31,10 @@ import type { SaveDraftInput } from "./dto/save-draft.schema.js";
 
 @Injectable()
 export class ConversationsService {
-  constructor(@Inject(DB) private readonly db: Db) {}
+  constructor(
+    @Inject(DB) private readonly db: Db,
+    private readonly push: PushService,
+  ) {}
 
   async listThemes(_user: AuthUser) {
     const themes = await this.db
@@ -228,6 +232,13 @@ export class ConversationsService {
       );
 
       return created;
+    });
+
+    // Fire and forget: notifyNewConversation never throws.
+    void this.push.notifyNewConversation({
+      starterId: user.id,
+      partnerIds: ctx.memberIds.filter((id) => id !== user.id),
+      sessionId: session.id,
     });
 
     return { id: session.id };

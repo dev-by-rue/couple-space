@@ -35,6 +35,7 @@ Each decision has its own heading, so you can link it directly (for example `03-
 | [Q20](#q20) | Display name rules? | Required, not unique, 1–40 chars | P1-4 |
 | [Q21](#q21) | Partner-added questions? | Both answer, MVP-2 | P2-7 |
 | [Q22](#q22) | Reveal tap on follow-ups? | No, auto-show after both submit | P1-8, P2-7 |
+| [Q23](#q23) | Mobile app and notifications? | Installable web app + web push; no native app | P1-25…P1-27 |
 
 ---
 
@@ -184,8 +185,32 @@ answerer react instead of answer, exposes whoever goes first, and turns discussi
 thread. This decision supersedes `scope.md`'s "answer visible to both on submit" for partner-added
 questions. Blocks: P1-8, P2-7.
 
+## Q23
+
+**Does the app need to be a native (React Native) app for phone notifications?**
+
+**No.** Notifications are the only phone feature wanted, and a web app can do them: an installable web app
+(manifest) plus web push from Nest. Every line of existing code is kept and there are no new Railway
+services. Owner decisions (2026-10-21):
+
+- **What triggers a push:** a partner **creates a new conversation**. Reusing an already-open session sends
+  nothing. Answers and reveals are not pushed yet; scope them when wanted.
+- **Lock-screen text:** title "New conversation", body "<name> started a new conversation". The name is
+  fine (only the partner receives it). **Never** the theme, prompt or any answer text.
+- **Asking for permission:** a banner on the hub with an Enable button (the browser prompt only ever
+  appears after that tap), plus an on/off item in the account menu. "Not now" hides the banner on that
+  device.
+- **iPhone:** web push only works once the app is added to the Home Screen (iOS 16.4+). In Safari the
+  banner shows "Add to Home Screen first" instead of the Enable button.
+- **Tapping a notification** opens that conversation (focusing an open window if there is one).
+- **Every device** a person enables gets the push. Logging out removes the subscription for that device.
+
+*Rejected alternatives:* Capacitor (store listing, needs a static export instead of Next rewrites) and an
+Expo rewrite (every screen rebuilt). Revisit only if more native features are scoped. Supersedes the "no
+notifications yet" part of [Q6](#q6); polling stays as the way screens refresh. Blocks: P1-25…P1-27.
+
 ---
 
 ## D-4
 
-- [ ] **D-4** Copy the answers to Q1–Q22 into `scope.md` and remove them from its "Open product questions".
+- [ ] **D-4** Copy the answers to Q1–Q23 into `scope.md` and remove them from its "Open product questions".

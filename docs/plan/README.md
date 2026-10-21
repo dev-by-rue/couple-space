@@ -61,6 +61,7 @@ P0-1 → P0-2 → P0-3 → P0-5 → P0-6 → P0-7 → P0-9        ← you can de
 H-11 → H-12 → H-2                                     ← schema fixes while the DB has no real data
    D-1…D-4 (scope decisions, an evening of writing)
 P1-1 → P1-3 → P1-8 (follow-ups) → P1-6 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
+P1-25 → P1-26 → P1-27                                ← install to phone + push (any time; owner wants it early)
 P1-7
 P1-15 → P1-16 → P1-17 → P1-18                         ← ops, before strangers touch it
 P1-5 → P1-9 → P1-10 → P1-11 → P1-12 → P1-13
@@ -82,3 +83,4 @@ Phase 2 → Phase 3
 | 2026-10-15 | Step-by-step guides with ready-to-paste code for every Phase 0 task; prototype reuse notes for P1-2 and P1-8 | Code adapted from `between-us-source` to `apps/web` (Base UI, existing hooks and tokens) |
 | 2026-10-18 | Phase 0 complete. Tested by myelf and Rache                                                                  | To keep using and actioning feedback                                                     |
 | 2026-10-18 | H-2, H-15, H-11, H-12, H-14 done (migrations `0006`–`0008`); lint + `pnpm check-types` green               | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |
+| 2026-10-21 | Q23 + P1-25…P1-27: installable web app + push on "new conversation"                                   | No native app; guides with code in `tasks/phase-1/`                                       |

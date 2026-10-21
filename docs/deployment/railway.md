@@ -74,13 +74,15 @@ VAPID_SUBJECT=mailto:<an address you read; push services use it for abuse report
 ```env
 API_INTERNAL_URL=http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}
 NEXT_PUBLIC_API_URL=/backend
+# Web push (P1-27): reference the api's public key so there's one source of truth
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=${{api.VAPID_PUBLIC_KEY}}
 
 # Optional: welcome quote
 NEXT_QUOTE_API_URL=https://api.api-ninjas.com/v2/randomquotes
 NEXT_QUOTE_API_KEY=<api ninjas key>
 ```
 
-Both `API_INTERNAL_URL` and `NEXT_PUBLIC_API_URL` are baked in at **build** time. After changing either, redeploy `web` (a restart isn't enough).
+`API_INTERNAL_URL`, `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_VAPID_PUBLIC_KEY` are baked in at **build** time. After changing any of them, redeploy `web` (a restart isn't enough).
 
 ## 4. Email
 

@@ -3,6 +3,7 @@
 import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import type { LoginInput, RegisterInput } from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
+import { unsubscribeThisDevice } from "@/hooks/use-push";
 
 type ResendVerificationResponse = {
   ok: true;
@@ -77,6 +78,11 @@ export function useLogoutMutation(
 ) {
   return useMutation({
     ...options,
-    mutationFn: () => apiFetch("/auth/logout", { method: "POST" }),
+    mutationFn: async () => {
+      // Before logout, while the auth cookie still works. A failure here
+      // must not block logging out.
+      await unsubscribeThisDevice().catch(() => undefined);
+      return apiFetch("/auth/logout", { method: "POST" });
+    },
   });
 }

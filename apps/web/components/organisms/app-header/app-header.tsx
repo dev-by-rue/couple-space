@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMeQuery } from "@/hooks/use-me";
 import { useLogoutMutation } from "@/hooks/use-auth-mutations";
+import {
+  useDisablePushMutation,
+  useEnablePushMutation,
+  usePushStatusQuery,
+} from "@/hooks/use-push";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +26,9 @@ export function AppHeader() {
   const me = useMeQuery();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const pushStatus = usePushStatusQuery();
+  const enablePush = useEnablePushMutation();
+  const disablePush = useDisablePushMutation();
   const logout = useLogoutMutation({
     onSettled: () => {
       router.replace("/login");
@@ -79,6 +87,27 @@ export function AppHeader() {
               Start
             </DropdownMenuItem>
           </DropdownMenuGroup>
+          {pushStatus.data === "on" ? (
+            <DropdownMenuItem
+              disabled={disablePush.isPending}
+              onClick={() => disablePush.mutate()}
+            >
+              Turn off notifications
+            </DropdownMenuItem>
+          ) : pushStatus.data === "off" || pushStatus.data === "dismissed" ? (
+            <DropdownMenuItem
+              disabled={enablePush.isPending}
+              onClick={() =>
+                enablePush.mutate(Notification.requestPermission())
+              }
+            >
+              Turn on notifications
+            </DropdownMenuItem>
+          ) : pushStatus.data === "denied" ? (
+            <DropdownMenuItem disabled>
+              Notifications blocked in settings
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             disabled={logout.isPending}

@@ -15,11 +15,20 @@ import { InvitePendingCard } from "@/components/molecules/invite-pending-card/in
 import { HowItWorksSteps } from "@/components/molecules/how-it-works/how-it-works";
 import { ErrorState } from "@/components/molecules/error-state/error-state";
 import { PageLoading } from "@/components/organisms/page-loading/page-loading";
+import { NotificationsBanner } from "@/components/molecules/notifications-banner/notifications-banner";
+import {
+  useDismissPushBannerMutation,
+  useEnablePushMutation,
+  usePushStatusQuery,
+} from "@/hooks/use-push";
 
 export default function CouplePage() {
   const couple = useCoupleMeQuery();
   const sendNewLink = useSendNewInviteLinkMutation();
   const revokeInvite = useRevokeInviteMutation();
+  const pushStatus = usePushStatusQuery();
+  const enablePush = useEnablePushMutation();
+  const dismissPush = useDismissPushBannerMutation();
 
   if (couple.isPending) {
     return <PageLoading message="We're getting your space ready..." />;
@@ -48,6 +57,17 @@ export default function CouplePage() {
       <WelcomeBanner />
       {status === "active" ? (
         <>
+          {pushStatus.data ? (
+            <NotificationsBanner
+              status={pushStatus.data}
+              isEnabling={enablePush.isPending}
+              isError={enablePush.isError}
+              onEnable={() =>
+                enablePush.mutate(Notification.requestPermission())
+              }
+              onDismiss={() => dismissPush.mutate()}
+            />
+          ) : null}
           <StartConversation />
           <ConversationList />
         </>

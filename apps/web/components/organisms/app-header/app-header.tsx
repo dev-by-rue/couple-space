@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/atoms/logo/logo";
 
 export function AppHeader() {
   const me = useMeQuery();
@@ -39,10 +40,15 @@ export function AppHeader() {
   if (!me.data) return null;
 
   return (
-    <header className="flex items-center justify-between gap-4 border-b px-6 py-3">
-      <Link href="/couple" className="mr-4 font-display text-lg">
-        Couple Space
+    <header className="flex items-center justify-between gap-4 border-b border-primary/20 px-6 py-3">
+      <Link
+        href="/couple"
+        aria-label="Couple Space"
+        className="mr-4 flex items-center"
+      >
+        <Logo className="size-11" />
       </Link>
+
       <nav className="flex items-center gap-2">
         <Link
           href="/couple"

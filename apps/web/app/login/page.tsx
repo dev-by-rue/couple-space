@@ -2,10 +2,10 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/auth/login.form";
 import { safeNextPath } from "@/lib/auth-redirect";
 import Link from "next/link";
+import { Logo } from "@/components/atoms/logo/logo";
 
 function LoginPageContent() {
   const router = useRouter();
@@ -15,21 +15,18 @@ function LoginPageContent() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <Link href="/" className="flex items-center gap-2 font-medium">
-            <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            Couple Space
-          </Link>
-        </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm next={next} onAuthenticated={() => router.push(next)} />
           </div>
         </div>
       </div>
-      <div className="relative hidden bg-muted lg:block" aria-hidden="true" />
+      <div
+        className="relative hidden items-center justify-center bg-secondary/20 lg:flex"
+        aria-hidden="true"
+      >
+        <Logo className="size-48" />
+      </div>
     </div>
   );
 }

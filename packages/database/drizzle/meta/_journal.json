@@ -64,6 +64,13 @@
       "when": 1792353927264,
       "tag": "0008_slow_the_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792618495419,
+      "tag": "0009_careless_vertigo",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 # ERD · Current schema
 
-[← Plan index](../README.md) · As of migration `0008` (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
+[← Plan index](../README.md) · As of migration `0009` (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
 
 ```mermaid
 erDiagram
@@ -18,6 +18,7 @@ erDiagram
     conversation_sessions ||--o{ session_reveals : "has (one per member)"
     users ||--o{ session_reveals : "reveals"
     users |o--o{ audit_events : "actor (no FK)"
+    users ||--o{ push_subscriptions : "enables"
 
     users {
         uuid id PK "also JWT sub"
@@ -117,6 +118,14 @@ erDiagram
         uuid session_id FK "unique (session_id, user_id)"
         uuid user_id FK
         timestamptz revealed_at
+    }
+    push_subscriptions {
+        uuid id PK
+        uuid user_id FK "on delete cascade"
+        text endpoint UK "push service URL; re-assigned on conflict"
+        text p256dh
+        text auth
+        timestamptz created_at
     }
 ```
 

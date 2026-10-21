@@ -58,6 +58,13 @@ SMTP_PORT=587
 SMTP_USER=<brevo SMTP login>
 SMTP_PASS=<brevo SMTP key>
 SMTP_FROM=<the sender address you verified in Brevo>
+
+# Web push (P1-26). Generate once with
+# `pnpm --filter @couple-space/api exec web-push generate-vapid-keys`.
+# Never rotate on a live environment: existing subscriptions are tied to the public key.
+VAPID_PUBLIC_KEY=<public key>
+VAPID_PRIVATE_KEY=<private key>
+VAPID_SUBJECT=mailto:<an address you read; push services use it for abuse reports>
 ```
 
 `PORT=8080` is set explicitly so the web service can address the API on a known port. The API listens on `API_PORT`, falling back to `PORT`.

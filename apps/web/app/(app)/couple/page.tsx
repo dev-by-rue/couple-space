@@ -1,15 +1,21 @@
 "use client";
 
-import { useCoupleMeQuery } from "@/hooks/use-couple";
+import {
+  useCoupleMeQuery,
+  useSendNewInviteLinkMutation,
+} from "@/hooks/use-couple";
 import { CreateCouplePanel } from "@/components/organisms/create-couple-panel";
 import { CoupleMembersList } from "@/components/organisms/couple-members-list";
 import { InvitePartnerForm } from "@/components/organisms/invite-partner-form";
 import { WelcomeBanner } from "@/components/molecules/welcome-banner";
 import { StartConversation } from "@/components/molecules/start-conversation";
 import { ConversationList } from "@/components/organisms/conversation-list/conversation-list";
+import { InvitePendingCard } from "@/components/molecules/invite-pending-card/invite-pending-card";
+import { HowItWorksSteps } from "@/components/molecules/how-it-works/how-it-works";
 
 export default function CouplePage() {
   const couple = useCoupleMeQuery();
+  const sendNewLink = useSendNewInviteLinkMutation();
 
   if (couple.isPending) {
     return <main className="p-6 text-sm">Loading couple…</main>;
@@ -25,17 +31,38 @@ export default function CouplePage() {
     return <CreateCouplePanel />;
   }
 
+  const { coupleId, status, members, pendingInvitation } = couple.data;
+
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 p-6">
-      <CoupleMembersList members={couple.data.members} />
+      <CoupleMembersList members={members} />
       <WelcomeBanner />
-      {couple.data.status === "active" ? (
+      {status === "active" ? (
         <>
           <StartConversation />
           <ConversationList />
         </>
       ) : (
-        <InvitePartnerForm coupleId={couple.data.coupleId} />
+        <>
+          {pendingInvitation ? (
+            <InvitePendingCard
+              inviteUrl={`${window.location.origin}/invite/${pendingInvitation.token}`}
+              inviteeEmail={pendingInvitation.email}
+              isSending={sendNewLink.isPending}
+              onSendNewLink={() =>
+                sendNewLink.mutate({
+                  coupleId,
+                  token: pendingInvitation.token,
+                  email: pendingInvitation.email,
+                })
+              }
+            />
+          ) : (
+            <InvitePartnerForm coupleId={coupleId} />
+          )}
+          <HowItWorksSteps />
+          <StartConversation disabledReason="You can start up a conversation once your partner has joined." />
+        </>
       )}
     </main>
   );

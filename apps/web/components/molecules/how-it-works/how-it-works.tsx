@@ -4,7 +4,7 @@ import {
   MessageCircleQuestionIcon,
   SparklesIcon,
 } from "lucide-react";
-export type HowItWorksProps = {
+export type HowItWorksStepsProps = {
   compact?: boolean;
   className?: string;
 };
@@ -18,7 +18,7 @@ const STEPS = [
   { title: "Reveal", text: "When you're both ready", icon: SparklesIcon },
   {
     title: "Talk",
-    text: "Follw-ups, or do it over dinner",
+    text: "Follow-ups, or do it over dinner",
     icon: MessageCircleQuestionIcon,
   },
 ] as const;
@@ -26,7 +26,7 @@ const STEPS = [
 export function HowItWorksSteps({
   compact = false,
   className,
-}: Readonly<HowItWorksProps>) {
+}: Readonly<HowItWorksStepsProps>) {
   return (
     <ol
       className={cn("grid grid-cols-3", compact ? "gap-2" : "gap-3", className)}

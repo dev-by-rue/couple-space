@@ -17,6 +17,13 @@ export type CoupleMe = {
     displayName: string;
     emailVerified: boolean;
   }>;
+  pendingInvitation: PendingInvitation;
+};
+
+export type PendingInvitation = {
+  email: string;
+  expiresAt: string;
+  token: string;
 };
 
 type CreateCoupleResponse = {
@@ -29,10 +36,14 @@ type CreateInviteResponse = {
   expiresAt: string;
 };
 
+type CreateInvitePayload = { coupleId: string; email: string };
+
 type AcceptInviteResponse = {
   coupleId: string;
   status: string;
 };
+
+type NewInvitePayload = CreateInvitePayload & { token: string };
 
 const COUPLE_ME_QUERY_KEY = ["couples", "me"] as const;
 
@@ -76,25 +87,28 @@ export function useCreateInviteMutation(
   options?: UseMutationOptions<
     CreateInviteResponse,
     Error,
-    { coupleId: string; email: string }
+    CreateInvitePayload
   >,
 ) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...rest } = options ?? {};
+
   return useMutation({
-    ...options,
+    ...rest,
     mutationFn: ({ coupleId, email }) =>
       apiFetch<CreateInviteResponse>(`/couples/${coupleId}/invitations`, {
         method: "POST",
         body: JSON.stringify({ email }),
       }),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: COUPLE_ME_QUERY_KEY });
+      await onSuccess?.(...args);
+    },
   });
 }
 
 export function useAcceptInviteMutation(
-  options?: UseMutationOptions<
-    AcceptInviteResponse,
-    Error,
-    { token: string }
-  >,
+  options?: UseMutationOptions<AcceptInviteResponse, Error, { token: string }>,
 ) {
   return useMutation({
     ...options,
@@ -102,5 +116,31 @@ export function useAcceptInviteMutation(
       apiFetch<AcceptInviteResponse>(`/invitations/${token}/accept`, {
         method: "POST",
       }),
+  });
+}
+
+export function useSendNewInviteLinkMutation(
+  options?: UseMutationOptions<CreateInviteResponse, Error, NewInvitePayload>,
+) {
+  const queryClient = useQueryClient();
+  const { onSuccess, onSettled, ...rest } = options ?? {};
+  return useMutation({
+    ...rest,
+    mutationFn: async ({ coupleId, token, email }) => {
+      await apiFetch(`/invitations/${token}/revoke`, {
+        method: "POST",
+      });
+      return apiFetch<CreateInviteResponse>(
+        `/couples/${coupleId}/invitations`,
+        { method: "POST", body: JSON.stringify({ email }) },
+      );
+    },
+    onSuccess: async (...args) => {
+      await onSuccess?.(...args);
+    },
+    onSettled: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: COUPLE_ME_QUERY_KEY });
+      await onSettled?.(...args);
+    },
   });
 }

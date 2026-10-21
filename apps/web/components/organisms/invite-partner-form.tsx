@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -8,7 +7,6 @@ import {
   type CreateInvitationInput,
 } from "@couple-space/domain";
 import { useCreateInviteMutation } from "@/hooks/use-couple";
-import { InviteLinkDisplay } from "@/components/molecules/invite-link-display";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -25,18 +23,12 @@ type InvitePartnerFormProps = {
 export function InvitePartnerForm({
   coupleId,
 }: Readonly<InvitePartnerFormProps>) {
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
-
   const form = useForm<CreateInvitationInput>({
     resolver: zodResolver(createInvitationSchema),
     defaultValues: { email: "" },
   });
 
-  const createInvite = useCreateInviteMutation({
-    onSuccess: (data) => {
-      setInviteLink(`${window.location.origin}/invite/${data.token}`);
-    },
-  });
+  const createInvite = useCreateInviteMutation();
 
   return (
     <section className="space-y-3">
@@ -75,7 +67,6 @@ export function InvitePartnerForm({
           </Field>
         </FieldGroup>
       </form>
-      {inviteLink ? <InviteLinkDisplay href={inviteLink} /> : null}
     </section>
   );
 }

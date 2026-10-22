@@ -11,7 +11,7 @@ export default function Home() {
       <h1 className="text-3xl font-semibold tracking-tight text-primary">
         Couple Space
       </h1>
-      <p className="text-muted-foreground text-sm  ">
+      <p className="text-muted-foreground text-sm font-semibold">
         The original{" "}
         <span className="bg-primary py-1 px-2 rounded-xl text-white">
           safe space

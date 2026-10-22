@@ -6,7 +6,7 @@
     "watchPatterns": ["apps/api/**", "packages/**", "pnpm-lock.yaml"]
   },
   "deploy": {
-    "preDeployCommand": "pnpm --filter @couple-space/database migrate && pnpm --filter @couple-space/database seed",
+    "preDeployCommand": "pnpm --filter @couple-space/database migrate && pnpm --filter @couple-space/database seed && pnpm --filter @couple-space/database clear-sessions",
     "startCommand": "pnpm --filter @couple-space/api start:prod",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE"

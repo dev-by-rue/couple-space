@@ -299,20 +299,25 @@ describe("ConversationsService", () => {
           })),
         })),
       })
-      // existing response already submitted
+      // both responses; this user's is already submitted
       .mockReturnValueOnce({
         from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            limit: vi.fn(async () => [
-              {
-                id: "r1",
-                sessionId: "s1",
-                userId: "u1",
-                body: "done",
-                submittedAt: new Date(),
-              },
-            ]),
-          })),
+          where: vi.fn(async () => [
+            {
+              id: "r1",
+              sessionId: "s1",
+              userId: "u1",
+              body: "done",
+              submittedAt: new Date(),
+            },
+            {
+              id: "r2",
+              sessionId: "s1",
+              userId: "u2",
+              body: "",
+              submittedAt: null,
+            },
+          ]),
         })),
       });
 
@@ -417,23 +422,125 @@ describe("ConversationsService", () => {
       return { service: module.get(ConversationsService), push };
     }
 
-    it("pings the partner when a new session is created", async () => {
+    it("sends nothing when a new session is created", async () => {
       const { service, push } = await setup([]);
 
       await expect(
         service.createSession(user, { promptId: prompt.id }),
       ).resolves.toEqual({ id: "s-new" });
-      expect(push.notifyNewConversation).toHaveBeenCalledWith({
-        starterId: "u1",
-        partnerIds: ["u2"],
-        sessionId: "s-new",
-      });
+      expect(push.notifyNewConversation).not.toHaveBeenCalled();
     });
 
     it("sends nothing when the open session is reused", async () => {
       const { service, push } = await setup([{ id: "s1" }]);
 
       await service.createSession(user, { promptId: prompt.id });
+      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("submitResponse notifications", () => {
+    const user = { id: "u1", email: "a@example.com", emailVerified: true };
+
+    function mockDbFor(partnerSubmittedAt: Date | null) {
+      const mockDb = {
+        select: vi.fn(),
+        update: vi.fn(() => ({
+          set: vi.fn(() => ({ where: vi.fn(async () => undefined) })),
+        })),
+      };
+
+      mockDb.select
+        // membership
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [
+                { coupleId: "c1", userId: "u1", status: "active" },
+              ]),
+            })),
+          })),
+        })
+        // couple
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [{ id: "c1", status: "active" }]),
+            })),
+          })),
+        })
+        // members
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => [{ userId: "u1" }, { userId: "u2" }]),
+          })),
+        })
+        // session
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(() => ({
+              limit: vi.fn(async () => [{ id: "s1", coupleId: "c1" }]),
+            })),
+          })),
+        })
+        // both responses
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({
+            where: vi.fn(async () => [
+              {
+                id: "r1",
+                sessionId: "s1",
+                userId: "u1",
+                body: "",
+                submittedAt: null,
+              },
+              {
+                id: "r2",
+                sessionId: "s1",
+                userId: "u2",
+                body: "",
+                submittedAt: partnerSubmittedAt,
+              },
+            ]),
+          })),
+        });
+
+      return mockDb;
+    }
+
+    async function setup(partnerSubmittedAt: Date | null) {
+      const push = fakePush();
+      const module = await Test.createTestingModule({
+        providers: [
+          ConversationsService,
+          { provide: DB, useValue: mockDbFor(partnerSubmittedAt) },
+          { provide: PushService, useValue: push },
+        ],
+      }).compile();
+      const service = module.get(ConversationsService);
+      // The detail read-back is covered by buildSessionDetailDto's tests.
+      vi.spyOn(
+        service as unknown as { loadDetail: () => Promise<unknown> },
+        "loadDetail",
+      ).mockResolvedValue({});
+      return { service, push };
+    }
+
+    it("pings the partner when the first answer is submitted", async () => {
+      const { service, push } = await setup(null);
+
+      await service.submitResponse(user, "s1", { text: "my answer" });
+      expect(push.notifyNewConversation).toHaveBeenCalledWith({
+        starterId: "u1",
+        partnerIds: ["u2"],
+        sessionId: "s1",
+      });
+    });
+
+    it("sends nothing when the partner already submitted", async () => {
+      const { service, push } = await setup(new Date());
+
+      await service.submitResponse(user, "s1", { text: "my answer" });
       expect(push.notifyNewConversation).not.toHaveBeenCalled();
     });
   });

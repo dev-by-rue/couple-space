@@ -234,13 +234,6 @@ export class ConversationsService {
       return created;
     });
 
-    // Fire and forget: notifyNewConversation never throws.
-    void this.push.notifyNewConversation({
-      starterId: user.id,
-      partnerIds: ctx.memberIds.filter((id) => id !== user.id),
-      sessionId: session.id,
-    });
-
     return { id: session.id };
   }
 
@@ -256,18 +249,19 @@ export class ConversationsService {
     sessionId: string,
     input: SubmitResponseInput,
   ): Promise<SessionDetailDto> {
-    await this.requireSessionMember(user, sessionId);
+    const ctx = await this.requireSessionMember(user, sessionId);
 
-    const [existing] = await this.db
+    const responses = await this.db
       .select()
       .from(sessionResponses)
-      .where(
-        and(
-          eq(sessionResponses.sessionId, sessionId),
-          eq(sessionResponses.userId, user.id),
-        ),
-      )
-      .limit(1);
+      .where(eq(sessionResponses.sessionId, sessionId));
+
+    const existing = responses.find((r) => r.userId === user.id);
+    // Only the first answer pings: the partner has something to reply to,
+    // and the second answer doesn't ping back.
+    const isFirstToSubmit = responses.every(
+      (r) => r.userId === user.id || r.submittedAt == null,
+    );
 
     if (!existing) {
       throw new NotFoundException({ reason: "response_row_missing" });
@@ -290,6 +284,15 @@ export class ConversationsService {
       .update(conversationSessions)
       .set({ updatedAt: now })
       .where(eq(conversationSessions.id, sessionId));
+
+    if (isFirstToSubmit) {
+      // Fire and forget: notifyNewConversation never throws.
+      void this.push.notifyNewConversation({
+        starterId: user.id,
+        partnerIds: ctx.memberIds.filter((id) => id !== user.id),
+        sessionId,
+      });
+    }
 
     return this.loadDetail(user, sessionId);
   }

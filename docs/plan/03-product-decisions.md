@@ -193,8 +193,9 @@ questions. Blocks: P1-8, P2-7.
 (manifest) plus web push from Nest. Every line of existing code is kept and there are no new Railway
 services. Owner decisions (2026-10-21):
 
-- **What triggers a push:** a partner **creates a new conversation**. Reusing an already-open session sends
-  nothing. Answers and reveals are not pushed yet; scope them when wanted.
+- **What triggers a push:** a partner **submits the first answer** in a conversation (amended 2026-10-22;
+  was "creates a new conversation", which pinged before anything was written). Creating or reusing a
+  session sends nothing, and the second answer doesn't ping back. Reveals are not pushed yet.
 - **Lock-screen text:** title "New conversation", body "<name> started a new conversation". The name is
   fine (only the partner receives it). **Never** the theme, prompt or any answer text.
 - **Asking for permission:** a banner on the hub with an Enable button (the browser prompt only ever

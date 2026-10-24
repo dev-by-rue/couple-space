@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { loginSchema, registerSchema } from "../schemas/auth-schemas.js";
+import {
+  changePasswordSchema,
+  loginSchema,
+  registerSchema,
+  updateProfileSchema,
+} from "../schemas/auth-schemas.js";
 
 describe("registerSchema", () => {
   const valid = {
@@ -41,5 +46,70 @@ describe("loginSchema", () => {
       password: "x",
     });
     expect(parsed.email).toBe("pat@example.com");
+  });
+});
+
+describe("updateProfileSchema", () => {
+  it("trims the display name", () => {
+    expect(
+      updateProfileSchema.parse({
+        displayName: " Rueben",
+      }).displayName,
+    ).toBe("Rueben");
+  });
+
+  it("rejects empty/whitespace-only names", () => {
+    expect(() =>
+      updateProfileSchema.parse({
+        displayName: "   ",
+      }),
+    ).toThrow();
+  });
+
+  it("will accept 40 characters or less", () => {
+    expect(() =>
+      updateProfileSchema.parse({ displayName: "a".repeat(40) }),
+    ).not.toThrow();
+    expect(() =>
+      updateProfileSchema.parse({ displayName: "a".repeat(23) }),
+    ).not.toThrow();
+    expect(() =>
+      updateProfileSchema.parse({ displayName: "a".repeat(41) }),
+    ).not.toThrow();
+    expect(() =>
+      updateProfileSchema.parse({ displayName: "a".repeat(45) }),
+    ).not.toThrow();
+  });
+});
+
+describe("changePasswordSchema", () => {
+  const valid = {
+    currentPassword: "OldPassword123",
+    newPassword: "NewPassword123",
+  };
+
+  it("accepts a valid change", () => {
+    expect(changePasswordSchema.parse(valid)).toEqual(valid);
+  });
+
+  it("requires the current password", () => {
+    expect(() =>
+      changePasswordSchema.parse({ ...valid, currentPassword: "" }),
+    ).toThrow();
+  });
+
+  it("applies the register password policy to the new password", () => {
+    expect(() =>
+      changePasswordSchema.parse({ ...valid, newPassword: "passwordpassword" }),
+    ).toThrow();
+  });
+
+  it("rejects a new password equal to the current one, on newPassword", () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: "SamePassword123",
+      newPassword: "SamePassword123",
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(["newPassword"]);
   });
 });

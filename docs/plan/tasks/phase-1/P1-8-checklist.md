@@ -97,10 +97,11 @@ files rather than redoing it.
 - [x] `take-it-offline.tsx`, `follow-up-card.tsx`, `follow-up-list.tsx` (with the empty-list fix)
 - [x] `conversation/[id]/page.tsx`: render `FollowUpList` once revealed
 
-## G · P1-31 notification events ⏭ not in this push
+## G · P1-31 notification events ✅ done (back in this push)
 
-Decided to leave it for a later push to keep this one to P1-8 and P1-28. Until then, follow-up answers
-send no push (P1-8's rule). P1-31 Part B replaces that when it's built.
+- [x] Part A (core loop): `notificationsForSessionEvent`, `PushService.notifySessionEvent`, tests
+- [x] Part B (follow-ups): follow-up events on the parent's tag, tests; replaces P1-8's "no push for children"
+- [x] `sw.js`: `renotify` when a tag is set
 
 ## H · Verification (both test-couple browsers)
 

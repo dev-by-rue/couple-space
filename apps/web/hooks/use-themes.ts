@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { PromptDepth } from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
 
 export type ThemePrompt = {
@@ -8,6 +9,14 @@ export type ThemePrompt = {
   title: string;
   description: string;
   text: string;
+  depth: PromptDepth;
+  /** Tag slugs; labels are in {@link ThemesResponse} `tags`. */
+  tags: string[];
+};
+
+export type ThemeTag = {
+  slug: string;
+  label: string;
 };
 
 export type ThemeDto = {
@@ -20,6 +29,8 @@ export type ThemeDto = {
 };
 
 type ThemesResponse = {
+  /** Every tag, in the order the filter chips show them. */
+  tags: ThemeTag[];
   themes: ThemeDto[];
 };
 

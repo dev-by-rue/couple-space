@@ -8,7 +8,10 @@ import { createWebPush } from "./web-push.push.js";
 @Module({
   imports: [AuthModule],
   controllers: [PushController],
-  providers: [PushService, { provide: PUSH, useFactory: () => createWebPush() }],
+  providers: [
+    PushService,
+    { provide: PUSH, useFactory: () => createWebPush() },
+  ],
   exports: [PushService],
 })
 export class PushModule {}

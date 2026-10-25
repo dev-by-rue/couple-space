@@ -1,4 +1,5 @@
-import { ThemePrompt } from "@/hooks/use-themes";
+import { PROMPT_DEPTH_LABELS } from "@couple-space/domain";
+import type { ThemePrompt } from "@/hooks/use-themes";
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon } from "lucide-react";
 
@@ -30,12 +31,17 @@ export function PromptCard({
       <span className="line-clamp-4 text-base leading-relaxed">
         {prompt.text}
       </span>
-      <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-        Start this conversation
-        <ArrowRightIcon
-          aria-hidden="true"
-          className="size-4 transition-transform group-hover:translate-x-0.5"
-        />
+      <span className="flex items-center justify-between gap-3">
+        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground">
+          {PROMPT_DEPTH_LABELS[prompt.depth]}
+        </span>
+        <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+          Start this conversation
+          <ArrowRightIcon
+            aria-hidden="true"
+            className="size-4 transition-transform group-hover:translate-x-0.5"
+          />
+        </span>
       </span>
     </button>
   );

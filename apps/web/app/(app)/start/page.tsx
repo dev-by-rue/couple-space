@@ -20,7 +20,7 @@ export default function StartPage() {
     );
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-7xl flex-col gap-6 p-6">
+    <main className="mx-auto flex min-h-svh w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:p-6">
       <h1 className="text-2xl font-bold">Choose a theme.</h1>
       <p className="text-sm text-muted-foreground">
         Pick a theme to get started with your conversation.
@@ -30,7 +30,7 @@ export default function StartPage() {
           No themes are available right now. Please check back soon.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
           {themes.data.themes.map((theme) => (
             <ThemeCard key={theme.id} theme={theme} />
           ))}

@@ -37,6 +37,9 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(data.title ?? "Couple Space", {
       body: data.body,
       tag: data.tag,
+      // Same tag replaces the older notification for this conversation;
+      // renotify makes the replacement still sound/vibrate.
+      renotify: Boolean(data.tag),
       icon: "/icons/icon-192.png",
       data: { url },
     }),

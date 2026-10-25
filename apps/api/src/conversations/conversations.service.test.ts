@@ -9,7 +9,7 @@ import { DB } from "../db/db.module.js";
 import { ConversationsService } from "./conversations.service.js";
 import { PushService } from "../push/push.service.js";
 
-const fakePush = () => ({ notifyNewConversation: vi.fn() });
+const fakePush = () => ({ notifySessionEvent: vi.fn() });
 import { buildSessionDetailDto } from "./session-detail.mapper.js";
 import { queryResult } from "../../test/factories.js";
 
@@ -535,14 +535,14 @@ describe("ConversationsService", () => {
       await expect(
         service.createSession(user, { promptId: prompt.id }),
       ).resolves.toEqual({ id: "s-new" });
-      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+      expect(push.notifySessionEvent).not.toHaveBeenCalled();
     });
 
     it("sends nothing when the open session is reused", async () => {
       const { service, push } = await setup([{ id: "s1" }]);
 
       await service.createSession(user, { promptId: prompt.id });
-      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+      expect(push.notifySessionEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -551,7 +551,11 @@ describe("ConversationsService", () => {
 
     function mockDbFor(
       partnerSubmittedAt: Date | null,
-      session: Record<string, unknown> = { id: "s1", coupleId: "c1" },
+      session: Record<string, unknown> = {
+        id: "s1",
+        coupleId: "c1",
+        parentSessionId: null,
+      },
     ) {
       const mockDb = {
         select: vi.fn(),
@@ -639,18 +643,23 @@ describe("ConversationsService", () => {
       return { service, push };
     }
 
-    it("pings the partner when the first answer is submitted", async () => {
+    it("reports a first answer with only the viewer submitted", async () => {
       const { service, push } = await setup(null);
 
       await service.submitResponse(user, "s1", { text: "my answer" });
-      expect(push.notifyNewConversation).toHaveBeenCalledWith({
-        starterId: "u1",
-        partnerIds: ["u2"],
-        sessionId: "s1",
+      expect(push.notifySessionEvent).toHaveBeenCalledWith({
+        memberIds: ["u1", "u2"],
+        event: {
+          kind: "answered",
+          actorId: "u1",
+          sessionId: "s1",
+          parentSessionId: null,
+          submittedUserIds: ["u1"],
+        },
       });
     });
 
-    it("sends nothing for a follow-up answer", async () => {
+    it("passes the parent through for a follow-up answer", async () => {
       const { service, push } = await setup(null, {
         id: "s1",
         coupleId: "c1",
@@ -658,14 +667,22 @@ describe("ConversationsService", () => {
       });
 
       await service.submitResponse(user, "s1", { text: "my answer" });
-      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+      expect(push.notifySessionEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: expect.objectContaining({ parentSessionId: "s0" }),
+        }),
+      );
     });
 
-    it("sends nothing when the partner already submitted", async () => {
+    it("reports a second answer with both submitted", async () => {
       const { service, push } = await setup(new Date());
 
       await service.submitResponse(user, "s1", { text: "my answer" });
-      expect(push.notifyNewConversation).not.toHaveBeenCalled();
+      expect(push.notifySessionEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: expect.objectContaining({ submittedUserIds: ["u2", "u1"] }),
+        }),
+      );
     });
   });
 });
@@ -779,5 +796,166 @@ describe("ConversationsService.startFollowUp", () => {
       (await service(db)).startFollowUp(user, "s1", { promptId: "f1" }),
     ).resolves.toEqual({ id: "child-1" });
     expect(tx.insert).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("ConversationsService.listThemes", () => {
+  const user = { id: "u1", email: "a@example.com", emailVerified: true };
+
+  async function serviceWith(db: unknown) {
+    const module = await Test.createTestingModule({
+      providers: [
+        ConversationsService,
+        { provide: DB, useValue: db },
+        { provide: PushService, useValue: fakePush() },
+      ],
+    }).compile();
+    return module.get(ConversationsService);
+  }
+
+  it("returns each prompt's depth and tag slugs, and the tag list in order", async () => {
+    const db = { select: vi.fn() };
+    db.select
+      .mockReturnValueOnce(
+        queryResult([
+          {
+            id: "t1",
+            slug: "say-it-softly",
+            title: "Say it softly",
+            description: "d",
+            symbol: "feather",
+          },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          {
+            id: "p1",
+            themeId: "t1",
+            title: "A small ask",
+            description: "d",
+            text: "Q1",
+            depth: "light",
+          },
+          {
+            id: "p2",
+            themeId: "t1",
+            title: "Guess my signs",
+            description: "d",
+            text: "Q2",
+            depth: "medium",
+          },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          { promptId: "p1", slug: "practical" },
+          { promptId: "p1", slug: "thoughtful" },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          { slug: "playful", label: "Playful" },
+          { slug: "thoughtful", label: "Thoughtful" },
+        ]),
+      );
+
+    const result = await (await serviceWith(db)).listThemes(user);
+
+    expect(result.tags).toEqual([
+      { slug: "playful", label: "Playful" },
+      { slug: "thoughtful", label: "Thoughtful" },
+    ]);
+    expect(result.themes[0]!.prompts).toEqual([
+      expect.objectContaining({
+        id: "p1",
+        depth: "light",
+        tags: ["practical", "thoughtful"],
+      }),
+      expect.objectContaining({ id: "p2", depth: "medium", tags: [] }),
+    ]);
+  });
+
+  it("skips the links query when there are no prompts", async () => {
+    const db = { select: vi.fn() };
+    db.select
+      .mockReturnValueOnce(queryResult([]))
+      .mockReturnValueOnce(queryResult([]))
+      .mockReturnValueOnce(queryResult([]));
+
+    const result = await (await serviceWith(db)).listThemes(user);
+
+    expect(db.select).toHaveBeenCalledTimes(3);
+    expect(result).toEqual({ tags: [], themes: [] });
+  });
+});
+
+describe("ConversationsService.revealSession notifications", () => {
+  const user = { id: "u1", email: "a@example.com", emailVerified: true };
+
+  async function setup(existingReveal: Array<{ id: string }>) {
+    const now = new Date();
+    const db = {
+      select: vi.fn(),
+      insert: vi.fn(() => ({ values: vi.fn(async () => undefined) })),
+      update: vi.fn(() => ({
+        set: vi.fn(() => ({ where: vi.fn(async () => undefined) })),
+      })),
+    };
+    db.select
+      .mockReturnValueOnce(
+        queryResult([{ coupleId: "c1", userId: "u1", status: "active" }]),
+      )
+      .mockReturnValueOnce(queryResult([{ id: "c1", status: "active" }]))
+      .mockReturnValueOnce(queryResult([{ userId: "u1" }, { userId: "u2" }]))
+      .mockReturnValueOnce(
+        queryResult([{ id: "s1", coupleId: "c1", parentSessionId: null }]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          { userId: "u1", submittedAt: now },
+          { userId: "u2", submittedAt: now },
+        ]),
+      )
+      .mockReturnValueOnce(queryResult(existingReveal))
+      // Reveals read back after the insert.
+      .mockReturnValueOnce(queryResult([{ userId: "u1" }]));
+
+    const push = fakePush();
+    const module = await Test.createTestingModule({
+      providers: [
+        ConversationsService,
+        { provide: DB, useValue: db },
+        { provide: PushService, useValue: push },
+      ],
+    }).compile();
+    const service = module.get(ConversationsService);
+    vi.spyOn(
+      service as unknown as { loadDetail: () => Promise<unknown> },
+      "loadDetail",
+    ).mockResolvedValue({});
+    return { service, push };
+  }
+
+  it("reports a new reveal with who has revealed so far", async () => {
+    const { service, push } = await setup([]);
+
+    await service.revealSession(user, "s1");
+    expect(push.notifySessionEvent).toHaveBeenCalledWith({
+      memberIds: ["u1", "u2"],
+      event: {
+        kind: "revealed",
+        actorId: "u1",
+        sessionId: "s1",
+        revealedUserIds: ["u1"],
+      },
+    });
+  });
+
+  it("sends nothing when the viewer had already revealed", async () => {
+    const { service, push } = await setup([{ id: "r1" }]);
+
+    await service.revealSession(user, "s1");
+    expect(push.notifySessionEvent).not.toHaveBeenCalled();
   });
 });

@@ -10,5 +10,7 @@ export * from "./sessions/session-answer-visibility.js";
 export * from "./schemas/answer-rules-schema.js";
 export * from "./sessions/session-open.js";
 export * from "./sessions/follow-ups-unlocked.js";
+export * from "./prompts/prompt-depth.js";
 export * from "./schemas/push-schemas.js";
 export * from "./notifications/new-conversation-notification.js";
+export * from "./notifications/session-notifications.js";

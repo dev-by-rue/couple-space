@@ -1,6 +1,9 @@
 import type { TagSlug } from "./tags.js";
 
-/** Keep in step with the `prompts_depth_preset` check in `src/schema/prompts.ts`. */
+/**
+ * Keep in step with the `prompts_depth_preset` check in `src/schema/prompts.ts`
+ * and `PROMPT_DEPTHS` in `@couple-space/domain` (this package doesn't depend on it).
+ */
 export type Depth = "light" | "medium" | "deep";
 
 /**

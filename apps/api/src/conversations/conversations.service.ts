@@ -11,11 +11,14 @@ import {
   areFollowUpsUnlocked,
   isSessionOpen,
   sessionViewerPhase,
+  type PromptDepth,
 } from "@couple-space/domain";
 import {
   conversationSessions,
   coupleMemberships,
   couples,
+  promptTagLinks,
+  promptTags,
   promptThemes,
   prompts,
   sessionResponses,
@@ -55,7 +58,39 @@ export class ConversationsService {
       .where(and(eq(prompts.kind, "curated"), isNull(prompts.retiredAt)))
       .orderBy(asc(prompts.sortOrder), asc(prompts.title));
 
+    // One query for every prompt's tag slugs, grouped in memory.
+    const links =
+      allPrompts.length === 0
+        ? []
+        : await this.db
+            .select({
+              promptId: promptTagLinks.promptId,
+              slug: promptTags.slug,
+            })
+            .from(promptTagLinks)
+            .innerJoin(promptTags, eq(promptTags.id, promptTagLinks.tagId))
+            .where(
+              inArray(
+                promptTagLinks.promptId,
+                allPrompts.map((p) => p.id),
+              ),
+            );
+    const tagsByPrompt = new Map<string, string[]>();
+    for (const link of links) {
+      tagsByPrompt.set(link.promptId, [
+        ...(tagsByPrompt.get(link.promptId) ?? []),
+        link.slug,
+      ]);
+    }
+
+    // The filter chips' labels and order come from here, not from the web.
+    const tags = await this.db
+      .select({ slug: promptTags.slug, label: promptTags.label })
+      .from(promptTags)
+      .orderBy(asc(promptTags.sortOrder));
+
     return {
+      tags,
       themes: themes.map((theme) => ({
         id: theme.id,
         slug: theme.slug,
@@ -69,6 +104,9 @@ export class ConversationsService {
             title: p.title,
             description: p.description,
             text: p.text,
+            // Curated prompts always have a depth (prompts_catalogue_key_depth check).
+            depth: p.depth as PromptDepth,
+            tags: tagsByPrompt.get(p.id) ?? [],
           })),
       })),
     };
@@ -270,11 +308,6 @@ export class ConversationsService {
       .where(eq(sessionResponses.sessionId, sessionId));
 
     const existing = responses.find((r) => r.userId === user.id);
-    // Only the first answer pings: the partner has something to reply to,
-    // and the second answer doesn't ping back.
-    const isFirstToSubmit = responses.every(
-      (r) => r.userId === user.id || r.submittedAt == null,
-    );
 
     if (!existing) {
       throw new NotFoundException({ reason: "response_row_missing" });
@@ -298,15 +331,23 @@ export class ConversationsService {
       .set({ updatedAt: now })
       .where(eq(conversationSessions.id, sessionId));
 
-    // Follow-ups don't push: the "new conversation" text would be wrong.
-    if (isFirstToSubmit && ctx.session.parentSessionId == null) {
-      // Fire and forget: notifyNewConversation never throws.
-      void this.push.notifyNewConversation({
-        starterId: user.id,
-        partnerIds: ctx.memberIds.filter((id) => id !== user.id),
+    // Fire and forget: notifySessionEvent never throws. The domain decides
+    // what this answer means (new conversation, ready to reveal, follow-up).
+    void this.push.notifySessionEvent({
+      memberIds: ctx.memberIds,
+      event: {
+        kind: "answered",
+        actorId: user.id,
         sessionId,
-      });
-    }
+        parentSessionId: ctx.session.parentSessionId,
+        submittedUserIds: [
+          ...responses
+            .filter((r) => r.submittedAt != null)
+            .map((r) => r.userId),
+          user.id,
+        ],
+      },
+    });
 
     return this.loadDetail(user, sessionId);
   }
@@ -355,6 +396,23 @@ export class ConversationsService {
         .update(conversationSessions)
         .set({ updatedAt: now })
         .where(eq(conversationSessions.id, sessionId));
+
+      // Read after the insert, so a partner who revealed a moment earlier is
+      // included and nobody gets "has seen your answer" after revealing.
+      const reveals = await this.db
+        .select({ userId: sessionReveals.userId })
+        .from(sessionReveals)
+        .where(eq(sessionReveals.sessionId, sessionId));
+      // Only on a new reveal: tapping Reveal again never re-notifies.
+      void this.push.notifySessionEvent({
+        memberIds: ctx.memberIds,
+        event: {
+          kind: "revealed",
+          actorId: user.id,
+          sessionId,
+          revealedUserIds: reveals.map((r) => r.userId),
+        },
+      });
     }
 
     return this.loadDetail(user, sessionId);

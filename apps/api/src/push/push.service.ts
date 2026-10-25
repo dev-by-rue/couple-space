@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { and, eq, inArray } from "drizzle-orm";
 import {
-  newConversationNotification,
+  notificationsForSessionEvent,
   type PushSubscriptionInput,
   type RemovePushSubscriptionInput,
+  type SessionEvent,
 } from "@couple-space/domain";
 import { pushSubscriptions, users, type Db } from "@couple-space/database";
 import { DB } from "../db/db.module.js";
@@ -44,31 +45,37 @@ export class PushService {
   }
 
   /**
-   * Pings the partner's devices that a conversation was started.
+   * Sends whatever the domain rules say a session event deserves.
    *
    * @remarks
    * Never throws: callers fire and forget, so a push outage can't fail or slow
-   * session creation. Logs counts only, never the payload.
+   * an answer or a reveal. Logs counts only, never the payload.
    */
-  async notifyNewConversation(input: {
-    starterId: string;
-    partnerIds: string[];
-    sessionId: string;
+  async notifySessionEvent(input: {
+    event: SessionEvent;
+    memberIds: string[];
   }): Promise<void> {
-    if (input.partnerIds.length === 0) return;
+    if (input.memberIds.length < 2) return;
     try {
-      const [starter] = await this.db
-        .select({ displayName: users.displayName })
+      const rows = await this.db
+        .select({ id: users.id, displayName: users.displayName })
         .from(users)
-        .where(eq(users.id, input.starterId))
-        .limit(1);
-      const notification = newConversationNotification({
-        starterName: starter?.displayName ?? "Your partner",
-        sessionId: input.sessionId,
+        .where(inArray(users.id, input.memberIds));
+      const targets = notificationsForSessionEvent({
+        event: input.event,
+        memberIds: input.memberIds,
+        names: Object.fromEntries(rows.map((r) => [r.id, r.displayName])),
       });
-      await this.sendToUsers(input.partnerIds, JSON.stringify(notification));
+      for (const target of targets) {
+        await this.sendToUsers(
+          [target.toUserId],
+          JSON.stringify(target.notification),
+        );
+      }
     } catch (error) {
-      this.logger.warn(`Push for session ${input.sessionId} failed: ${error}`);
+      this.logger.warn(
+        `Push for session ${input.event.sessionId} failed: ${error}`,
+      );
     }
   }
 

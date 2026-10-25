@@ -13,6 +13,7 @@ import {
 } from "./email-verification.service.js";
 import { AuthService } from "./auth.service.js";
 import { users } from "@couple-space/database";
+import { hashPassword } from "./password.js";
 
 describe("AuthService.register", () => {
   let service: AuthService;
@@ -413,5 +414,117 @@ describe("AuthService.resendVerification", () => {
 
     expect(result).toEqual({ ok: true, sent: false });
     expect(mockAudit.append).not.toHaveBeenCalled();
+  });
+});
+
+describe("AuthService.changePassword", () => {
+  let service: AuthService;
+  let storedHash: string;
+
+  const updateSet = vi.fn(
+    (_values: { passwordHash: string; updatedAt: Date }) => ({
+      where: vi.fn(async () => undefined),
+    }),
+  );
+  const mockDatabase = {
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(async () => [
+            {
+              id: "u1",
+              email: "a@example.com",
+              emailVerified: true,
+              displayName: "Ada",
+              dateOfBirth: "1990-01-01",
+              passwordHash: storedHash,
+            },
+          ]),
+        })),
+      })),
+    })),
+    update: vi.fn(() => ({ set: updateSet })),
+  };
+
+  const mockTokens = {
+    issueTokenPair: vi.fn(async () => ({
+      accessToken: "access-new",
+      refreshToken: "refresh-new",
+    })),
+    revokeAllForUser: vi.fn(async () => undefined),
+  };
+
+  const mockAudit = { append: vi.fn(async () => undefined) };
+
+  const mockEmailVerification = {
+    sendVerificationEmail: vi.fn(),
+    consumeToken: vi.fn(),
+    consumeAndVerifyUser: vi.fn(),
+    countRecentResends: vi.fn(),
+  };
+
+  beforeAll(async () => {
+    storedHash = await hashPassword("OldPassword123");
+  });
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: DB, useValue: mockDatabase },
+        { provide: TokenService, useValue: mockTokens },
+        { provide: AuditService, useValue: mockAudit },
+        { provide: EmailVerificationService, useValue: mockEmailVerification },
+      ],
+    }).compile();
+
+    service = module.get(AuthService);
+  });
+
+  it("rejects a wrong current password with invalid_current_password", async () => {
+    const promise = service.changePassword("u1", {
+      currentPassword: "WrongPassword123",
+      newPassword: "NewPassword123",
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(BadRequestException);
+    await expect(promise).rejects.toMatchObject({
+      response: { reason: "invalid_current_password" },
+    });
+    expect(updateSet).not.toHaveBeenCalled();
+    expect(mockTokens.revokeAllForUser).not.toHaveBeenCalled();
+  });
+
+  it("stores a new hash, revokes all refresh tokens, then issues a new pair", async () => {
+    const result = await service.changePassword("u1", {
+      currentPassword: "OldPassword123",
+      newPassword: "NewPassword123",
+    });
+
+    const setArg = updateSet.mock.calls[0]![0];
+    expect(setArg.passwordHash).not.toBe(storedHash);
+    expect(setArg.passwordHash).not.toContain("NewPassword123");
+
+    expect(mockTokens.revokeAllForUser).toHaveBeenCalledWith("u1");
+    expect(
+      mockTokens.revokeAllForUser.mock.invocationCallOrder[0],
+    ).toBeLessThan(mockTokens.issueTokenPair.mock.invocationCallOrder[0]!);
+    expect(result.refreshToken).toBe("refresh-new");
+  });
+
+  it("audits auth.change_password", async () => {
+    await service.changePassword("u1", {
+      currentPassword: "OldPassword123",
+      newPassword: "NewPassword123",
+    });
+
+    expect(mockAudit.append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "auth.change_password",
+        entityId: "u1",
+      }),
+    );
   });
 });

@@ -75,10 +75,10 @@ describe("updateProfileSchema", () => {
     ).not.toThrow();
     expect(() =>
       updateProfileSchema.parse({ displayName: "a".repeat(41) }),
-    ).not.toThrow();
+    ).toThrow();
     expect(() =>
       updateProfileSchema.parse({ displayName: "a".repeat(45) }),
-    ).not.toThrow();
+    ).toThrow();
   });
 });
 

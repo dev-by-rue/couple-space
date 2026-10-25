@@ -11,16 +11,13 @@ import type { Request, Response } from "express";
 import { loadEnv } from "../config/env.js";
 import type { AuthUser } from "./auth-user.types.js";
 import { AuthService } from "./auth.service.js";
-import {
-  clearAuthCookies,
-  REFRESH_COOKIE,
-  setAuthCookies,
-} from "./cookies.js";
+import { clearAuthCookies, REFRESH_COOKIE, setAuthCookies } from "./cookies.js";
 import { CurrentUser } from "./current-user.decorator.js";
 import { loginSchema } from "./dto/login.schema.js";
 import { registerSchema } from "./dto/register.schema.js";
 import { verifyEmailSchema } from "./dto/verify-email.schema.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
+import { changePasswordSchema } from "@couple-space/domain";
 
 @Controller("auth")
 export class AuthController {
@@ -78,6 +75,20 @@ export class AuthController {
       (request.cookies?.[REFRESH_COOKIE] as string | undefined);
     await this.auth.logout(raw);
     clearAuthCookies(response);
+    return { ok: true };
+  }
+
+  @Post("change-password")
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @CurrentUser() user: AuthUser,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const input = changePasswordSchema.parse(body);
+    const result = await this.auth.changePassword(user.id, input);
+
+    setAuthCookies(response, result);
     return { ok: true };
   }
 

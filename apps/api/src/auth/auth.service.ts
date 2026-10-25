@@ -22,6 +22,7 @@ import {
 } from "./email-verification.service.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import type { PublicUser } from "./public-user.types.js";
+import { ChangePasswordInput } from "@couple-space/domain";
 
 @Injectable()
 export class AuthService {
@@ -152,6 +153,56 @@ export class AuthService {
     if (rawRefresh) {
       await this.tokens.revokeRefresh(rawRefresh);
     }
+  }
+
+  /**
+   *
+   * @param userId
+   * @param input
+   * @returns
+   */
+  async changePassword(
+    userId: string,
+    input: ChangePasswordInput,
+  ): Promise<TokenPair & { user: PublicUser }> {
+    const rows = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    const row = rows[0];
+    if (!row)
+      throw new UnauthorizedException({ reason: "invalid_credentials" });
+
+    const ok = await verifyPassword(row.passwordHash, input.currentPassword);
+    if (!ok) {
+      throw new BadRequestException({ reason: "invalid_current_password" });
+    }
+
+    const passwordHash = await hashPassword(input.newPassword);
+
+    await this.db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    await this.tokens.revokeAllForUser(userId);
+
+    const pair = await this.tokens.issueTokenPair({
+      id: row.id,
+      email: row.email,
+      emailVerified: row.emailVerified,
+    });
+
+    await this.audit.append({
+      actorUserId: userId,
+      action: "auth.change_password",
+      entityType: "user",
+      entityId: userId,
+    });
+
+    return { ...pair, user: toPublicUser(row) };
   }
 
   async verifyEmail(

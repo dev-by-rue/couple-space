@@ -118,4 +118,13 @@ export class TokenService {
       .set({ revokedAt: new Date() })
       .where(eq(refreshTokens.tokenHash, hashToken(rawRefresh)));
   }
+
+  async revokeAllForUser(userId: string): Promise<void> {
+    await this.db
+      .update(refreshTokens)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
+      );
+  }
 }

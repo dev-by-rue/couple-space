@@ -13,7 +13,7 @@ export const prompts = pgTable("prompts", {
   themeId: uuid("theme_id")
     .notNull()
     .references(() => promptThemes.id),
-  parentPromptId: uuid("parent_prmopt_id").references(
+  parentPromptId: uuid("parent_prompt_id").references(
     (): AnyPgColumn => prompts.id,
   ),
   title: text("title").notNull(),

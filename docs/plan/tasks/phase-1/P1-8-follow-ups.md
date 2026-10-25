@@ -1,6 +1,6 @@
 # P1-8 · Curated follow-ups (T5)
 
-[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Gate A · Decisions: [Q1](../../03-product-decisions.md#q1), [Q22](../../03-product-decisions.md#q22) · Schema: [ERD MVP-1](../../erd/mvp-1.md) · After: [P1-10](P1-10-real-email-verification.md) · Next: [P1-6](P1-6-session-completion.md)
+[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Gate A · Decisions: [Q1](../../03-product-decisions.md#q1), [Q22](../../03-product-decisions.md#q22) · Schema: [ERD MVP-1](../../erd/mvp-1.md) · After: [P1-10](P1-10-real-email-verification.md) · Step 2 needs: [P1-28](P1-28-catalogue-at-scale.md) · Next: [P1-6](P1-6-session-completion.md)
 
 **Goal:** once both partners have revealed the main prompt, show 2–3 optional follow-up questions. Each
 one is a **child session**: answered blind, and both answers **auto-show** as soon as the second partner
@@ -10,7 +10,7 @@ submits (no Reveal tap, Q22). There's also a "take it offline" card.
 
 - Schema: `prompts.parent_prompt_id`, `kind = 'follow_up'`; `conversation_sessions.parent_session_id`, with
   one child per (parent, follow-up prompt).
-- Seed: 2 follow-ups per curated prompt.
+- Seed: follow-ups on the P1-28 catalogue shape (2 per existing question; a question may have none, Q27).
 - Domain: `canViewerSeeAnswerText` and `sessionViewerPhase` take `isFollowUp`; `areFollowUpsUnlocked`.
 - `GET /sessions/:id` returns `followUps` only when **both** have revealed (FR-19). `POST /sessions/:id/follow-ups { promptId }`
   creates (or returns) the child. `GET /sessions` excludes children. `POST /sessions/:childId/reveal` is rejected.
@@ -19,8 +19,8 @@ submits (no Reveal tap, Q22). There's also a "take it offline" card.
 
 ### Decisions and deviations to flag
 
-- **Follow-up copy is a draft** (Step 2). Edit it freely; ids come from position, so only the wording
-  is safe to change before first seed. After that, the append-only rule applies.
+- **Follow-up copy is a draft** (Step 2). Edit it freely until Gate A. Follow-up ids come from the
+  parent's key plus position, so after Gate A they're append-only within a question (E-13).
 - **No push for follow-up answers.** `submitResponse` currently sends "new conversation" when the first
   answer arrives. That text is wrong for a follow-up, so this guide skips the push for child sessions.
   Follow-up notifications are a product call for later (P1-14 / P2).
@@ -172,283 +172,195 @@ Add `import { isNotNull } from "drizzle-orm";`.
 
 ## Step 2 · Seed
 
-### `packages/database/seed/catalogue.data.ts` (change)
+**Do [P1-28](P1-28-catalogue-at-scale.md) first.** It replaces `catalogue.data.ts` with key-based ids
+and one file per theme. This step adds follow-ups to that shape. A follow-up's key is its parent's key
+plus its position (`small-moment-this-week/1`), so follow-ups are **append-only within a question**:
+add new ones at the end, retire rather than reorder. A question can have none (Q27).
 
+### `packages/database/seed/catalogue/types.ts` (change)
 **Before**
 ```ts
-/**
- * A question, or a retired one that stays in the list so its id never moves.
- */
-type QuestionSeed = string | { text: string; retired: true };
+  depth: Depth;
+  tags: TagSlug[];
+  retired?: true;
+};
 ```
 **After**
 ```ts
-/**
- * A question, or one with follow-ups and/or retired. Retired questions stay
- * in the list so ids never move. Follow-ups are append-only too.
- */
-type QuestionSeed =
-  | string
-  | { text: string; retired?: true; followUps?: string[] };
+  depth: Depth;
+  tags: TagSlug[];
+  /**
+   * Optional follow-ups (P1-8). Ids come from position, so append only:
+   * never reorder or remove one. Retiring the question retires them too.
+   */
+  followUps?: string[];
+  retired?: true;
+};
 ```
 
-Change each theme's `questions` from plain strings to objects with follow-ups. Here's all six, with draft copy:
-
+### `packages/database/seed/catalogue/ids.ts` (change) — add
 ```ts
-  {
-    n: 1,
-    title: "Everyday moments",
-    description: "Notice the small things that shape your days.",
-    symbol: "coffee",
-    questions: [
-      {
-        text: "What small moment with me has stayed with you this week?",
-        followUps: [
-          "What made that moment stand out from the rest of the week?",
-          "How could we make room for more moments like that?",
-        ],
-      },
-      {
-        text: "When do you feel most at ease in our everyday life?",
-        followUps: [
-          "What gets in the way of feeling like that more often?",
-          "Is there something I do that helps you get there?",
-        ],
-      },
-      {
-        text: "What ordinary ritual would you love us to make more time for?",
-        followUps: [
-          "What would it take to make it happen this week?",
-          "Where did that ritual come from for you?",
-        ],
-      },
-    ],
-    slug: "everyday-moments",
-  },
-  {
-    n: 2,
-    title: "Us, lately",
-    description: "Make room for what has been present recently.",
-    symbol: "calendar-heart",
-    questions: [
-      {
-        text: "What do you think we have been doing well lately?",
-        followUps: [
-          "What do you think has helped us do that?",
-          "How would you like us to keep it going?",
-        ],
-      },
-      {
-        text: "Where could we be a little gentler with each other?",
-        followUps: [
-          "What would gentler look like in a real moment?",
-          "Is there something you'd like me to try first?",
-        ],
-      },
-      {
-        text: "What has felt different between us recently?",
-        followUps: [
-          "Does the change feel good, or does it worry you a little?",
-          "What do you think is behind it?",
-        ],
-      },
-    ],
-    slug: "us-lately",
-  },
-  {
-    n: 3,
-    title: "Dreams & plans",
-    description: "Looking ahead together, without pressure.",
-    symbol: "compass",
-    questions: [
-      {
-        text: "What would a good year together feel like, beyond the milestones?",
-        followUps: [
-          "What's one small thing that would already move us towards it?",
-          "What would you want us to let go of this year?",
-        ],
-      },
-      {
-        text: "What is one hope you have not said out loud lately?",
-        followUps: [
-          "What made it hard to say until now?",
-          "How could I support that hope?",
-        ],
-      },
-      {
-        text: "Where would you like our life to feel more spacious?",
-        followUps: [
-          "What's taking up the space right now?",
-          "What would you do with that extra room?",
-        ],
-      },
-    ],
-    slug: "dreams-plans",
-  },
-  {
-    n: 4,
-    title: /* unchanged */,
-    description: /* unchanged */,
-    symbol: "message-circle-heart",
-    questions: [
-      {
-        text: "What is something you wish I understood more fully about you?",
-        followUps: [
-          "When do you notice that gap the most?",
-          "What would help me understand it better?",
-        ],
-      },
-      {
-        text: "What has been bringing you energy lately?",
-        followUps: [
-          "What has been draining it?",
-          "How can I protect the things that give you energy?",
-        ],
-      },
-      {
-        text: "What part of yourself are you growing into?",
-        followUps: [
-          "What first made you notice it?",
-          "How would you like me to encourage it?",
-        ],
-      },
-    ],
-    slug: "knowing-you",
-  },
-  {
-    n: 5,
-    title: /* unchanged */,
-    description: /* unchanged */,
-    symbol: "house",
-    questions: [
-      {
-        text: "What would make home feel calmer for both of us?",
-        followUps: [
-          "Which part of the week feels least calm at home?",
-          "What's one change we could try for a fortnight?",
-        ],
-      },
-      {
-        text: "What does feeling secure together mean to you?",
-        followUps: [
-          "When have you felt most secure with me?",
-          "Is there anything that makes you feel less secure right now?",
-        ],
-      },
-      {
-        text: "What shared responsibility could feel more balanced?",
-        followUps: [
-          "What would a fairer split look like to you?",
-          "Is there something you'd happily take on in exchange?",
-        ],
-      },
-    ],
-    slug: "money-home",
-  },
-  {
-    n: 6,
-    title: /* unchanged */,
-    description: /* unchanged */,
-    symbol: "hand-heart",
-    questions: [
-      {
-        text: "What is something I did recently that made you feel cared for?",
-        followUps: [
-          "What made it land the way it did?",
-          "Is there a way you'd like to be cared for that I haven't tried?",
-        ],
-      },
-      {
-        text: "What part of our relationship are you especially grateful for today?",
-        followUps: [
-          "Has that always been there, or has it grown?",
-          "How could we tell each other more often?",
-        ],
-      },
-      {
-        text: "What quality in me have you noticed anew?",
-        followUps: [
-          "When did you notice it?",
-          "How does it show up between us?",
-        ],
-      },
-    ],
-    slug: "gratitude",
-  },
+/**
+ * Id for a follow-up.
+ *
+ * @remarks Position-based within its question, so follow-ups are append-only.
+ * @param key - The parent question's key.
+ * @param position - 1-based position in `followUps`.
+ * @returns The follow-up's UUID.
+ */
+export const followUpId = (key: string, position: number) =>
+  uuidv5(`prompt:${key}/${position}`, NAMESPACE);
 ```
-(Keep each theme's existing `title` and `description`. Only `questions` changes.)
 
-**Before** (row builders)
+### `packages/database/seed/catalogue/index.ts` (change)
+**Before**
+```ts
+import { promptId, tagId, themeId } from "./ids.js";
+```
+**After**
+```ts
+import { followUpId, promptId, tagId, themeId } from "./ids.js";
+```
+
+**Before**
 ```ts
 export const promptRows: PromptRow[] = catalogue.flatMap((theme) =>
   theme.questions.map((question, index) => ({
-    id: id(theme.n * 10 + index + 1),
-    themeId: id(theme.n),
-    title: index === 0 ? theme.title : `${theme.title} · ${index + 1}`,
+    id: promptId(question.key),
+    key: question.key,
+    themeId: themeId(theme.slug),
+    title: question.title,
     description: "A quiet question to answer in your own words.",
-    text: typeof question === "string" ? question : question.text,
+    text: question.text,
     kind: "curated",
+    depth: question.depth,
     sortOrder: index,
-    retiredAt: typeof question === "string" ? null : new Date(),
+    retiredAt: question.retired ? new Date() : null,
   })),
 );
 ```
 **After**
 ```ts
-const asObject = (q: QuestionSeed) => (typeof q === "string" ? { text: q } : q);
-
 export const promptRows: PromptRow[] = catalogue.flatMap((theme) =>
   theme.questions.flatMap((question, index) => {
-    const q = asObject(question);
-    const n = theme.n * 10 + index + 1;
-    const title = index === 0 ? theme.title : `${theme.title} · ${index + 1}`;
+    const retiredAt = question.retired ? new Date() : null;
 
     const curated: PromptRow = {
-      id: id(n),
-      themeId: id(theme.n),
+      id: promptId(question.key),
+      key: question.key,
+      themeId: themeId(theme.slug),
       parentPromptId: null,
-      title,
+      title: question.title,
       description: "A quiet question to answer in your own words.",
-      text: q.text,
+      text: question.text,
       kind: "curated",
+      depth: question.depth,
       sortOrder: index,
-      retiredAt: q.retired ? new Date() : null,
+      retiredAt,
     };
 
-    // Follow-up ids: 1000 + parent n * 10 + position (1111…1699), clear of themes and prompts.
-    const followUps: PromptRow[] = (q.followUps ?? []).map((text, k) => ({
-      id: id(1000 + n * 10 + k + 1),
-      themeId: id(theme.n),
-      parentPromptId: id(n),
-      title: `${title} · follow-up ${k + 1}`,
-      description: "A follow-up to talk through together.",
-      text,
-      kind: "follow_up",
-      sortOrder: k,
-      retiredAt: q.retired ? new Date() : null,
-    }));
+    const followUps: PromptRow[] = (question.followUps ?? []).map(
+      (text, k) => ({
+        id: followUpId(question.key, k + 1),
+        key: `${question.key}/${k + 1}`,
+        themeId: themeId(theme.slug),
+        parentPromptId: curated.id,
+        title: `${question.title} · follow-up ${k + 1}`,
+        description: "A follow-up to talk through together.",
+        text,
+        kind: "follow_up",
+        depth: question.depth,
+        sortOrder: k,
+        retiredAt,
+      }),
+    );
 
     return [curated, ...followUps];
   }),
 );
 ```
-Retiring a curated question also retires its follow-ups. A theme holds at most 9 questions and a
-question at most 9 follow-ups, or the ids collide. Add that to the comment on `ThemeSeed`.
+Follow-ups take the parent's depth and have no tags of their own. `listThemes` already filters on
+`kind = 'curated'`, so they never show on `/start`.
 
 ### `packages/database/seed/catalogue.seed.ts` (change)
 **Before**
 ```ts
+        key: sql`excluded.key`,
         themeId: sql`excluded.theme_id`,
 ```
 **After**
 ```ts
+        key: sql`excluded.key`,
         themeId: sql`excluded.theme_id`,
         parentPromptId: sql`excluded.parent_prompt_id`,
 ```
-Curated rows come before their follow-ups in `promptRows`, so the self-FK is satisfied inside one insert.
-(Postgres checks FKs per statement, not per row, so order doesn't strictly matter, but it's tidy.)
+Curated rows come before their follow-ups in `promptRows`. Postgres checks FKs per statement, so order
+doesn't strictly matter, but it's tidy.
 
-The log line now counts follow-ups too: `seeded 6 themes, 54 prompts`.
+### `packages/database/seed/catalogue/catalogue.test.ts` (change) — add inside `describe("catalogue")`
+```ts
+  it("points every follow-up at a curated prompt", () => {
+    const curatedIds = promptRows
+      .filter((p) => p.kind === "curated")
+      .map((p) => p.id);
+    for (const followUp of promptRows.filter((p) => p.kind === "follow_up")) {
+      expect(curatedIds).toContain(followUp.parentPromptId);
+    }
+  });
+
+  it("has no empty follow-ups", () => {
+    for (const theme of catalogue) {
+      for (const question of theme.questions) {
+        for (const text of question.followUps ?? []) {
+          expect(text.trim()).not.toBe("");
+        }
+      }
+    }
+  });
+```
+The unique-id and unique-key tests from P1-28 already cover follow-ups, since they're in `promptRows`.
+
+### Follow-up copy (draft)
+
+Add `followUps` to each question in its theme file, for example:
+```ts
+    {
+      key: "small-moment-this-week",
+      title: "A moment that stayed",
+      text: "What small moment with me has stayed with you this week?",
+      depth: "light",
+      tags: ["thoughtful"],
+      followUps: [
+        "What made that moment stand out from the rest of the week?",
+        "How could we make room for more moments like that?",
+      ],
+    },
+```
+
+Draft copy for the rest, by key. Edit freely until Gate A.
+
+| Key | Follow-up 1 | Follow-up 2 |
+| --- | --- | --- |
+| `small-moment-this-week` | What made that moment stand out from the rest of the week? | How could we make room for more moments like that? |
+| `most-at-ease-everyday` | What gets in the way of feeling like that more often? | Is there something I do that helps you get there? |
+| `ritual-more-time-for` | What would it take to make it happen this week? | Where did that ritual come from for you? |
+| `doing-well-lately` | What do you think has helped us do that? | How would you like us to keep it going? |
+| `gentler-with-each-other` | What would gentler look like in a real moment? | Is there something you'd like me to try first? |
+| `different-between-us-recently` | Does the change feel good, or does it worry you a little? | What do you think is behind it? |
+| `good-year-together` | What's one small thing that would already move us towards it? | What would you want us to let go of this year? |
+| `unspoken-hope` | What made it hard to say until now? | How could I support that hope? |
+| `more-spacious-life` | What's taking up the space right now? | What would you do with that extra room? |
+| `wish-i-understood` | When do you notice that gap the most? | What would help me understand it better? |
+| `bringing-you-energy` | What has been draining it? | How can I protect the things that give you energy? |
+| `growing-into` | What first made you notice it? | How would you like me to encourage it? |
+| `calmer-home` | Which part of the week feels least calm at home? | What's one change we could try for a fortnight? |
+| `feeling-secure-together` | When have you felt most secure with me? | Is there anything that makes you feel less secure right now? |
+| `balanced-responsibility` | What would a fairer split look like to you? | Is there something you'd happily take on in exchange? |
+| `felt-cared-for` | What made it land the way it did? | Is there a way you'd like to be cared for that I haven't tried? |
+| `grateful-for-today` | Has that always been there, or has it grown? | How could we tell each other more often? |
+| `quality-noticed-anew` | When did you notice it? | How does it show up between us? |
+
+The log line now counts follow-ups too: `seeded 6 themes, 54 prompts, 6 tags`.
 
 ---
 
@@ -1792,7 +1704,7 @@ every 20s on every fully-revealed page that has no follow-ups, so I left it out.
 ---
 
 ## Verification
-1. `pnpm --filter @couple-space/database generate`, read the SQL, then `migrate` and `seed` → `seeded 6 themes, 54 prompts`.
+1. `pnpm --filter @couple-space/database generate`, read the SQL, then `migrate` and `seed` → `seeded 6 themes, 54 prompts, 6 tags`.
 2. `pnpm check-types && pnpm test`.
 3. With the two test-couple browsers:
    - Answer and reveal a main prompt in A only → no follow-ups in A.

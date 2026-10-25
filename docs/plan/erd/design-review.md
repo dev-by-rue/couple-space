@@ -20,6 +20,7 @@ MVP diagrams already include these decisions. Each issue has its own heading so 
 | [E-10](#e-10) | Billing owner (future) | Nothing now |
 | [E-11](#e-11) | Couple identity for community | MVP-3 |
 | [E-12](#e-12) | Follow-up nesting depth | P1-8 |
+| [E-13](#e-13) | Positional prompt ids cap the catalogue | P1-28 |
 
 ---
 
@@ -33,6 +34,7 @@ question both partners answered.
 *Decision:* never reword a prompt; retire it and add a new one ([Q13](../03-product-decisions.md#q13), H-11).
 Prompt ids come from each question's position in `seed/catalogue.data.ts`, so that list is
 append-only. *Revised 2026-10-18:* snapshot columns on `conversation_sessions` were dropped.
+*Revised 2026-10-25:* ids now come from a permanent key, not position ([E-13](#e-13)).
 
 ## E-2
 
@@ -135,3 +137,20 @@ profile and its posts.
 
 *Decision:* one level only. A follow-up session can't have its own follow-ups. Enforce with a domain check
 on create (P1-8, P2-7).
+
+## E-13
+
+**Positional prompt ids cap the catalogue.** Ids were `theme.n * 10 + position`, so a theme could hold
+at most 9 questions, a question at most 9 follow-ups, and nothing could be reordered.
+
+*Why it matters:* random conversations ([Q24](../03-product-decisions.md#q24)) and the "never run out"
+rule ([Q27](../03-product-decisions.md#q27)) need hundreds, later thousands, of prompts.
+
+*Decision:* every theme, prompt and tag has a permanent, hand-written key (theme and tag slugs, prompt
+`key`), and its id is `uuidv5` of that key. Follow-ups use their parent's key plus position. Order is
+free. After Gate A: never change or reuse a key, never reword (retire instead, Q13/Q14), and follow-ups
+are append-only within a question. A catalogue test checks for duplicate keys and ids.
+
+*One-off reset:* switching schemes changes every id, so the P1-28 migration deletes all sessions and the
+old catalogue before the new one is seeded. Acceptable only because there are no real users before
+Gate A. Never repeat it afterwards.

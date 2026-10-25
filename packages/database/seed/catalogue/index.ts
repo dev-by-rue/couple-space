@@ -13,6 +13,10 @@ import { gratitude } from "./themes/gratitude.js";
 import { knowingYou } from "./themes/knowing-you.js";
 import { moneyHome } from "./themes/money-home.js";
 import { usLately } from "./themes/us-lately.js";
+import { littleTraditions } from "./themes/little-traditions.js";
+import { noExplainingNeeded } from "./themes/no-explaining-needed.js";
+import { sayItSoftly } from "./themes/say-it-softly.js";
+import { yourKindOfCare } from "./themes/your-kind-of-care.js";
 
 type ThemeRow = typeof promptThemes.$inferInsert;
 type PromptRow = typeof prompts.$inferInsert;
@@ -27,6 +31,10 @@ export const catalogue: ThemeSeed[] = [
   knowingYou,
   moneyHome,
   gratitude,
+  yourKindOfCare,
+  littleTraditions,
+  sayItSoftly,
+  noExplainingNeeded,
 ];
 
 export const themeRows: ThemeRow[] = catalogue.map((theme, index) => ({

@@ -60,9 +60,9 @@ prompt and rejected a key-less curated one.
 
 - [x] `packages/database`: `test` script, `vitest` dev dependency, `vitest.config.ts`, `pnpm install`
 - [x] `seed/catalogue/catalogue.test.ts`
-- [ ] `migrate` + `seed` locally → `seeded 6 themes, 18 prompts, 6 tags`; tests and `pnpm check-types` pass
+- [x] Tests and `pnpm check-types` pass (local `migrate` + `seed` is in C, with the final counts)
 
-## C · P1-8 Step 2: Follow-ups (new version) ✅ code done, local seed outstanding
+## C · P1-8 Step 2: Follow-ups and content ✅ code done, local seed outstanding
 
 You already wrote follow-up copy into the old positional `catalogue.data.ts`. Move it into the theme
 files rather than redoing it.
@@ -71,7 +71,11 @@ files rather than redoing it.
       (the seed's `parentPromptId` line is already done)
 - [x] `catalogue.test.ts`: follow-ups point at a curated prompt; no empty follow-ups
 - [x] Copy your 18 `followUps` arrays into the theme files
-- [ ] `seed` → `seeded 6 themes, 54 prompts, 6 tags`; tests pass
+- [x] Original 6 themes expanded to 27–30 questions; 4 new themes (Your kind of care, Little traditions,
+      Say it softly, No explaining needed)
+- [x] New themes registered in `seed/catalogue/index.ts`; their icons (`feather`, `fingerprint`,
+      `heart-handshake`) added to `THEME_ICONS` (Little traditions keeps `calendar-heart`)
+- [ ] Locally: `migrate` (runs the reset) + `seed` → `seeded 10 themes, 797 prompts, 6 tags`
 
 ## D · P1-8 Step 3: Domain ✅ done
 
@@ -93,13 +97,10 @@ files rather than redoing it.
 - [x] `take-it-offline.tsx`, `follow-up-card.tsx`, `follow-up-list.tsx` (with the empty-list fix)
 - [x] `conversation/[id]/page.tsx`: render `FollowUpList` once revealed
 
-## G · Optional in this push: P1-31 notification events
+## G · P1-31 notification events ⏭ not in this push
 
-Its guide says to do Part B with P1-8, and it replaces P1-8's "no push for children" line. Skip this
-section if you'd rather keep this push to P1-8 only.
-
-- [ ] Part A (core loop): `notificationsForSessionEvent`, `PushService.notifySessionEvent`, tests
-- [ ] Part B (follow-ups): follow-up events, tests
+Decided to leave it for a later push to keep this one to P1-8 and P1-28. Until then, follow-up answers
+send no push (P1-8's rule). P1-31 Part B replaces that when it's built.
 
 ## H · Verification (both test-couple browsers)
 
@@ -119,4 +120,4 @@ section if you'd rather keep this push to P1-8 only.
 - [ ] The deploy runs `migrate`: the reset runs **once** and deletes all sessions, then `seed` runs.
       Warn your test partner that their conversations will be gone.
 - [ ] On the sandbox: `/start` shows the new catalogue; a full conversation plus a follow-up works
-- [ ] Tick P1-8 and P1-28 in `phase-1-mvp-1.md`, and add a progress-log row
+- [ ] Tick P1-8 and P1-28 in `phase-1-mvp-1.md`, and add a progress-log row (P1-21: 10 themes, 285 questions)

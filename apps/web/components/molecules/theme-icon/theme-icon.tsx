@@ -2,7 +2,10 @@ import {
   CalendarHeart,
   Coffee,
   Compass,
+  Feather,
+  Fingerprint,
   HandHeart,
+  HeartHandshake,
   House,
   MessageCircleHeart,
   SparklesIcon,
@@ -16,6 +19,9 @@ const THEME_ICONS: Record<string, LucideIcon> = {
   "calendar-heart": CalendarHeart,
   "message-circle-heart": MessageCircleHeart,
   "hand-heart": HandHeart,
+  feather: Feather,
+  fingerprint: Fingerprint,
+  "heart-handshake": HeartHandshake,
 };
 
 type ThemeIconProps = {

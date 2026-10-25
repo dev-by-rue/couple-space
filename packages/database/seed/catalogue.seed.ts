@@ -39,6 +39,7 @@ await db.transaction(async (tx) => {
       target: prompts.id,
       set: {
         themeId: sql`excluded.theme_id`,
+        parentPromptId: sql`excluded.parent_prompt_id`,
         title: sql`excluded.title`,
         description: sql`excluded.description`,
         text: sql`excluded.text`,

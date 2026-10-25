@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoginForm } from "@/components/auth/login.form";
 import { safeNextPath } from "@/lib/auth-redirect";
-import Link from "next/link";
 import { Logo } from "@/components/atoms/logo/logo";
 
 function LoginPageContent() {

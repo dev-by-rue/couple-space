@@ -37,6 +37,7 @@ pattern, library or folder structure without saying so and asking first. Current
 - **Database:** change the Drizzle schema, run `pnpm --filter @couple-space/database generate`, then
   read and hand-edit the SQL so it's safe on tables that already have rows (see migration `0005`).
 - **API:** Nest exceptions carry a reason code, e.g. `new ConflictException({ reason: "already_submitted" })`.
+- **CODE COMMENTS** Should follow the tsdoc files where necessary, functions should include a description, @remark, @params (if present and not obvious by the type/interface) and a @return at all times.
 
 When the code you show deviates from an existing pattern, say where and why.
 

@@ -114,6 +114,9 @@ export function AppHeader() {
               Notifications blocked in settings
             </DropdownMenuItem>
           ) : null}
+          <DropdownMenuItem render={<Link href="/settings" />}>
+            Settings
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             disabled={logout.isPending}

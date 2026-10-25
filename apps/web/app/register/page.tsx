@@ -2,10 +2,8 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GalleryVerticalEnd } from "lucide-react";
 import { RegisterForm } from "@/components/auth/register.form";
 import { safeNextPath, withNextQuery } from "@/lib/auth-redirect";
-import Link from "next/link";
 import { Logo } from "@/components/atoms/logo/logo";
 
 function RegisterPageContent() {

@@ -4,7 +4,7 @@ import type {
   promptThemes,
   prompts,
 } from "../../src/schema/index.js";
-import { promptId, tagId, themeId } from "./ids.js";
+import { followUpId, promptId, tagId, themeId } from "./ids.js";
 import { TAGS } from "./tags.js";
 import type { ThemeSeed } from "./types.js";
 import { dreamsPlans } from "./themes/dreams-plans.js";
@@ -39,18 +39,41 @@ export const themeRows: ThemeRow[] = catalogue.map((theme, index) => ({
 }));
 
 export const promptRows: PromptRow[] = catalogue.flatMap((theme) =>
-  theme.questions.map((question, index) => ({
-    id: promptId(question.key),
-    key: question.key,
-    themeId: themeId(theme.slug),
-    title: question.title,
-    description: "A quiet question to answer in your own words.",
-    text: question.text,
-    kind: "curated",
-    depth: question.depth,
-    sortOrder: index,
-    retiredAt: question.retired ? new Date() : null,
-  })),
+  theme.questions.flatMap((question, index) => {
+    const retiredAt = question.retired ? new Date() : null;
+
+    const curated: PromptRow = {
+      id: promptId(question.key),
+      key: question.key,
+      themeId: themeId(theme.slug),
+      parentPromptId: null,
+      title: question.title,
+      description: "A quiet question to answer in your own words.",
+      text: question.text,
+      kind: "curated",
+      depth: question.depth,
+      sortOrder: index,
+      retiredAt,
+    };
+
+    const followUps: PromptRow[] = (question.followUps ?? []).map(
+      (text, k) => ({
+        id: followUpId(question.key, k + 1),
+        key: `${question.key}/${k + 1}`,
+        themeId: themeId(theme.slug),
+        parentPromptId: curated.id,
+        title: `${question.title} · follow-up ${k + 1}`,
+        description: "A follow-up to talk through together.",
+        text,
+        kind: "follow_up",
+        depth: question.depth,
+        sortOrder: k,
+        retiredAt,
+      }),
+    );
+
+    return [curated, ...followUps];
+  }),
 );
 
 export const tagRows: TagRow[] = TAGS.map((tag, index) => ({

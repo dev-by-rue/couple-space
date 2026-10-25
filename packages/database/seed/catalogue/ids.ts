@@ -44,6 +44,17 @@ export const themeId = (slug: string) => uuidv5(`theme:${slug}`, NAMESPACE);
 export const promptId = (key: string) => uuidv5(`prompt:${key}`, NAMESPACE);
 
 /**
+ * Id for a follow-up.
+ *
+ * @remarks Position-based within its question, so follow-ups are append-only.
+ * @param key - The parent question's key.
+ * @param position - 1-based position in `followUps`.
+ * @returns The follow-up's UUID.
+ */
+export const followUpId = (key: string, position: number) =>
+  uuidv5(`prompt:${key}/${position}`, NAMESPACE);
+
+/**
  * Id for a tag.
  *
  * @returns The tag's UUID.

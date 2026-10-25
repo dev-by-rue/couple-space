@@ -24,6 +24,7 @@ import { useMemo } from "react";
 import { debounce } from "@/lib/debounce";
 import { SessionRevealButton } from "@/components/molecules/session-reveal-button/session-reveal-button";
 import { SessionRevealPanel } from "@/components/organisms/session-reveal-panel/session-reveal-panel";
+import { FollowUpList } from "@/components/organisms/follow-up-list/follow-up-list";
 
 /** Statuses that mean "this isn't a conversation you can open". */
 const NOT_FOUND_STATUSES = new Set([400, 403, 404]);
@@ -143,6 +144,14 @@ export default function ConversationPage() {
       {data.phase === "revealed" && (
         <SessionRevealPanel responses={data.responses} viewerId={me.data.id} />
       )}
+      {data.phase === "revealed" && data.followUps ? (
+        <FollowUpList
+          parentSessionId={data.id}
+          followUps={data.followUps}
+          viewerId={me.data.id}
+          partnerName={partnerName}
+        />
+      ) : null}
     </main>
   );
 }

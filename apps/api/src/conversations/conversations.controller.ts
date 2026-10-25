@@ -16,6 +16,7 @@ import { ConversationsService } from "./conversations.service.js";
 import { createSessionSchema } from "./dto/create-session.schema.js";
 import { submitResponseSchema } from "./dto/submit-response.schema.js";
 import { saveDraftSchema } from "./dto/save-draft.schema.js";
+import { startFollowUpSchema } from "./dto/start-follow-up.schema.js";
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -62,6 +63,16 @@ export class ConversationsController {
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     return this.conversations.revealSession(user, id);
+  }
+
+  @Post("sessions/:id/follow-ups")
+  startFollowUp(
+    @CurrentUser() user: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: unknown,
+  ) {
+    const input = startFollowUpSchema.parse(body);
+    return this.conversations.startFollowUp(user, id, input);
   }
 
   @Put("sessions/:id/responses/draft")

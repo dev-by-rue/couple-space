@@ -62,3 +62,43 @@ describe("canViewerSeeAnswerText", () => {
     ).toBe(false);
   });
 });
+
+describe("canViewerSeeAnswerText for follow-ups", () => {
+  const base = {
+    viewerId: "u1",
+    answerAuthorId: "u2",
+    viewerHasRevealed: false,
+    isFollowUp: true,
+  };
+
+  it("hides partner text until both have submitted", () => {
+    expect(
+      canViewerSeeAnswerText({
+        ...base,
+        authorSubmitted: true,
+        bothSubmitted: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("shows partner text as soon as both have submitted, with no reveal", () => {
+    expect(
+      canViewerSeeAnswerText({
+        ...base,
+        authorSubmitted: true,
+        bothSubmitted: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("main sessions still need the viewer's reveal", () => {
+    expect(
+      canViewerSeeAnswerText({
+        ...base,
+        isFollowUp: false,
+        authorSubmitted: true,
+        bothSubmitted: true,
+      }),
+    ).toBe(false);
+  });
+});

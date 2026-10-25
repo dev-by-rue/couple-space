@@ -9,6 +9,8 @@ export type SessionViewerPhaseInput = {
   memberIds: string[];
   responses: Array<{ userId: string; submitted: boolean }>;
   revealedUserIds: string[];
+  /** Child session (Q22): goes straight from waiting_for_partner to revealed. */
+  isFollowUp?: boolean;
 };
 
 export function sessionViewerPhase(
@@ -21,6 +23,7 @@ export function sessionViewerPhase(
 
   if (!viewerSubmitted) return "answering";
   if (!bothSubmitted) return "waiting_for_partner";
+  if (input.isFollowUp) return "revealed";
   if (!viewerRevealed) return "ready_to_reveal";
   return "revealed";
 }

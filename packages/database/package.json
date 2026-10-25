@@ -17,7 +17,8 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "seed": "tsx seed/catalogue.seed.ts",
-    "clear-sessions": "tsx seed/clear-sessions.ts"
+    "clear-sessions": "tsx seed/clear-sessions.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.0",
@@ -27,6 +28,7 @@
     "dotenv": "^16",
     "drizzle-kit": "^0.31.0",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3"
   }
 }

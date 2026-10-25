@@ -1,12 +1,17 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
-import { isSessionOpen, sessionViewerPhase } from "@couple-space/domain";
+import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
+import {
+  areFollowUpsUnlocked,
+  isSessionOpen,
+  sessionViewerPhase,
+} from "@couple-space/domain";
 import {
   conversationSessions,
   coupleMemberships,
@@ -23,9 +28,11 @@ import { PushService } from "../push/push.service.js";
 import type { AuthUser } from "../auth/auth-user.types.js";
 import type { CreateSessionInput } from "./dto/create-session.schema.js";
 import type { SubmitResponseInput } from "./dto/submit-response.schema.js";
+import type { StartFollowUpInput } from "./dto/start-follow-up.schema.js";
 import {
   buildSessionDetailDto,
   type SessionDetailDto,
+  type SessionDetailSource,
 } from "./session-detail.mapper.js";
 import type { SaveDraftInput } from "./dto/save-draft.schema.js";
 
@@ -107,7 +114,12 @@ export class ConversationsService {
       })
       .from(conversationSessions)
       .innerJoin(prompts, eq(prompts.id, conversationSessions.promptId))
-      .where(eq(conversationSessions.coupleId, ctx.coupleId))
+      .where(
+        and(
+          eq(conversationSessions.coupleId, ctx.coupleId),
+          isNull(conversationSessions.parentSessionId),
+        ),
+      )
       .orderBy(asc(conversationSessions.updatedAt));
 
     const sessionIds = rows.map((r) => r.id);
@@ -178,6 +190,7 @@ export class ConversationsService {
         and(
           eq(conversationSessions.coupleId, ctx.coupleId),
           eq(conversationSessions.promptId, prompt.id),
+          isNull(conversationSessions.parentSessionId),
         ),
       );
 
@@ -285,7 +298,8 @@ export class ConversationsService {
       .set({ updatedAt: now })
       .where(eq(conversationSessions.id, sessionId));
 
-    if (isFirstToSubmit) {
+    // Follow-ups don't push: the "new conversation" text would be wrong.
+    if (isFirstToSubmit && ctx.session.parentSessionId == null) {
       // Fire and forget: notifyNewConversation never throws.
       void this.push.notifyNewConversation({
         starterId: user.id,
@@ -302,6 +316,10 @@ export class ConversationsService {
     sessionId: string,
   ): Promise<SessionDetailDto> {
     const ctx = await this.requireSessionMember(user, sessionId);
+    if (ctx.session.parentSessionId != null) {
+      // Q22: follow-ups auto-show; there's nothing to reveal.
+      throw new BadRequestException({ reason: "follow_up_has_no_reveal" });
+    }
 
     const responses = await this.db
       .select()
@@ -342,6 +360,107 @@ export class ConversationsService {
     return this.loadDetail(user, sessionId);
   }
 
+  /**
+   * Starts (or returns) the child session for one follow-up of a main
+   * session. Either partner can start it; the second call returns the same id.
+   */
+  async startFollowUp(
+    user: AuthUser,
+    parentSessionId: string,
+    input: StartFollowUpInput,
+  ): Promise<{ id: string }> {
+    const ctx = await this.requireSessionMember(user, parentSessionId);
+    if (ctx.coupleStatus !== "active") {
+      throw new ForbiddenException({ reason: "couple_not_active" });
+    }
+    if (ctx.session.parentSessionId != null) {
+      // E-12: one level only.
+      throw new BadRequestException({ reason: "follow_up_of_follow_up" });
+    }
+
+    const reveals = await this.db
+      .select({ userId: sessionReveals.userId })
+      .from(sessionReveals)
+      .where(eq(sessionReveals.sessionId, parentSessionId));
+    if (
+      !areFollowUpsUnlocked({
+        memberIds: ctx.memberIds,
+        revealedUserIds: reveals.map((r) => r.userId),
+      })
+    ) {
+      throw new ForbiddenException({ reason: "follow_ups_locked" });
+    }
+
+    const [prompt] = await this.db
+      .select()
+      .from(prompts)
+      .where(
+        and(
+          eq(prompts.id, input.promptId),
+          eq(prompts.kind, "follow_up"),
+          eq(prompts.parentPromptId, ctx.session.promptId),
+        ),
+      )
+      .limit(1);
+    if (!prompt) {
+      throw new NotFoundException({ reason: "prompt_not_found" });
+    }
+
+    const existing = await this.findChild(parentSessionId, prompt.id);
+    if (existing) return existing;
+
+    if (prompt.retiredAt) {
+      throw new NotFoundException({ reason: "prompt_retired" });
+    }
+
+    const created = await this.db.transaction(async (tx) => {
+      // The unique index settles a race where both partners tap at once.
+      const [row] = await tx
+        .insert(conversationSessions)
+        .values({
+          coupleId: ctx.coupleId,
+          promptId: prompt.id,
+          parentSessionId,
+        })
+        .onConflictDoNothing()
+        .returning({ id: conversationSessions.id });
+      if (!row) return null;
+
+      await tx.insert(sessionResponses).values(
+        ctx.memberIds.map((memberId) => ({
+          sessionId: row.id,
+          userId: memberId,
+          body: "",
+          submittedAt: null,
+        })),
+      );
+      return row;
+    });
+
+    if (created) return created;
+    // Lost the race: the partner's insert won.
+    const winner = await this.findChild(parentSessionId, prompt.id);
+    if (!winner) throw new ConflictException({ reason: "follow_up_conflict" });
+    return winner;
+  }
+
+  private async findChild(
+    parentSessionId: string,
+    promptId: string,
+  ): Promise<{ id: string } | undefined> {
+    const [row] = await this.db
+      .select({ id: conversationSessions.id })
+      .from(conversationSessions)
+      .where(
+        and(
+          eq(conversationSessions.parentSessionId, parentSessionId),
+          eq(conversationSessions.promptId, promptId),
+        ),
+      )
+      .limit(1);
+    return row;
+  }
+
   private async loadDetail(
     user: AuthUser,
     sessionId: string,
@@ -351,6 +470,7 @@ export class ConversationsService {
     const [session] = await this.db
       .select({
         id: conversationSessions.id,
+        parentSessionId: conversationSessions.parentSessionId,
         promptId: prompts.id,
         promptTitle: prompts.title,
         promptDescription: prompts.description,
@@ -381,9 +501,18 @@ export class ConversationsService {
       .select()
       .from(sessionReveals)
       .where(eq(sessionReveals.sessionId, sessionId));
+    const revealedUserIds = revealRows.map((r) => r.userId);
+
+    const followUps =
+      session.parentSessionId == null &&
+      areFollowUpsUnlocked({ memberIds: ctx.memberIds, revealedUserIds })
+        ? await this.loadFollowUps(session.id, session.promptId)
+        : undefined;
 
     return buildSessionDetailDto({
       sessionId: session.id,
+      parentSessionId: session.parentSessionId,
+      followUps,
       viewerId: user.id,
       memberIds: ctx.memberIds,
       prompt: {
@@ -394,7 +523,73 @@ export class ConversationsService {
         kind: session.promptKind,
       },
       responses: responseRows,
-      revealedUserIds: revealRows.map((r) => r.userId),
+      revealedUserIds,
+    });
+  }
+
+  /** Follow-up prompts for a main session, each with its child session if started. */
+  private async loadFollowUps(
+    parentSessionId: string,
+    parentPromptId: string,
+  ): Promise<NonNullable<SessionDetailSource["followUps"]>> {
+    const children = await this.db
+      .select({
+        id: conversationSessions.id,
+        promptId: conversationSessions.promptId,
+      })
+      .from(conversationSessions)
+      .where(eq(conversationSessions.parentSessionId, parentSessionId));
+    const startedPromptIds = children.map((c) => c.promptId);
+
+    // Retired follow-ups stay visible if the couple already started them.
+    const followUpPrompts = await this.db
+      .select({ id: prompts.id, text: prompts.text })
+      .from(prompts)
+      .where(
+        and(
+          eq(prompts.kind, "follow_up"),
+          eq(prompts.parentPromptId, parentPromptId),
+          startedPromptIds.length > 0
+            ? or(
+                isNull(prompts.retiredAt),
+                inArray(prompts.id, startedPromptIds),
+              )
+            : isNull(prompts.retiredAt),
+        ),
+      )
+      .orderBy(asc(prompts.sortOrder));
+
+    const childResponses =
+      children.length === 0
+        ? []
+        : await this.db
+            .select({
+              sessionId: sessionResponses.sessionId,
+              userId: sessionResponses.userId,
+              body: sessionResponses.body,
+              submittedAt: sessionResponses.submittedAt,
+              displayName: users.displayName,
+            })
+            .from(sessionResponses)
+            .innerJoin(users, eq(users.id, sessionResponses.userId))
+            .where(
+              inArray(
+                sessionResponses.sessionId,
+                children.map((c) => c.id),
+              ),
+            );
+
+    return followUpPrompts.map((prompt) => {
+      const child = children.find((c) => c.promptId === prompt.id);
+      return {
+        prompt,
+        session: child
+          ? {
+              id: child.id,
+              responses: childResponses.filter((r) => r.sessionId === child.id),
+            }
+          : null,
+      };
     });
   }
 
@@ -457,6 +652,6 @@ export class ConversationsService {
       throw new ForbiddenException({ reason: "not_session_member" });
     }
 
-    return ctx;
+    return { ...ctx, session };
   }
 }

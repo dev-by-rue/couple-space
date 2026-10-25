@@ -17,6 +17,11 @@ export type QuestionSeed = {
   text: string;
   depth: Depth;
   tags: TagSlug[];
+  /**
+   * Optional follow-ups. Ids come from position, so append only:
+   * never reorder or remove one. Retiring the question retires them too.
+   */
+  followUps?: string[];
   retired?: true;
 };
 

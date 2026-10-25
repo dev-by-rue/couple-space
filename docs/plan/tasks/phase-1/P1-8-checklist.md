@@ -38,60 +38,60 @@ prompt and rejected a key-less curated one.
       because it has the misspelled column and drizzle has recorded `0010` as applied
 - [x] (nit) `import { type AnyPgColumn, … }` as in the guide, since it's only used as a type
 
-## B · P1-28: Catalogue at scale (includes the one-off reset)
+## B · P1-28: Catalogue at scale (includes the one-off reset) ✅ code done, local migrate + seed outstanding
 
 **Schema**
 
-- [ ] `prompts.ts`: replace with the guide's "after" (`key`, `depth`, two checks)
-- [ ] `prompt-tags.ts` (new) and the export in `schema/index.ts`
-- [ ] `generate` → **one** `0010` migration for P1-8 Step 1 and P1-28. Add the reset `DELETE`s to
+- [x] `prompts.ts`: replace with the guide's "after" (`key`, `depth`, two checks)
+- [x] `prompt-tags.ts` (new) and the export in `schema/index.ts`
+- [x] `generate` → **one** `0010` migration for P1-8 Step 1 and P1-28. Add the reset `DELETE`s to
       the top, then read the rest: 2 `CREATE TABLE`s, 4 nullable `ADD COLUMN`s (`key`,
       `parent_prompt_id`, `depth`, `parent_session_id`), FKs, indexes, `prompts_key_unique` and 2 checks
 
 **Catalogue files**
 
-- [ ] Delete `seed/catalogue.data.ts`. Keep it open first: your follow-up copy moves into C
-- [ ] `seed/catalogue/ids.ts`, `tags.ts`, `types.ts`, `index.ts`
-- [ ] `seed/catalogue/themes/*.ts` (6 files; review the draft titles, keys, depths, tags)
-- [ ] `catalogue.seed.ts`: new imports, `key` + `depth` in the upsert, tags + links
+- [x] Delete `seed/catalogue.data.ts`. Keep it open first: your follow-up copy moves into C
+- [x] `seed/catalogue/ids.ts`, `tags.ts`, `types.ts`, `index.ts`
+- [x] `seed/catalogue/themes/*.ts` (6 files; review the draft titles, keys, depths, tags)
+- [x] `catalogue.seed.ts`: new imports, `key` + `depth` in the upsert, tags + links
       (`parentPromptId` is already there from your earlier Step 2)
 
 **Tests**
 
-- [ ] `packages/database`: `test` script, `vitest` dev dependency, `vitest.config.ts`, `pnpm install`
-- [ ] `seed/catalogue/catalogue.test.ts`
+- [x] `packages/database`: `test` script, `vitest` dev dependency, `vitest.config.ts`, `pnpm install`
+- [x] `seed/catalogue/catalogue.test.ts`
 - [ ] `migrate` + `seed` locally → `seeded 6 themes, 18 prompts, 6 tags`; tests and `pnpm check-types` pass
 
-## C · P1-8 Step 2: Follow-ups (new version)
+## C · P1-8 Step 2: Follow-ups (new version) ✅ code done, local seed outstanding
 
 You already wrote follow-up copy into the old positional `catalogue.data.ts`. Move it into the theme
 files rather than redoing it.
 
-- [ ] `types.ts` `followUps?`, `ids.ts` `followUpId`, `index.ts` `promptRows` with follow-ups
+- [x] `types.ts` `followUps?`, `ids.ts` `followUpId`, `index.ts` `promptRows` with follow-ups
       (the seed's `parentPromptId` line is already done)
-- [ ] `catalogue.test.ts`: follow-ups point at a curated prompt; no empty follow-ups
-- [ ] Copy your 18 `followUps` arrays into the theme files
+- [x] `catalogue.test.ts`: follow-ups point at a curated prompt; no empty follow-ups
+- [x] Copy your 18 `followUps` arrays into the theme files
 - [ ] `seed` → `seeded 6 themes, 54 prompts, 6 tags`; tests pass
 
-## D · P1-8 Step 3: Domain
+## D · P1-8 Step 3: Domain ✅ done
 
-- [ ] `session-answer-visibility.ts` (`isFollowUp`), `session-viewer-phase.ts` (no `ready_to_reveal` for children)
-- [ ] `follow-ups-unlocked.ts` (new) + export
-- [ ] Tests for all three
+- [x] `session-answer-visibility.ts` (`isFollowUp`), `session-viewer-phase.ts` (no `ready_to_reveal` for children)
+- [x] `follow-ups-unlocked.ts` (new) + export
+- [x] Tests for all three
 
-## E · P1-8 Step 4: API
+## E · P1-8 Step 4: API ✅ done
 
-- [ ] `dto/start-follow-up.schema.ts` (new), `session-detail.mapper.ts` (replace)
-- [ ] `conversations.service.ts`: `startFollowUp`, `loadFollowUps`, `GET /sessions` excludes children,
+- [x] `dto/start-follow-up.schema.ts` (new), `session-detail.mapper.ts` (replace)
+- [x] `conversations.service.ts`: `startFollowUp`, `loadFollowUps`, `GET /sessions` excludes children,
       child reveal → `follow_up_has_no_reveal`, no push for child answers
-- [ ] `conversations.controller.ts`: `POST /sessions/:id/follow-ups`
-- [ ] Tests: mapper cases, `startFollowUp`
+- [x] `conversations.controller.ts`: `POST /sessions/:id/follow-ups`
+- [x] Tests: mapper cases, `startFollowUp`
 
-## F · P1-8 Step 5: Web
+## F · P1-8 Step 5: Web ✅ done
 
-- [ ] `hooks/use-sessions.ts`: `FollowUp`, `useStartFollowUpMutation`, polling while a follow-up waits
-- [ ] `take-it-offline.tsx`, `follow-up-card.tsx`, `follow-up-list.tsx` (with the empty-list fix)
-- [ ] `conversation/[id]/page.tsx`: render `FollowUpList` once revealed
+- [x] `hooks/use-sessions.ts`: `FollowUp`, `useStartFollowUpMutation`, polling while a follow-up waits
+- [x] `take-it-offline.tsx`, `follow-up-card.tsx`, `follow-up-list.tsx` (with the empty-list fix)
+- [x] `conversation/[id]/page.tsx`: render `FollowUpList` once revealed
 
 ## G · Optional in this push: P1-31 notification events
 

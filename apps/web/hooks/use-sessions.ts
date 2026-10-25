@@ -18,23 +18,39 @@ export type SessionListItem = {
   updatedAt: string;
 };
 
+export type SessionResponse = {
+  userId: string;
+  displayName: string;
+  submitted: boolean;
+  text: string | null;
+};
+
+/** One follow-up under a revealed main session. Never `ready_to_reveal`. */
+export type FollowUp = {
+  promptId: string;
+  text: string;
+  /** Null until either partner starts it. */
+  sessionId: string | null;
+  /** Null until started. */
+  phase: SessionViewerPhase | null;
+  responses: SessionResponse[];
+};
+
 export type SessionDetailDto = {
   id: string;
+  parentSessionId: string | null;
   prompt: {
     id: string;
     title: string;
     description: string;
     text: string;
-    kind: "curated";
+    kind: "curated" | "follow_up";
   };
   phase: SessionViewerPhase;
   partnerSubmitted: boolean;
-  responses: Array<{
-    userId: string;
-    displayName: string;
-    submitted: boolean;
-    text: string | null;
-  }>;
+  responses: SessionResponse[];
+  /** Only once both have revealed. */
+  followUps?: FollowUp[];
 };
 
 type SessionsResponse = {
@@ -65,9 +81,9 @@ export function useSessionsQuery() {
  * Loads one session for the viewer, keeping it fresh while they wait.
  *
  * @remarks
- * There are no notifications yet, so the page polls, but only in
- * `waiting_for_partner`, the one phase where the partner's action changes
- * what the viewer sees. React Query pauses polling in background tabs.
+ * The page polls only while something is waiting on the partner: the main
+ * session in `waiting_for_partner`, or a follow-up in that phase. React Query
+ * pauses polling in background tabs.
  *
  * @param id - Session id from the route
  * @returns The React Query result for `GET /sessions/:id`
@@ -79,10 +95,14 @@ export function useSessionQuery(id: string) {
     enabled: Boolean(id),
     staleTime: 0,
     refetchOnWindowFocus: true,
-    refetchInterval: (query) =>
-      query.state.data?.phase === "waiting_for_partner"
-        ? WAITING_POLL_MS
-        : false,
+    // Also poll while a follow-up is waiting on the partner.
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const waiting =
+        data?.phase === "waiting_for_partner" ||
+        data?.followUps?.some((f) => f.phase === "waiting_for_partner");
+      return waiting ? WAITING_POLL_MS : false;
+    },
   });
 }
 
@@ -152,6 +172,32 @@ export function useRevealSessionMutation(
       queryClient.setQueryData(sessionQueryKey(data.id), data);
       await onSuccess?.(data, ...args);
     },
+  });
+}
+
+/**
+ * Starts (or joins) the child session for one follow-up.
+ *
+ * @remarks
+ * Either partner can start it; the API returns the same id to both.
+ *
+ * @param options - Extra React Query mutation options (e.g. `onSuccess`)
+ * @returns The React Query mutation for starting a follow-up
+ */
+export function useStartFollowUpMutation(
+  options?: UseMutationOptions<
+    CreateSessionResponse,
+    Error,
+    { parentSessionId: string; promptId: string }
+  >,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: ({ parentSessionId, promptId }) =>
+      apiFetch<CreateSessionResponse>(
+        `/sessions/${parentSessionId}/follow-ups`,
+        { method: "POST", body: JSON.stringify({ promptId }) },
+      ),
   });
 }
 

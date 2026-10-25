@@ -3,8 +3,18 @@ import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { sql } from "drizzle-orm";
 import { createDb } from "../src/client.js";
-import { promptThemes, prompts } from "../src/schema/index.js";
-import { themeRows, promptRows } from "./catalogue.data.js";
+import {
+  promptTagLinks,
+  promptTags,
+  promptThemes,
+  prompts,
+} from "../src/schema/index.js";
+import {
+  promptRows,
+  promptTagLinkRows,
+  tagRows,
+  themeRows,
+} from "./catalogue/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 config({
@@ -38,7 +48,9 @@ await db.transaction(async (tx) => {
     .onConflictDoUpdate({
       target: prompts.id,
       set: {
+        key: sql`excluded.key`,
         themeId: sql`excluded.theme_id`,
+        depth: sql`excluded.depth`,
         parentPromptId: sql`excluded.parent_prompt_id`,
         title: sql`excluded.title`,
         description: sql`excluded.description`,
@@ -50,7 +62,28 @@ await db.transaction(async (tx) => {
         updatedAt: new Date(),
       },
     });
+
+  await tx
+    .insert(promptTags)
+    .values(tagRows)
+    .onConflictDoUpdate({
+      target: promptTags.id,
+      set: {
+        slug: sql`excluded.slug`,
+        label: sql`excluded.label`,
+        sortOrder: sql`excluded.sort_order`,
+        updatedAt: new Date(),
+      },
+    });
+
+  // The seed owns every link, so replace them all: removing a tag from a question just works.
+  await tx.delete(promptTagLinks);
+  if (promptTagLinkRows.length > 0) {
+    await tx.insert(promptTagLinks).values(promptTagLinkRows);
+  }
 });
 
-console.log(`seeded ${themeRows.length} themes, ${promptRows.length} prompts`);
+console.log(
+  `seeded ${themeRows.length} themes, ${promptRows.length} prompts, ${tagRows.length} tags`,
+);
 await db.$client.end();

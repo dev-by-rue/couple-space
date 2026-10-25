@@ -74,3 +74,36 @@ describe("sessionViewerPhase", () => {
     ).toBe("ready_to_reveal");
   });
 });
+
+describe("sessionViewerPhase for follow-ups", () => {
+  const base = {
+    viewerId: "u1",
+    memberIds: ["u1", "u2"],
+    revealedUserIds: [],
+    isFollowUp: true,
+  };
+
+  it("waits for the partner after the viewer submits", () => {
+    expect(
+      sessionViewerPhase({
+        ...base,
+        responses: [
+          { userId: "u1", submitted: true },
+          { userId: "u2", submitted: false },
+        ],
+      }),
+    ).toBe("waiting_for_partner");
+  });
+
+  it("goes straight to revealed when both submit, never ready_to_reveal", () => {
+    expect(
+      sessionViewerPhase({
+        ...base,
+        responses: [
+          { userId: "u1", submitted: true },
+          { userId: "u2", submitted: true },
+        ],
+      }),
+    ).toBe("revealed");
+  });
+});

@@ -19,9 +19,9 @@ its own file. Every question gets a real title, a **depth** and **tags** (Q26). 
 
 ### Where this sits
 
-You can do this while you're part-way through P1-8. Do **P1-8 Step 1** (schema) first, then this guide,
-then **P1-8 Step 2**, which adds follow-ups to the shape built here. If you haven't done P1-8 Step 1 yet,
-this guide works on its own too: the `parentPromptId` lines below are only there if Step 1 is applied.
+Between P1-8 Step 1 (schema) and P1-8 Step 2 (follow-ups in the seed). The "before" code below assumes
+Step 1 is applied. If Step 1's migration hasn't been deployed yet, delete it and let this guide's
+`generate` produce **one** migration for both (see Migration).
 
 ### Decisions and deviations to flag
 
@@ -37,6 +37,9 @@ this guide works on its own too: the `parentPromptId` lines below are only there
   its opt-in rules are decided.
 - **Titles, keys, depths and tags on the existing 18 questions are drafts.** Change them freely until
   Gate A. After that a key is permanent (E-13).
+- **`key` and `depth` are nullable in the database**, but a check makes them required for `curated` and
+  `follow_up` rows. MVP-2 puts custom and partner-added prompts in the same table (P2-2, P2-7), and those
+  have no key and may have no depth. A `NOT NULL` now would mean a migration on live data later.
 - **`vitest` added to `packages/database`.** Same version and config as `packages/domain`.
 
 ---
@@ -45,9 +48,16 @@ this guide works on its own too: the `parentPromptId` lines below are only there
 
 ### `packages/database/src/schema/prompts.ts` (change)
 
-**Before**
+**Before** (after P1-8 Step 1)
 ```ts
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  type AnyPgColumn,
+} from "drizzle-orm/pg-core";
 import { promptThemes } from "./prompt-themes.js";
 
 export const prompts = pgTable("prompts", {
@@ -55,6 +65,9 @@ export const prompts = pgTable("prompts", {
   themeId: uuid("theme_id")
     .notNull()
     .references(() => promptThemes.id),
+  parentPromptId: uuid("parent_prompt_id").references(
+    (): AnyPgColumn => prompts.id,
+  ),
   title: text("title").notNull(),
   description: text("description").notNull(),
   text: text("text").notNull(),
@@ -69,7 +82,7 @@ export const prompts = pgTable("prompts", {
   retiredAt: timestamp("retired_at", { withTimezone: true }),
 });
 ```
-**After** (keep `parentPromptId` and the `AnyPgColumn` import if P1-8 Step 1 is applied)
+**After**
 ```ts
 import { sql } from "drizzle-orm";
 import {
@@ -79,6 +92,7 @@ import {
   text,
   timestamp,
   uuid,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { promptThemes } from "./prompt-themes.js";
 
@@ -86,17 +100,24 @@ export const prompts = pgTable(
   "prompts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** Permanent, hand-written key the id is derived from (E-13). Never changed or reused. */
-    key: text("key").notNull().unique(),
+    /**
+     * Permanent, hand-written key the id is derived from (E-13). Never changed or reused.
+     * Null for couple-written prompts (MVP-2).
+     */
+    key: text("key").unique(),
     themeId: uuid("theme_id")
       .notNull()
       .references(() => promptThemes.id),
+    /** Set for kind = 'follow_up': the curated prompt this follows. One level only (E-12). */
+    parentPromptId: uuid("parent_prompt_id").references(
+      (): AnyPgColumn => prompts.id,
+    ),
     title: text("title").notNull(),
     description: text("description").notNull(),
     text: text("text").notNull(),
     kind: text("kind").notNull().default("curated"),
     /** How heavy the question is (Q26). Follow-ups take their parent's depth. */
-    depth: text("depth").notNull(),
+    depth: text("depth"),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -109,7 +130,12 @@ export const prompts = pgTable(
   (t) => [
     check(
       "prompts_depth_preset",
-      sql`${t.depth} in ('light', 'medium', 'deep')`,
+      sql`${t.depth} is null or ${t.depth} in ('light', 'medium', 'deep')`,
+    ),
+    // Catalogue prompts always have a key and a depth; couple-written ones (MVP-2) may not.
+    check(
+      "prompts_catalogue_key_depth",
+      sql`${t.kind} not in ('curated', 'follow_up') or (${t.key} is not null and ${t.depth} is not null)`,
     ),
   ],
 );
@@ -174,10 +200,15 @@ export * from "./prompt-tags.js";
 
 ### Migration
 
-`pnpm --filter @couple-space/database generate`. Expect two `CREATE TABLE`s, two `ADD COLUMN … NOT NULL`
-on `prompts`, a unique constraint on `key`, the check constraint, FKs and indexes.
+**If P1-8 Step 1's migration hasn't been deployed**, delete it first (its `.sql`, its
+`meta/<n>_snapshot.json`, and its entry in `meta/_journal.json`), and reset your local database if you
+ran it. Then one `generate` covers both tasks.
 
-The generated `ADD COLUMN "key" text NOT NULL` fails on a table that has rows, and the new theme ids
+`pnpm --filter @couple-space/database generate`. Expect two `CREATE TABLE`s; `ADD COLUMN`s for `key` and
+`depth` (plus `parent_prompt_id` and `parent_session_id` if Step 1 is included), all nullable; a unique
+constraint on `key`; the two checks; FKs and indexes.
+
+The old rows would stay behind with no key, under ids nothing uses any more, and the new theme ids
 would clash with the old rows on `prompt_themes.slug`. So **add the reset to the top of the generated
 SQL** (E-13). One `DELETE` per table removes parents and children together, so the self-references from
 P1-8 Step 1 don't get in the way (Postgres checks those FKs at the end of each statement).
@@ -630,7 +661,6 @@ import {
 ```ts
       set: {
         themeId: sql`excluded.theme_id`,
-        title: sql`excluded.title`,
 ```
 **After**
 ```ts
@@ -638,7 +668,6 @@ import {
         key: sql`excluded.key`,
         themeId: sql`excluded.theme_id`,
         depth: sql`excluded.depth`,
-        title: sql`excluded.title`,
 ```
 
 **Before** (end of the transaction)
@@ -760,7 +789,7 @@ describe("catalogue", () => {
 
   it("has unique theme slugs and prompt keys", () => {
     expect(duplicates(catalogue.map((t) => t.slug))).toEqual([]);
-    expect(duplicates(promptRows.map((p) => p.key))).toEqual([]);
+    expect(duplicates(promptRows.map((p) => p.key!))).toEqual([]);
   });
 
   it("uses kebab-case keys and slugs", () => {

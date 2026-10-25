@@ -1,6 +1,6 @@
 # P1-8 · Curated follow-ups (T5)
 
-[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Gate A · Decisions: [Q1](../../03-product-decisions.md#q1), [Q22](../../03-product-decisions.md#q22) · Schema: [ERD MVP-1](../../erd/mvp-1.md) · After: [P1-10](P1-10-real-email-verification.md) · Step 2 needs: [P1-28](P1-28-catalogue-at-scale.md) · Next: [P1-6](P1-6-session-completion.md)
+[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Gate A · Decisions: [Q1](../../03-product-decisions.md#q1), [Q22](../../03-product-decisions.md#q22) · Schema: [ERD MVP-1](../../erd/mvp-1.md) · After: [P1-10](P1-10-real-email-verification.md) · Step 2 needs: [P1-28](P1-28-catalogue-at-scale.md) · Next: [P1-6](P1-6-session-completion.md) · Progress: [checklist](P1-8-checklist.md)
 
 **Goal:** once both partners have revealed the main prompt, show 2–3 optional follow-up questions. Each
 one is a **child session**: answered blind, and both answers **auto-show** as soon as the second partner
@@ -23,7 +23,7 @@ submits (no Reveal tap, Q22). There's also a "take it offline" card.
   parent's key plus position, so after Gate A they're append-only within a question (E-13).
 - **No push for follow-up answers.** `submitResponse` currently sends "new conversation" when the first
   answer arrives. That text is wrong for a follow-up, so this guide skips the push for child sessions.
-  Follow-up notifications are a product call for later (P1-14 / P2).
+  [P1-31](P1-31-notification-events.md) Part B replaces this with follow-up notifications.
 - **No confirm dialog** on follow-up submit. The main prompt has one; follow-ups are lighter. Say if you
   want it for consistency.
 - **No drafts** for follow-ups (the endpoint would work, but the card doesn't autosave). This keeps the
@@ -326,8 +326,9 @@ Follow-ups take the parent's depth and have no tags of their own. `listThemes` a
         parentPromptId: sql`excluded.parent_prompt_id`,
 ```
 
-Curated rows come before their follow-ups in `promptRows`. Postgres checks FKs per statement, so order
-doesn't strictly matter, but it's tidy.
+Skip this if the line is already there from the earlier version of this step. Curated rows come
+before their follow-ups in `promptRows`. Postgres checks FKs per statement, so order doesn't strictly
+matter, but it's tidy.
 
 ### `packages/database/seed/catalogue/catalogue.test.ts` (change) — add inside `describe("catalogue")`
 
@@ -1762,6 +1763,9 @@ export function FollowUpList({
   viewerId,
   partnerName,
 }: Readonly<FollowUpListProps>) {
+  // A question can ship without follow-ups (Q27): show only the offline card.
+  if (followUps.length === 0) return <TakeItOffline />;
+
   return (
     <section
       aria-labelledby="follow-ups-heading"

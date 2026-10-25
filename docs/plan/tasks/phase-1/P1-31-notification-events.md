@@ -1,4 +1,4 @@
-# P1-28 · Notification events (core loop + follow-ups)
+# P1-31 · Notification events (core loop + follow-ups)
 
 [← Phase 1](../phase-1-mvp-1.md) · Size **M** · Gate A · Decision: [Q23](../../03-product-decisions.md#q23) · After: [P1-26](P1-26-push-api.md), [P1-27](P1-27-push-in-app.md) · Part B after: [P1-8](P1-8-follow-ups.md)
 

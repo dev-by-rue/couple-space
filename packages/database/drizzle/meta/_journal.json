@@ -71,6 +71,13 @@
       "when": 1792618495419,
       "tag": "0009_careless_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792955877381,
+      "tag": "0010_breezy_cannonball",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,11 @@
 "use client";
 
 import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
-import type { LoginInput, RegisterInput } from "@couple-space/domain";
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterInput,
+} from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
 import { unsubscribeThisDevice } from "@/hooks/use-push";
 
@@ -84,5 +88,18 @@ export function useLogoutMutation(
       await unsubscribeThisDevice().catch(() => undefined);
       return apiFetch("/auth/logout", { method: "POST" });
     },
+  });
+}
+
+export function useChangePasswordMutation(
+  options?: UseMutationOptions<unknown, Error, ChangePasswordInput>,
+) {
+  return useMutation({
+    ...options,
+    mutationFn: (body: ChangePasswordInput) =>
+      apiFetch("/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
   });
 }

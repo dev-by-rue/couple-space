@@ -200,31 +200,38 @@ export * from "./prompt-tags.js";
 
 ### Migration
 
-**If P1-8 Step 1's migration hasn't been deployed**, delete it first (its `.sql`, its
-`meta/<n>_snapshot.json`, and its entry in `meta/_journal.json`), and reset your local database if you
-ran it. Then one `generate` covers both tasks.
+Do these in order. You only **create and edit** the migration here; it runs in the Verification step,
+once the catalogue files exist (seeding before then would fail the new check constraint).
 
-`pnpm --filter @couple-space/database generate`. Expect two `CREATE TABLE`s; `ADD COLUMN`s for `key` and
-`depth` (plus `parent_prompt_id` and `parent_session_id` if Step 1 is included), all nullable; a unique
-constraint on `key`; the two checks; FKs and indexes.
+1. **Only if P1-8 Step 1 has its own migration that was never deployed:** delete its `.sql`, its
+   `meta/<n>_snapshot.json`, and its entry in `meta/_journal.json`. One `generate` will then cover both
+   tasks.
+2. Run `pnpm --filter @couple-space/database generate`. It creates `packages/database/drizzle/0010_<name>.sql`.
+3. **Open that file and paste this at the very top**, above the first `CREATE TABLE`, then save:
 
-The old rows would stay behind with no key, under ids nothing uses any more, and the new theme ids
-would clash with the old rows on `prompt_themes.slug`. So **add the reset to the top of the generated
-SQL** (E-13). One `DELETE` per table removes parents and children together, so the self-references from
-P1-8 Step 1 don't get in the way (Postgres checks those FKs at the end of each statement).
+   ```sql
+   -- One-off reset before Gate A (E-13): ids now come from keys, so the old
+   -- catalogue and every session on it go. Never copy this after Gate A.
+   DELETE FROM "session_reveals";--> statement-breakpoint
+   DELETE FROM "session_responses";--> statement-breakpoint
+   DELETE FROM "conversation_sessions";--> statement-breakpoint
+   DELETE FROM "prompts";--> statement-breakpoint
+   DELETE FROM "prompt_themes";--> statement-breakpoint
+   ```
 
-```sql
--- One-off reset before Gate A (E-13): ids now come from keys, so the old
--- catalogue and every session on it go. Never copy this after Gate A.
-DELETE FROM "session_reveals";--> statement-breakpoint
-DELETE FROM "session_responses";--> statement-breakpoint
-DELETE FROM "conversation_sessions";--> statement-breakpoint
-DELETE FROM "prompts";--> statement-breakpoint
-DELETE FROM "prompt_themes";--> statement-breakpoint
-```
+4. Read the rest of the file. Expect two `CREATE TABLE`s (`prompt_tags`, `prompt_tag_links`); four
+   nullable `ADD COLUMN`s (`key`, `depth`, and `parent_prompt_id` / `parent_session_id` from P1-8 Step 1);
+   FKs; indexes; `prompts_key_unique`; and the two checks. Nothing else needs editing.
+5. **Don't run `migrate` yet.** Carry on with Step 2.
 
-Then read the rest of the file. Nothing else needs hand-editing. On Railway, `preDeployCommand` runs
-`migrate` before `seed`, so the reset runs once and the new catalogue is seeded straight after.
+**When the reset runs:** automatically, the first time `migrate` applies this file. Locally that's
+Verification step 1. On Railway it's the first deploy after this reaches `main` (`preDeployCommand` runs
+`migrate`, then `seed`). Drizzle applies each file once, so it never runs again.
+
+**Why it's needed:** ids now come from keys, so the old rows would stay behind with no key under ids
+nothing uses, and the new theme ids would clash with them on `prompt_themes.slug`. One `DELETE` per table
+removes parents and children together, so the self-references from P1-8 Step 1 don't get in the way
+(Postgres checks those FKs at the end of each statement). Users, couples and invitations are untouched.
 
 ---
 
@@ -821,8 +828,8 @@ Tags are type-checked (`TagSlug`) and depths too (`Depth`), so the test doesn't 
 
 ## Verification
 
-1. `pnpm --filter @couple-space/database generate`, add the reset to the top of the SQL, read it,
-   `migrate`, then `seed` → `seeded 6 themes, 18 prompts, 6 tags`.
+1. `pnpm --filter @couple-space/database migrate` (this runs the reset you pasted into `0010`), then
+   `pnpm --filter @couple-space/database seed` → `seeded 6 themes, 18 prompts, 6 tags`.
 2. `pnpm --filter @couple-space/database test` and `pnpm check-types`.
 3. `/start` lists the six themes with the new titles; starting a conversation still works.
 4. In the database, `select key, depth from prompts` shows keys and depths, and `prompt_tag_links`

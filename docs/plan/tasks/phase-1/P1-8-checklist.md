@@ -29,18 +29,19 @@ prompt and rejected a key-less curated one.
 - [x] `conversationSessions.parentSessionId` + unique index
 - [x] `clear-sessions.ts` deletes children first
 - [x] `catalogue.seed.ts`: `parentPromptId` in the upsert
-- [ ] **Fix the typo:** `uuid("parent_prmopt_id")` → `uuid("parent_prompt_id")` in `prompts.ts`.
+- [x] **Fix the typo:** `uuid("parent_prmopt_id")` → `uuid("parent_prompt_id")` in `prompts.ts`.
       As it stands, `seed` fails: the upsert refers to `excluded.parent_prompt_id`, which doesn't exist.
-- [ ] **Delete migration `0010_even_flatman`:** the `.sql` file, `meta/0010_snapshot.json`, and its
+- [x] **Delete migration `0010_even_flatman`:** the `.sql` file, `meta/0010_snapshot.json`, and its
       entry in `meta/_journal.json`. It's never been deployed, so deleting it is safe. It's regenerated
       in B, together with P1-28's changes, as a single migration.
-- [ ] If you ran `migrate` locally: reset your local database (drop and recreate it, then `migrate`),
+- [x] If you ran `migrate` locally: reset your local database (drop and recreate it, then `migrate`),
       because it has the misspelled column and drizzle has recorded `0010` as applied
-- [ ] (nit) `import { type AnyPgColumn, … }` as in the guide, since it's only used as a type
+- [x] (nit) `import { type AnyPgColumn, … }` as in the guide, since it's only used as a type
 
 ## B · P1-28: Catalogue at scale (includes the one-off reset)
 
 **Schema**
+
 - [ ] `prompts.ts`: replace with the guide's "after" (`key`, `depth`, two checks)
 - [ ] `prompt-tags.ts` (new) and the export in `schema/index.ts`
 - [ ] `generate` → **one** `0010` migration for P1-8 Step 1 and P1-28. Add the reset `DELETE`s to
@@ -48,6 +49,7 @@ prompt and rejected a key-less curated one.
       `parent_prompt_id`, `depth`, `parent_session_id`), FKs, indexes, `prompts_key_unique` and 2 checks
 
 **Catalogue files**
+
 - [ ] Delete `seed/catalogue.data.ts`. Keep it open first: your follow-up copy moves into C
 - [ ] `seed/catalogue/ids.ts`, `tags.ts`, `types.ts`, `index.ts`
 - [ ] `seed/catalogue/themes/*.ts` (6 files; review the draft titles, keys, depths, tags)
@@ -55,6 +57,7 @@ prompt and rejected a key-less curated one.
       (`parentPromptId` is already there from your earlier Step 2)
 
 **Tests**
+
 - [ ] `packages/database`: `test` script, `vitest` dev dependency, `vitest.config.ts`, `pnpm install`
 - [ ] `seed/catalogue/catalogue.test.ts`
 - [ ] `migrate` + `seed` locally → `seeded 6 themes, 18 prompts, 6 tags`; tests and `pnpm check-types` pass

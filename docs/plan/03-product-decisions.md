@@ -36,6 +36,10 @@ Each decision has its own heading, so you can link it directly (for example `03-
 | [Q21](#q21) | Partner-added questions? | Both answer, MVP-2 | P2-7 |
 | [Q22](#q22) | Reveal tap on follow-ups? | No, auto-show after both submit | P1-8, P2-7 |
 | [Q23](#q23) | Mobile app and notifications? | Installable web app + web push; no native app | P1-25…P1-27 |
+| [Q24](#q24) | Random conversations? | Yes: pick a theme or Surprise me; Start or Skip for now | P1-29 |
+| [Q25](#q25) | Which prompts can a couple be offered? | Not answered, not open, not skipped by you in the last 2 h | P1-29, P1-30 |
+| [Q26](#q26) | Depth and tags on prompts? | One depth + any number of tags; filterable | P1-28, P1-30 |
+| [Q27](#q27) | What if a couple runs out? | They mustn't: the owner keeps writing content | P1-21, P1-28 |
 
 ---
 
@@ -59,6 +63,9 @@ Starting a new follow-up on a completed session moves it back to active. Blocks:
 
 **Concurrent sessions per couple?** Unlimited (already decided for T0). Revisit after Gate A feedback.
 The exception is that a couple can't have two *open* sessions on the same prompt (P0-7).
+
+*Amended 2026-10-25 ([Q25](#q25)):* `/start` and random also leave out prompts the couple has already
+answered (both submitted) and prompts the viewer skipped for now in the last 2 hours.
 
 ## Q3
 
@@ -210,8 +217,99 @@ services. Owner decisions (2026-10-21):
 Expo rewrite (every screen rebuilt). Revisit only if more native features are scoped. Supersedes the "no
 notifications yet" part of [Q6](#q6); polling stays as the way screens refresh. Blocks: P1-25…P1-27.
 
+## Q24
+
+**Can a couple start a random conversation?** Yes. Owner decisions (2026-10-25):
+
+- **Entry:** a **Random** button. It opens a page with two choices: **Pick a theme** or **Surprise me**.
+- **Pick a theme:** a random eligible prompt ([Q25](#q25)) from that theme. A theme the couple has
+  answered completely shows greyed out as **Explored**. It stays in the list because new questions get
+  added ([Q27](#q27)).
+- **Surprise me:** picks a random theme that still has an eligible prompt, then a random prompt in it,
+  so every theme gets equal airtime however many questions it has.
+- **Preview card:** theme, title and question, with **Start this conversation** and **Skip for now**.
+  Nothing is saved until Start, and Start goes through the normal `POST /sessions` (which checks
+  eligibility again). Surprise me uses the same card and the same rules.
+- **Not marked as random.** It's a normal session. Knowing it was random could be fun, but it isn't
+  needed (a nullable `source` column can be added later).
+
+*Rejected for now:* **"Never show this again".** One partner shouldn't decide for both what's open for
+discussion. If *you* don't want to start a topic you skip it, but your partner can still choose to.
+The product promotes openness, including about difficult topics. Revisit after Gate A feedback.
+
+**To confirm:**
+
+- Where the Random button lives (the hub, `/start`, or both).
+- Whether Surprise me avoids repeating the theme of the prompt just skipped. Proposed: yes, when
+  another theme has an eligible prompt.
+- Whether Surprise me leans towards `light` and `medium` prompts ([Q26](#q26)) so a heavy question
+  doesn't land out of nowhere. Proposed: yes.
+
+Blocks: P1-29.
+
+## Q25
+
+**Which prompts can a couple be offered?** The same rule for browsing `/start` and for random
+([Q24](#q24)). A prompt is offered when **all** of these hold:
+
+- It's a curated prompt (not a follow-up, and later not a partner-added or custom prompt) and isn't
+  retired.
+- The couple has **never answered it**: no session on it, open, completed or archived, where **both
+  partners submitted**. Answered prompts never come back for that couple. A re-formed couple starts
+  fresh ([Q19](#q19)).
+- The couple has **no open session** on it ([Q2](#q2)).
+- The viewer hasn't **skipped it for now** within the last **2 hours**.
+
+**Skip for now** is per person: it hides the prompt only from the partner who tapped it, for
+`SKIP_FOR_NOW_HOURS = 2` (one domain constant, never more than 24). The other partner can still see and
+start it. Skipping again restarts the timer.
+
+A session archived before both submitted ([P1-7](tasks/phase-1/P1-7-skip-archive.md) skip) doesn't block
+the prompt: it can be offered again straight away, and starting it creates a new session (P1-7).
+
+**Empty states:** "You've explored everything here. New questions arrive regularly." when everything is
+answered, and "Nothing new right now, check back in a little while." when what's left is only skipped
+for now. They should be rare ([Q27](#q27)), but never a blank page.
+
+Amends [Q2](#q2). Blocks: P1-29, P1-30.
+
+## Q26
+
+**How are prompts described beyond their theme?** Every curated prompt has:
+
+- One **depth**: `light`, `medium` or `deep`. Required.
+- Any number of **tags** from a curated list (draft: playful, thoughtful, romantic, practical,
+  nostalgic, hopeful). New tags can be added at any time.
+
+Couples can filter by depth and tags when browsing (P1-30). Follow-ups take their parent's depth and
+have no tags.
+
+**To confirm before any are written:** sexual ("naughty") prompts. They need their own rules first:
+whether both partners must opt in, whether they're hidden from random by default, and how they're
+labelled. Until then, no such tag or prompts.
+
+Blocks: P1-28, P1-30.
+
+## Q27
+
+**What if a couple runs out of things to talk about?** They mustn't. Running out would be a
+relationship red flag, so it's a **hard constraint on content, not code**: the owner keeps writing new
+questions and themes for as long as the product exists. Supporting rules:
+
+- The catalogue must be able to grow without limits: key-based ids and one file per theme
+  ([E-13](erd/design-review.md#e-13), P1-28).
+- A question can ship with **no follow-ups**; they can be added later (append-only).
+- A theme **can** be retired, the same way as a prompt ([Q14](#q14)), but this isn't built until a later
+  phase. The `retired_at` column is a safe nullable migration whenever it's needed.
+- The code still has empty states as a safety net ([Q25](#q25)).
+- **Later, not MVP-1:** an admin page so new content doesn't need a deploy; a content style guide (tone,
+  depth, inclusive wording that doesn't assume marriage, children, living together or gender);
+  aggregated skip rates per prompt to show what lands; translations.
+
+Blocks: P1-21, P1-28.
+
 ---
 
 ## D-4
 
-- [ ] **D-4** Copy the answers to Q1–Q23 into `scope.md` and remove them from its "Open product questions".
+- [ ] **D-4** Copy the answers to Q1–Q27 into `scope.md` and remove them from its "Open product questions".

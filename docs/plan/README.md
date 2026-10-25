@@ -60,7 +60,8 @@ P0-10 (EU region: first, while the data is throwaway; also does P0-8)
 P0-1 → P0-2 → P0-3 → P0-5 → P0-6 → P0-7 → P0-9        ← you can demo the full loop here
 H-11 → H-12 → H-2                                     ← schema fixes while the DB has no real data
    D-1…D-4 (scope decisions, an evening of writing)
-P1-1 → P1-3 → P1-8 (follow-ups) → P1-6 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
+P1-1 → P1-3 → P1-8 (follow-ups, with P1-28 catalogue) → P1-6 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
+P1-29 → P1-30                                        ← random conversation + browse filters (Gate A or B: to confirm)
 P1-25 → P1-26 → P1-27                                ← install to phone + push (any time; owner wants it early)
 P1-7
 P1-15 → P1-16 → P1-17 → P1-18                         ← ops, before strangers touch it
@@ -84,3 +85,4 @@ Phase 2 → Phase 3
 | 2026-10-18 | Phase 0 complete. Tested by myelf and Rache                                                                  | To keep using and actioning feedback                                                     |
 | 2026-10-18 | H-2, H-15, H-11, H-12, H-14 done (migrations `0006`–`0008`); lint + `pnpm check-types` green               | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |
 | 2026-10-21 | Q23 + P1-25…P1-27: installable web app + push on "new conversation"                                   | No native app; guides with code in `tasks/phase-1/`                                       |
+| 2026-10-25 | Q24–Q27 (random conversations, eligibility, depth/tags, never run out) + E-13 key-based ids; P1-28 guide, P1-8 Step 2 rewritten, P1-29/P1-30 added | "Never show this again" rejected for now; one-off catalogue reset before Gate A |

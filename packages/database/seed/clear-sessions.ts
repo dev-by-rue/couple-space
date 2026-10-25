@@ -7,6 +7,7 @@ import {
   sessionResponses,
   sessionReveals,
 } from "../src/schema/index.js";
+import { isNotNull } from "drizzle-orm";
 
 const here = dirname(fileURLToPath(import.meta.url));
 config({
@@ -30,6 +31,10 @@ const db = createDb(url);
 const deleted = await db.transaction(async (tx) => {
   await tx.delete(sessionReveals);
   await tx.delete(sessionResponses);
+  await tx
+    .delete(conversationSessions)
+    .where(isNotNull(conversationSessions.parentSessionId));
+
   return tx
     .delete(conversationSessions)
     .returning({ id: conversationSessions.id });

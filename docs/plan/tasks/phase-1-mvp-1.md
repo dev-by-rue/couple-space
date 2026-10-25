@@ -50,6 +50,7 @@ Decision: [Q23](../03-product-decisions.md#q23). Web push only, no native app. D
 - [ ] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
 - [ ] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
 - [ ] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
+- [ ] **P1-28 · Notification events** 🅰 · M · [📘 guide](phase-1/P1-28-notification-events.md) — One domain rule set (`notificationsForSessionEvent`) for every step of a conversation: first answer (exists), ready to reveal, partner revealed, and (after P1-8) follow-up answered / answers in. Push only, names only, one tag per conversation with `renotify`.
 
 ## Security & ops
 

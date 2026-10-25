@@ -1,4 +1,11 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  AnyPgColumn,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { promptThemes } from "./prompt-themes.js";
 
 export const prompts = pgTable("prompts", {
@@ -6,6 +13,9 @@ export const prompts = pgTable("prompts", {
   themeId: uuid("theme_id")
     .notNull()
     .references(() => promptThemes.id),
+  parentPromptId: uuid("parent_prmopt_id").references(
+    (): AnyPgColumn => prompts.id,
+  ),
   title: text("title").notNull(),
   description: text("description").notNull(),
   text: text("text").notNull(),

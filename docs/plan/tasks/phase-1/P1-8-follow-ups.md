@@ -21,7 +21,8 @@ submits (no Reveal tap, Q22). There's also a "take it offline" card.
 
 - **Follow-up copy is a draft** (Step 2). Edit it freely; ids come from position, so only the wording
   is safe to change before first seed. After that, the append-only rule applies.
-- **No push for follow-up answers.** `submitResponse` currently sends "new conversation" when the first
+- **Follow-up notifications are [P1-28](P1-28-notification-events.md) Part B**, which replaces the "skip the push for children" change below. If you build P1-28 Part A first, skip that change.
+- **(Superseded by P1-28) No push for follow-up answers.** `submitResponse` currently sends "new conversation" when the first
   answer arrives. That text is wrong for a follow-up, so this guide skips the push for child sessions.
   Follow-up notifications are a product call for later (P1-14 / P2).
 - **No confirm dialog** on follow-up submit. The main prompt has one; follow-ups are lighter. Say if you

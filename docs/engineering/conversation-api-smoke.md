@@ -1,7 +1,6 @@
 # Manual smoke test — conversation API (two users)
 
 **Purpose:** Prove the private conversation loop works at the API level, before any UI: soft lock (no partner answer until both submit) and **per-user Reveal** (one partner revealing does not reveal for the other).
-**Plan:** `docs/superpowers/plans/2026-09-21-conversation-walking-skeleton.md` (Consolidated plan, step 2)
 **Rules:** `docs/product/scope.md` → Core interaction loop
 
 ---

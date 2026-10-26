@@ -10,7 +10,7 @@ Everything else is needed for Gate B (couples you don't know personally).
 Tasks with a 📘 link have a guide with full before/after code and tests (P1-2 is prototype reuse notes only).
 
 **Guide order.** Each guide's "before" code assumes the earlier guides are already applied:
-P1-4 → P1-5 → P1-9 → P1-15 → P1-16 → P1-10 → P1-8 (Step 1) → P1-28 → P1-8 (Steps 2–5) → P1-6 → P1-7 → P1-11 → P1-12 → P1-13 → P1-14 → P1-17 → P1-18 → P1-20.
+P1-4 → P1-5 → P1-9 → P1-15 → P1-16 → P1-10 → P1-8 (Step 1) → P1-28 → P1-8 (Steps 2–5) → P1-31 → P1-30 (first slice) → P1-6 → P1-7 → P1-11 → P1-12 → P1-13 → P1-14 → P1-17 → P1-18 → P1-20.
 Each guide also has a "Flags" section listing open product decisions. Settle those before you build that task.
 
 ---
@@ -42,7 +42,7 @@ Decisions: [Q24](../03-product-decisions.md#q24), [Q25](../03-product-decisions.
   - Domain: the eligibility rule from Q25 (curated, not retired, not answered by both in any session, no open session, not skipped for now by the viewer) and `SKIP_FOR_NOW_HOURS = 2`, with tests.
   - Schema: `prompt_skips` (`user_id`, `prompt_id`, `skipped_until`; unique per user and prompt; cascade on user delete, so P1-12 needs nothing extra). Index `conversation_sessions (couple_id, prompt_id)`.
   - API: `GET /prompts/random?themeId=` (no `themeId` = Surprise me) returns one prompt, or an empty state (`explored` / `come_back_later`). "Answered" only looks at main sessions (`parent_session_id IS NULL`); follow-ups never count. `POST /prompts/:id/skip`. `POST /sessions` rejects an answered prompt (`409 prompt_already_answered`). Add both endpoints to rate limiting (P1-15).
-- [ ] **P1-30 · Browse with filters and pagination** · M · [📘 guide](phase-1/P1-30-browse-filters.md) (first slice: client-side paging + filters; [wireframe](../wireframes/p1-30-browse.html)) — `/start` applies the same Q25 rule server-side, paginates each theme's prompts, and filters by depth and tags. `PROMPT_DEPTHS` moves into `packages/domain`; tags come from the API. Theme list shows "Explored" the same way as P1-29.
+- [ ] **P1-30 · Browse with filters and pagination** · M · [📘 guide](phase-1/P1-30-browse-filters.md) (first slice ✅ done: client-side paging + filters; [wireframe](../wireframes/p1-30-browse.html)) — `/start` applies the same Q25 rule server-side, paginates each theme's prompts, and filters by depth and tags. `PROMPT_DEPTHS` moves into `packages/domain`; tags come from the API. Theme list shows "Explored" the same way as P1-29.
 
 ## Safety, privacy, legal
 
@@ -57,9 +57,9 @@ Decisions: [Q24](../03-product-decisions.md#q24), [Q25](../03-product-decisions.
 
 Decision: [Q23](../03-product-decisions.md#q23). Web push only, no native app. Do these in order: you can both install the app after P1-25, and pushes start arriving after P1-27.
 
-- [ ] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
-- [ ] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
-- [ ] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
+- [x] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
+- [x] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
+- [x] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
 - [x] **P1-31 · Notification events** 🅰 · M · [📘 guide](phase-1/P1-31-notification-events.md) — One domain rule set (`notificationsForSessionEvent`) for every step of a conversation: first answer (exists), ready to reveal, partner revealed, and (after P1-8) follow-up answered / answers in. Push only, names only, one tag per conversation with `renotify`.
 
 ## Security & ops

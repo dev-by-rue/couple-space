@@ -16,19 +16,20 @@ In order. When these are done, P1-23a can start.
 
 | # | Task | State |
 | --- | --- | --- |
-| 1 | **P1-8** Curated follow-ups | Code done. Left: local `migrate` + `seed`, two-browser verification, merge, deploy (the reset runs once), tick. See the [checklist](phase-1/P1-8-checklist.md) H and I |
-| 2 | **H-16** Web unit tests | [Guide](phase-1/H-16-web-unit-tests.md) |
-| 3 | **P1-6** Session completion | [Guide](phase-1/P1-6-session-completion.md) |
-| 4 | **P1-32** Answered prompts don't come back | [Guide](phase-1/P1-32-answered-prompts.md) |
-| 5 | **P1-19** Backups | Confirm Railway backups, write restore steps |
-| 6 | **P1-21** Write more prompts | 10 themes and ~285 questions already seeded. *(proposed)* Enough for Gate A; keep writing alongside |
-| 7 | **P1-23a** Gate A | You two, then your cousin and his wife. Keep a friction-notes file |
+| 1 | **H-16** Web unit tests | [Guide](phase-1/H-16-web-unit-tests.md) |
+| 2 | **P1-6** Session completion | [Guide](phase-1/P1-6-session-completion.md) |
+| 3 | **P1-32** Answered prompts don't come back | [Guide](phase-1/P1-32-answered-prompts.md) |
+| 4 | **P1-19** Backups | Confirm Railway backups, write restore steps |
+| 5 | **P1-21** Write more prompts | 10 themes, 285 questions. Top up the five themes at 27 to 30+ (Knowing you, Everyday moments, Gratitude, Money & home, Us lately), then keep writing alongside |
+| 6 | **P1-23a** Gate A | You two, then your cousin and his wife. Keep a friction-notes file |
+
+P1-8 (follow-ups), P1-28 (catalogue), P1-25…P1-27 and P1-31 (install + push) are done.
 
 ## Keep · Gate B (couples you don't know)
 
 | Area | Tasks |
 | --- | --- |
-| Account | P1-4 Settings · P1-5 Password reset |
+| Account | P1-5 Password reset (P1-4 Settings is done) |
 | Safety, privacy, legal | P1-9 Age gate · P1-10 Real email verification · P1-11 Leave couple (with H-13) · P1-12 Account deletion · P1-13 Legal + trust pages + export |
 | Finding a conversation | P1-29 Random (guide to write) · P1-30 the rest (skip for now on `/start`, server-side paging, "Explored") |
 | Security & ops | P1-15 Rate limiting · P1-16 Security headers · P1-17 CI · P1-18 Error monitoring · P1-20 Hardening |

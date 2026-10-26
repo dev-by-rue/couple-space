@@ -75,7 +75,7 @@ files rather than redoing it.
       Say it softly, No explaining needed)
 - [x] New themes registered in `seed/catalogue/index.ts`; their icons (`feather`, `fingerprint`,
       `heart-handshake`) added to `THEME_ICONS` (Little traditions keeps `calendar-heart`)
-- [ ] Locally: `migrate` (runs the reset) + `seed` → `seeded 10 themes, 797 prompts, 6 tags`
+- [x] Locally: `migrate` (runs the reset) + `seed` → `seeded 10 themes, 797 prompts, 6 tags`
 
 ## D · P1-8 Step 3: Domain ✅ done
 
@@ -105,20 +105,20 @@ files rather than redoing it.
 
 ## H · Verification (both test-couple browsers)
 
-- [ ] Reveal in A only → no follow-ups in A
-- [ ] Reveal in B → follow-ups in both
-- [ ] A answers follow-up 1 → A waits; B sees the form straight away
-- [ ] B answers → both see both answers, **no reveal button**
-- [ ] Both tap "Answer this" on follow-up 2 at once → one child row
-- [ ] Hub lists only main sessions
-- [ ] `POST /sessions/<childId>/reveal` → 400 `follow_up_has_no_reveal`
-- [ ] `POST /sessions/<mainId>/follow-ups` before both revealed → 403 `follow_ups_locked`
+- [x] Reveal in A only → no follow-ups in A
+- [x] Reveal in B → follow-ups in both
+- [x] A answers follow-up 1 → A waits; B sees the form straight away
+- [x] B answers → both see both answers, **no reveal button**
+- [x] Both tap "Answer this" on follow-up 2 at once → one child row
+- [x] Hub lists only main sessions
+- [x] `POST /sessions/<childId>/reveal` → 400 `follow_up_has_no_reveal`
+- [x] `POST /sessions/<mainId>/follow-ups` before both revealed → 403 `follow_ups_locked`
 
 ## I · Before pushing to `main`
 
-- [ ] `pnpm check-types && pnpm lint && pnpm test`
-- [ ] Merge `feat/phase-1-step-8` to `main`
-- [ ] The deploy runs `migrate`: the reset runs **once** and deletes all sessions, then `seed` runs.
+- [x] `pnpm check-types && pnpm lint && pnpm test`
+- [x] Merge `feat/phase-1-step-8` to `main`
+- [x] The deploy runs `migrate`: the reset runs **once** and deletes all sessions, then `seed` runs.
       Warn your test partner that their conversations will be gone.
-- [ ] On the sandbox: `/start` shows the new catalogue; a full conversation plus a follow-up works
-- [ ] Tick P1-8 and P1-28 in `phase-1-mvp-1.md`, and add a progress-log row (P1-21: 10 themes, 285 questions)
+- [x] On the sandbox: `/start` shows the new catalogue; a full conversation plus a follow-up works
+- [x] Tick P1-8 and P1-28 in `phase-1-mvp-1.md`, and add a progress-log row (P1-21: 10 themes, 285 questions)

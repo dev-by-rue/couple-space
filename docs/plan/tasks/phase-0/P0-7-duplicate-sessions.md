@@ -9,9 +9,10 @@
 - `POST /sessions` for a prompt that already has an **open** session returns that session's id instead of creating a new one.
 - Once both partners have revealed, picking the same prompt again starts a fresh session.
 
-**Rule (🟢 client decision):** for now, "open" means *not every member has revealed it*. When
-[P1-6](../phase-1-mvp-1.md#conversation-engine-completion) adds follow-ups and archiving, the same domain
-function is extended, so the API code doesn't change.
+**Rule (🟢 client decision):** "open" means *not every member has revealed it*.
+*Updated 2026-10-26:* this stays the rule. P1-6 adds a separate couple-level state for follow-ups
+(`sessionCompletionState`) instead, and P1-32 stops an answered prompt being restarted (Q25), so
+`isSessionOpen` doesn't need extending ([Q1](../../03-product-decisions.md#q1)).
 
 ---
 
@@ -68,8 +69,8 @@ export type SessionOpenInput = {
  * Whether a session is still in progress for the couple.
  *
  * @remarks
- * Phase 0 rule: open until every member has revealed. P1-6 extends this with
- * follow-ups ("In discussion") and archiving (Q1, Q4).
+ * Open until every member has revealed. P1-6 tracks follow-ups separately
+ * (`sessionCompletionState`), and P1-32 refuses answered prompts (Q25).
  */
 export function isSessionOpen(input: SessionOpenInput): boolean {
   return !input.memberIds.every((id) => input.revealedUserIds.includes(id));

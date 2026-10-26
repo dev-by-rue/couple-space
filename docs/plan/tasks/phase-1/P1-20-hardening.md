@@ -356,14 +356,14 @@ Find interactive elements that remove the outline without adding a visible ring:
 rg -n "outline-none" apps/web/components apps/web/app | rg -v "focus-visible:"
 ```
 Each hit is either a non-interactive element (OK) or needs `focus-visible:ring-2 focus-visible:ring-ring`.
-Today `ConversationCard`, `ThemeCard` and `PromptCard` are fine. After P1-8 and P1-7, also check the
-`Collapsible` triggers in `FollowUpCard` and the hub's "Archived" trigger. The hub one is a bare
-`CollapsibleTrigger` and needs:
+Today `ConversationCard`, `ThemeCard` and `PromptCard` (both its button and its P1-32 link) are fine.
+After P1-8, also check the `Collapsible` triggers in `FollowUpCard`, and any `Collapsible` you wrap
+"We talked about" in (P1-6). A bare `CollapsibleTrigger` needs:
 ```tsx
           <CollapsibleTrigger className="… rounded outline-none focus-visible:ring-2 focus-visible:ring-ring">
 ```
-The native radio inputs in `SkipSessionDialog` (P1-7) and the checkbox in P1-14 keep the browser's ring.
-Don't add `outline-none` to them.
+The checkbox in P1-14 keeps the browser's ring. Don't add `outline-none` to it. (P1-7's skip dialog is
+shelved, 2026-10-26.)
 
 **Check:** Tab through `/couple`, `/start`, a conversation in every phase, and `/settings`. Every stop
 shows a ring.

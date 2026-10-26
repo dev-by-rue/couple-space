@@ -1,8 +1,9 @@
 # P1-11 · Leave couple / dissolution
 
-[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Decisions: [Q7](../../03-product-decisions.md#q7), [Q18](../../03-product-decisions.md#q18), [Q19](../../03-product-decisions.md#q19) · Design review: [E-4](../../erd/design-review.md#e-4), [E-8](../../erd/design-review.md#e-8) · After: [P1-7](P1-7-skip-archive.md) · Next: [P1-12](P1-12-account-deletion.md)
+[← Phase 1](../phase-1-mvp-1.md) · Size **L** · Decisions: [Q7](../../03-product-decisions.md#q7), [Q18](../../03-product-decisions.md#q18), [Q19](../../03-product-decisions.md#q19) · Design review: [E-4](../../erd/design-review.md#e-4), [E-8](../../erd/design-review.md#e-8) · After: [P1-32](P1-32-answered-prompts.md) · Next: [P1-12](P1-12-account-deletion.md)
 
-**Builds on P1-4** (the settings page hosts the button) **and P1-7** (`sessionWriteBlock`).
+**Builds on P1-4** (the settings page hosts the button). *Updated 2026-10-26:* P1-7 is shelved (Q3/Q4
+overruled), so this guide now adds `sessionWriteBlock` and `requireWritableSession` itself, with no archive reason.
 
 **Goal:** either partner can leave, with a confirmation step. The couple becomes `dissolved` and **both**
 memberships become `left`, so all session content is inaccessible to both (Q7). Both can re-couple
@@ -99,40 +100,55 @@ export type LeaveCoupleInput = z.infer<typeof leaveCoupleSchema>;
 Add a test in `couple-schemas.test.ts`: `{ confirm: true }` passes; `{}`, `{ confirm: false }` and
 `{ confirm: "true" }` throw.
 
-### `packages/domain/src/sessions/session-archive.ts` (change, from P1-7)
-**Before**
-```ts
-export type SessionWriteBlock = "session_archived" | null;
-
-/** Archived sessions are read-only: no answers, drafts or reveals (Q4). */
-export function sessionWriteBlock(input: {
-  archivedAt: Date | null;
-}): SessionWriteBlock {
-  return input.archivedAt ? "session_archived" : null;
-}
-```
-**After**
+### `packages/domain/src/sessions/session-write-block.ts` (new)
 ```ts
 import type { CoupleStatus } from "../couple-status.js";
 
-export type SessionWriteBlock = "couple_not_active" | "session_archived" | null;
+export type SessionWriteBlock = "couple_not_active" | null;
 
-/** Can this session still change? Not if the couple isn't active (Q7) or it's archived (Q4). */
+/**
+ * Says whether a session can still change, and if not, why.
+ *
+ * @remarks
+ * Q7: once a couple isn't active, its sessions are read-only: no answers,
+ * drafts, reveals or new follow-ups. This is the one place the API asks
+ * "can this session still change?"; the mutual archive (Q4, roadmap) adds
+ * its own reason here when it's built.
+ *
+ * @param input - The status of the session's couple
+ * @returns Why writes are blocked, or `null` if they're allowed
+ */
 export function sessionWriteBlock(input: {
   coupleStatus: CoupleStatus;
-  archivedAt: Date | null;
 }): SessionWriteBlock {
-  if (input.coupleStatus !== "active") return "couple_not_active";
-  return input.archivedAt ? "session_archived" : null;
+  return input.coupleStatus === "active" ? null : "couple_not_active";
 }
 ```
-Update `session-archive.test.ts` to pass `coupleStatus: "active"` in the existing cases, and add one:
-`{ coupleStatus: "dissolved", archivedAt: null }` → `"couple_not_active"`.
+
+### `packages/domain/src/sessions/session-write-block.test.ts` (new)
+```ts
+import { describe, expect, it } from "vitest";
+import { sessionWriteBlock } from "./session-write-block.js";
+
+describe("sessionWriteBlock", () => {
+  it("allows writes while the couple is active", () => {
+    expect(sessionWriteBlock({ coupleStatus: "active" })).toBeNull();
+  });
+
+  it.each(["forming", "dissolving", "dissolved"] as const)(
+    "blocks writes when the couple is %s (Q7)",
+    (coupleStatus) => {
+      expect(sessionWriteBlock({ coupleStatus })).toBe("couple_not_active");
+    },
+  );
+});
+```
 
 ### `packages/domain/src/index.ts` (change) — add
 ```ts
 export * from "./couples/can-leave-couple.js";
 export * from "./schemas/couple-schemas.js";
+export * from "./sessions/session-write-block.js";
 ```
 
 ---
@@ -382,23 +398,34 @@ after the existing ones.
 ## Step 4 · API: block session endpoints for non-active couples
 
 ### `apps/api/src/conversations/conversations.service.ts` (change)
-After P1-7, writes go through `requireWritableSession`. Pass the couple status in:
+Writes go through a new guard. Add `sessionWriteBlock` and `type CoupleStatus` to the domain import.
 
-**Before** (P1-7)
+**Add just above `requireSessionMember`**
 ```ts
-    const block = sessionWriteBlock({ archivedAt: ctx.session.archivedAt });
-```
-**After**
-```ts
+  /**
+   * Loads a session the user may change.
+   *
+   * @remarks
+   * {@link requireSessionMember} plus Q7: a couple that isn't active can't
+   * answer, save drafts or reveal (`403 couple_not_active`). Reads keep
+   * using `requireSessionMember`.
+   *
+   * @param user - The signed-in user
+   * @param sessionId - The session to change
+   * @returns The membership context and the session
+   */
+  private async requireWritableSession(user: AuthUser, sessionId: string) {
+    const ctx = await this.requireSessionMember(user, sessionId);
     const block = sessionWriteBlock({
       coupleStatus: ctx.coupleStatus as CoupleStatus,
-      archivedAt: ctx.session.archivedAt,
     });
-    if (block === "couple_not_active") {
-      throw new ForbiddenException({ reason: block });
-    }
+    if (block) throw new ForbiddenException({ reason: block });
+    return ctx;
+  }
 ```
-(The existing `if (block) throw new ConflictException(...)` stays for `session_archived`.)
+Then use it in the three write methods: in `saveDraft`, `submitResponse` and `revealSession`, replace
+`await this.requireSessionMember(user, sessionId)` with `await this.requireWritableSession(user, sessionId)`.
+`createSession` and `startFollowUp` already check `coupleStatus !== "active"` themselves; leave them.
 
 **Reads.** After leaving, both memberships are `left`, so `requireMembership` (which only finds `active`
 memberships) already returns `404 no_couple` for every session read. No change needed. Add a comment
@@ -408,9 +435,41 @@ there so it isn't "fixed" later:
     // Only ACTIVE memberships count: after leaving (Q7), nobody can read the
     // dissolved couple's sessions, even though the rows exist until the purge.
 ```
-`createSession` and `startFollowUp` already check `coupleStatus !== "active"`.
+### `apps/api/src/conversations/conversations.service.test.ts` (change): add at the end
+```ts
+describe("ConversationsService writes on a non-active couple (P1-11)", () => {
+  const user = { id: "u1", email: "a@example.com", emailVerified: true };
 
-Add one test: `submitResponse` with `couple.status = "forming"` → `403 couple_not_active`.
+  it("rejects an answer while the couple isn't active", async () => {
+    const db = { select: vi.fn(), update: vi.fn() };
+    db.select
+      .mockReturnValueOnce(
+        queryResult([{ coupleId: "c1", userId: "u1", status: "active" }]),
+      )
+      .mockReturnValueOnce(queryResult([{ id: "c1", status: "forming" }]))
+      .mockReturnValueOnce(queryResult([{ userId: "u1" }]))
+      .mockReturnValueOnce(
+        queryResult([{ id: "s1", coupleId: "c1", parentSessionId: null }]),
+      );
+
+    const module = await Test.createTestingModule({
+      providers: [
+        ConversationsService,
+        { provide: DB, useValue: db },
+        { provide: PushService, useValue: fakePush() },
+      ],
+    }).compile();
+
+    await expect(
+      module
+        .get(ConversationsService)
+        .submitResponse(user, "s1", { text: "hi" }),
+    ).rejects.toMatchObject({ response: { reason: "couple_not_active" } });
+    expect(db.update).not.toHaveBeenCalled();
+  });
+});
+```
+The existing write tests use an `active` couple, so they pass unchanged.
 
 ---
 

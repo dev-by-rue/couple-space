@@ -498,8 +498,9 @@ export function areFollowUpsUnlocked(input: FollowUpsUnlockedInput): boolean {
 }
 ```
 
-This is `!isSessionOpen(...)` today. It's a separate name because P1-6 changes what "open" means
-(follow-ups in progress), and the unlock rule must not change with it.
+This is `!isSessionOpen(...)` today. It's a separate name because the two rules mean different things
+("can follow-ups start?" vs "can this session be reused?"), even though they agree. *Updated 2026-10-26:*
+P1-6 doesn't change `isSessionOpen` after all (Q1 amendment).
 
 ### `packages/domain/src/index.ts` (change) — add
 

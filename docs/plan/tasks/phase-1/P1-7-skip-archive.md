@@ -1,5 +1,12 @@
 # P1-7 · Skip / archive
 
+> **⛔ Shelved 2026-10-26. Don't build this.** The owner overruled [Q3](../../03-product-decisions.md#q3)
+> and [Q4](../../03-product-decisions.md#q4): there's no one-sided skip (only Q24's per-person "Skip for
+> now", with no reason), and archiving needs **both partners to agree**, like the reveal. That's a later
+> phase ([roadmap](../../../product/future-roadmap.md#mutual-archive)). This guide is kept for reference:
+> the preset reasons, the check-constraint approach and the audit event can be reused when the mutual
+> archive is designed. P1-11 now adds its own write guard; P1-6's `archived` input stays `false`.
+
 [← Phase 1](../phase-1-mvp-1.md) · Size **M** · Decisions: [Q3](../../03-product-decisions.md#q3), [Q4](../../03-product-decisions.md#q4) · After: [P1-6](P1-6-session-completion.md) · Next: [P1-11](P1-11-leave-couple.md)
 
 **Builds on P1-8 and P1-6:** child sessions, and the `archived` input of `sessionCompletionState`.

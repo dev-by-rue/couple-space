@@ -1,6 +1,6 @@
 # ERD · Current schema
 
-[← Plan index](../README.md) · As of migration `0009` (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
+[← Plan index](../README.md) · As of migration `0010` (P1-8 Step 1 + P1-28) (`packages/database/src/schema`) · Next: [MVP-1 additions](mvp-1.md)
 
 ```mermaid
 erDiagram
@@ -11,6 +11,10 @@ erDiagram
     users ||--o{ refresh_tokens : "owns"
     users ||--o{ email_verification_tokens : "owns"
     prompt_themes ||--o{ prompts : "groups"
+    prompts ||--o{ prompts : "parent_prompt_id (follow-ups)"
+    prompts ||--o{ prompt_tag_links : "tagged"
+    prompt_tags ||--o{ prompt_tag_links : "tags"
+    conversation_sessions ||--o{ conversation_sessions : "parent_session_id (follow-ups)"
     couples ||--o{ conversation_sessions : "has"
     prompts ||--o{ conversation_sessions : "used by"
     conversation_sessions ||--o{ session_responses : "has (one per member)"
@@ -88,19 +92,33 @@ erDiagram
         int sort_order
     }
     prompts {
-        uuid id PK
+        uuid id PK "uuidv5 of prompt:<key> for catalogue prompts (E-13)"
+        text key UK "permanent; required for curated/follow_up (CHECK)"
         uuid theme_id FK
+        uuid parent_prompt_id FK "null for top-level prompts"
         text title
         text description
         text text
-        text kind "curated"
+        text kind "curated | follow_up"
+        text depth "light | medium | deep (CHECK, Q26); required for curated/follow_up"
         int sort_order
         timestamptz retired_at "null = active (Q14)"
+    }
+    prompt_tags {
+        uuid id PK "uuidv5 of tag:<slug>"
+        text slug UK
+        text label
+        int sort_order
+    }
+    prompt_tag_links {
+        uuid prompt_id FK "on delete cascade; unique (prompt_id, tag_id)"
+        uuid tag_id FK "on delete cascade; indexed"
     }
     conversation_sessions {
         uuid id PK
         uuid couple_id FK
         uuid prompt_id FK
+        uuid parent_session_id FK "null for main sessions; one level only (E-12); unique (parent_session_id, prompt_id)"
         timestamptz created_at
         timestamptz updated_at
     }

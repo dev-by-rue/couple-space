@@ -15,6 +15,8 @@ register form and settings, plus `GET /me/export`, which downloads your own data
 - Register says "By creating an account you agree to the Terms and Privacy policy", with links.
 - `GET /me/export` returns your profile, memberships, your own answers (with prompt text) and your
   reveals. Settings has a "Download my data" button.
+- *Added 2026-10-26:* once P1-29 adds `prompt_skips`, the export includes your own skips (prompt and
+  `skipped_until`). They're your personal data. Whichever of P1-13 and P1-29 ships second adds it.
 
 ### Flags
 

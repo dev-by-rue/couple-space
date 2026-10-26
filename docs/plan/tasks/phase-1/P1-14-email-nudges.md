@@ -17,7 +17,8 @@ answer text**. Each user turns them on or off in Settings (`users.email_notifica
   (if they've opted in). This is the same moment the existing push fires.
 - **Ready to reveal:** when the second answer arrives, the **first** answerer gets an email (if opted in).
 - Sending never fails or slows down `POST /sessions/:id/responses`; failures are logged without content.
-- Follow-up (child) sessions send nothing (same as push after P1-8).
+- Follow-up (child) sessions send nothing. Push does cover follow-ups (P1-31 Part B); emails stay
+  main-session-only (owner, 2026-10-26). Whether emails ship at all is still open.
 - `PATCH /me/preferences { emailNotifications }` and a Settings switch.
 - Domain tests prove the email text can't contain prompt or answer text.
 

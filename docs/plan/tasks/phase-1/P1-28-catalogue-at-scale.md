@@ -15,7 +15,8 @@ its own file. Every question gets a real title, a **depth** and **tags** (Q26). 
 - Theme, prompt and tag ids are `uuidv5` of `theme:<slug>`, `prompt:<key>` and `tag:<slug>`.
 - `pnpm --filter @couple-space/database test` passes: known UUIDv5 vector, unique ids/keys/slugs, key
   format, no duplicate tags on a question.
-- `seed` logs `seeded 6 themes, 18 prompts, 6 tags`.
+- `seed` logs `seeded 6 themes, 18 prompts, 6 tags` (at the time; with P1-8's follow-ups and the P1-21
+  content it's `seeded 10 themes, 797 prompts, 6 tags`).
 
 ### Where this sits
 
@@ -31,8 +32,8 @@ Step 1 is applied. If Step 1's migration hasn't been deployed yet, delete it and
   content lives in the repo and the seed upserts it on every deploy. Links are owned by the seed, so it
   deletes and re-inserts them on each run.
 - **Depth values are written twice:** the `Depth` type in `seed/catalogue/types.ts` and the check
-  constraint in `prompts.ts`. This matches how P1-7 handles `decline_reason`. When P1-30 adds depth
-  filters, the list also goes into `packages/domain` (`PROMPT_DEPTHS`).
+  constraint in `prompts.ts`. P1-30 also put the list in `packages/domain` (`PROMPT_DEPTHS`): keep all
+  three in step.
 - **The tag list is a draft** (`seed/catalogue/tags.ts`). Q26 holds back a "naughty"/sexual tag until
   its opt-in rules are decided.
 - **Titles, keys, depths and tags on the existing 18 questions are drafts.** Change them freely until

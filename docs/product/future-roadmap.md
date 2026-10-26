@@ -42,6 +42,58 @@ Implementation order for MVP is defined in `docs/product/scope.md` (formation �
 
 # 2. Post-MVP — Near-Term Candidates
 
+*Added 2026-10-26 from the Phase 1 plan review. The owner wants these in the phase after MVP-1, not
+before it. Decisions so far are in `docs/plan/03-product-decisions.md` (Q1, Q3, Q4, Q28).*
+
+## Keep the Discussion Going
+
+Couples may want a conversation to carry on after the curated follow-ups run out, in some format still
+to be designed. Constraints from what's already built:
+
+- Session completion is derived, not stored (Q1), so a new way of continuing only changes what counts as
+  "open".
+- Every child session counts towards "In discussion", whatever its prompt kind. MVP-2's partner-added
+  questions (Q21, P2-7) are already one way to keep going; this item may be an extension of them.
+- It must not become a chat or direct-message channel (the reason Q21 rejected one-sided questions).
+
+## Mutual Archive
+
+Archiving (setting a conversation aside) needs **both partners to agree**, like the reveal: one asks,
+the other confirms (Q4, overruled 2026-10-26). Nothing is archived in MVP-1. Open points:
+
+- Whether the request carries an optional **preset reason** the partner sees when asked to confirm. The
+  shelved P1-7 guide has a draft list and a check-constraint approach to reuse. Avoid reasons that read
+  like "Skip for now" (Q24), which is a different, per-person action.
+- What happens to a started follow-up nobody finishes: archive it the same way, so its session can leave
+  "In discussion".
+- Whether a request expires, and what the partner who asked sees while waiting.
+- Whether an archived conversation can be brought back.
+
+## Reminders and Notification Polish
+
+Decided (Q28): one push **24 hours** after a conversation or a started follow-up starts waiting on a
+partner, **once each**, never repeated. Text picked at random from a small set, starting with "You have a
+conversation waiting for you"; never the prompt or answers. Needs a scheduled job (none exists yet). Also:
+
+- **Quiet hours** are left to the phone's own notification settings for now. Later: a setting each user
+  can change in the app (needs a stored timezone).
+- **More message variations**, for reminders and the existing notifications.
+- **Which conversation?** Tapping a follow-up notification opens the right conversation, but nothing on
+  the hub's cards shows which conversations have a follow-up waiting for you (partner feedback). See the
+  hub layout item below.
+
+## Hub Layout and Follow-up Indicators
+
+The owner plans to rework the hub: sorting by state with `Array.filter`, and separate tabs (e.g. open
+discussions, unrevealed, …), with an indicator on each card when a follow-up is waiting on you. Needs
+per-viewer follow-up state in `GET /sessions`. P1-6's "We talked about" section is the starting point.
+
+## New Content Notice
+
+When new questions or follow-ups are added to the catalogue (Q27), show something on the root
+dashboard / landing page. Follow-ups added to an already-completed conversation don't reopen it (Q1), so
+this is how a couple would find them.
+
 ## Session History
 
 Allow couples to revisit previous completed conversations.
@@ -103,7 +155,8 @@ Potential examples:
 - Partner has completed their response
 - Both responses are ready to reveal
 - Community contribution awaiting partner approval
-- Optional reminders for unfinished conversations
+- Optional reminders for unfinished conversations (decided for the next phase: see *Reminders and
+  Notification Polish* above)
 
 Notification design must preserve privacy, particularly on device lock screens.
 

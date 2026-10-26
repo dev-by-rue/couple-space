@@ -15,8 +15,8 @@ Each decision has its own heading, so you can link it directly (for example `03-
 | --- | --- | --- | --- |
 | [Q1](#q1) | When is a session completed? | Both revealed the main prompt **and** no follow-up open | P1-6 |
 | [Q2](#q2) | Concurrent sessions per couple? | Unlimited | — |
-| [Q3](#q3) | Skip/decline a prompt? | Yes, preset reason only | P1-7 |
-| [Q4](#q4) | Delete a session? | Archive only | P1-7 |
+| [Q3](#q3) | Skip/decline a prompt? | ~~Yes, preset reason only~~ Only "Skip for now" (Q24), per person, no reason | — |
+| [Q4](#q4) | Delete a session? | Archive only, and only when **both** agree; not in MVP-1 | Roadmap |
 | [Q5](#q5) | Draft autosave? | Yes | P0-4 |
 | [Q6](#q6) | How does a partner see changes? | Refetch on focus + light polling | P0-6 |
 | [Q7](#q7) | Leaving a couple? | Either can leave; content locked for both | P1-11 |
@@ -40,6 +40,7 @@ Each decision has its own heading, so you can link it directly (for example `03-
 | [Q25](#q25) | Which prompts can a couple be offered? | Not answered, not open, not skipped by you in the last 2 h | P1-29, P1-30 |
 | [Q26](#q26) | Depth and tags on prompts? | One depth + any number of tags; filterable | P1-28, P1-30 |
 | [Q27](#q27) | What if a couple runs out? | They mustn't: the owner keeps writing content | P1-21, P1-28 |
+| [Q28](#q28) | Reminding a partner who hasn't answered? | One push after 24 h, next phase | Roadmap |
 
 ---
 
@@ -59,6 +60,19 @@ follow-up or discussion question is still in progress: every child session they 
 
 Starting a new follow-up on a completed session moves it back to active. Blocks: P1-6.
 
+*Amended 2026-10-26 (owner):*
+
+- **Hub wording:** the completed section is called **"We talked about"**, not "Past conversations".
+- **Nothing is archived in MVP-1** ([Q4](#q4)), so the "or archived" part of the rule is always false
+  for now. A started follow-up that one partner never answers keeps the session **In discussion**. That's
+  accepted: a reminder ([Q28](#q28)) nudges, and closing a stuck conversation is a later phase.
+- **"Open" for reuse doesn't change.** `isSessionOpen` stays "not revealed by both". An In discussion
+  session is already answered, so [Q25](#q25) never offers that prompt again.
+- **New follow-ups added to the catalogue later** (Q27) don't reopen a completed session: follow-ups
+  nobody started don't count. Telling the couple about new content is on the roadmap.
+- **Hub layout is the owner's to evolve:** sorting by state and separate tabs (open discussions,
+  unrevealed, …) come later, with an indicator on each card for a follow-up waiting on you.
+
 ## Q2
 
 **Concurrent sessions per couple?** Unlimited (already decided for T0). Revisit after Gate A feedback.
@@ -72,10 +86,21 @@ answered (both submitted) and prompts the viewer skipped for now in the last 2 h
 **Can a partner skip/decline a prompt?** Yes, either partner, with an optional **preset** reason and no
 free text. Free text would add pressure and open a DM-like channel. Blocks: P1-7.
 
+*Overruled 2026-10-26 (owner):* **no one-sided skip.** It isn't in a couple's interest for one partner
+to skip a question for both of them. The only skip is **Skip for now** ([Q24](#q24)): per person, on the
+preview before anything is saved, and **without a reason** (it's private and temporary, so a reason would
+only add friction). Preset reasons move to the mutual archive on the roadmap ([Q4](#q4)), where the
+partner sees the reason when asked to confirm. P1-7 leaves MVP-1.
+
 ## Q4
 
 **Can a session be deleted?** Archive only: hidden from the hub, kept in history. No hard delete in MVP-1
 except through account deletion ([Q8](#q8)). Blocks: P1-7.
+
+*Overruled 2026-10-26 (owner):* archiving needs **both partners to agree**, like the reveal: one asks,
+the other confirms. That's a later phase ([roadmap](../product/future-roadmap.md#mutual-archive)), so
+MVP-1 has **no archive at all**. A conversation one partner doesn't answer stays open; [Q28](#q28)
+reminds them once. Still no hard delete except through account deletion.
 
 ## Q5
 
@@ -229,7 +254,7 @@ notifications yet" part of [Q6](#q6); polling stays as the way screens refresh. 
   so every theme gets equal airtime however many questions it has.
 - **Preview card:** theme, title and question, with **Start this conversation** and **Skip for now**.
   Nothing is saved until Start, and Start goes through the normal `POST /sessions` (which checks
-  eligibility again). Surprise me uses the same card and the same rules.
+  eligibility again). Skip for now asks for **no reason** ([Q3](#q3), amended 2026-10-26). Surprise me uses the same card and the same rules.
 - **Not marked as random.** It's a normal session. Knowing it was random could be fun, but it isn't
   needed (a nullable `source` column can be added later).
 
@@ -271,7 +296,13 @@ the prompt: it can be offered again straight away, and starting it creates a new
 answered, and "Nothing new right now, check back in a little while." when what's left is only skipped
 for now. They should be rare ([Q27](#q27)), but never a blank page.
 
-Amends [Q2](#q2). Blocks: P1-29, P1-30.
+*Amended 2026-10-26 (owner): answered prompts on `/start`, before Gate A.* Answered prompts are
+**hidden by default**, with a **"Show talked about"** filter chip next to depth and tags. With the chip
+on, an answered prompt shows a "Talked about" badge and tapping it **opens the old conversation**; it
+never starts a new one. `POST /sessions` refuses an answered prompt (`409 prompt_already_answered`) as a
+safety net. This slice ships as [P1-32](tasks/phase-1/P1-32-answered-prompts.md), ahead of P1-29.
+
+Amends [Q2](#q2). Blocks: P1-29, P1-30, P1-32.
 
 ## Q26
 
@@ -308,8 +339,22 @@ questions and themes for as long as the product exists. Supporting rules:
 
 Blocks: P1-21, P1-28.
 
+## Q28
+
+**What if a partner doesn't answer?** Owner decisions (2026-10-26), **next phase, not MVP-1**:
+
+- One **push reminder 24 hours** after a conversation (or a started follow-up) starts waiting on a
+  partner. **Once each**, never repeated.
+- The text is picked at random from a small set, names-free to start: "You have a conversation waiting
+  for you". The set grows over time. Never the prompt or answer text ([Q23](#q23)).
+- **No quiet hours in the app** for now: people use their phone's own notification settings. A
+  user-configurable setting comes later.
+- Needs a scheduled job (none exists yet), so it's planned with the next phase.
+
+See the [roadmap](../product/future-roadmap.md#reminders-and-notification-polish). Blocks: roadmap.
+
 ---
 
 ## D-4
 
-- [ ] **D-4** Copy the answers to Q1–Q27 into `scope.md` and remove them from its "Open product questions".
+- [ ] **D-4** Copy the answers to Q1–Q28 (with their amendments) into `scope.md` and remove them from its "Open product questions".

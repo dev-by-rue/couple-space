@@ -16,7 +16,7 @@ them, and they get copied into `scope.md` by task [D-4](03-product-decisions.md#
 | --------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 01        | [Current state](01-current-state.md)                 | What works, why the app stops at prompts, what isn't built                                                                                                  |
 | 02        | [MVP and release gates](02-mvp-and-release-gates.md) | MVP-1/2/3 split, Gate A (family alpha) vs Gate B (stranger beta), tasks D-1…D-3                                                                             |
-| 03        | [Product decisions](03-product-decisions.md)         | Q1…Q22, the rules the build follows                                                                                                                         |
+| 03        | [Product decisions](03-product-decisions.md)         | Q1…Q28, the rules the build follows                                                                                                                         |
 | 04        | [Owner answers](04-owner-answers.md)                 | O-1…O-3: legal setup, data region, monetisation                                                                                                             |
 | **Tasks** |                                                      |                                                                                                                                                             |
 |           | [Phase 0: core loop](tasks/phase-0-core-loop.md)     | P0-\*: the `/conversation/[id]` page and getting to EU. **Start here.** Every task has a step-by-step guide with code in [`tasks/phase-0/`](tasks/phase-0/) |
@@ -26,9 +26,9 @@ them, and they get copied into `scope.md` by task [D-4](03-product-decisions.md#
 |           | [Housekeeping](tasks/housekeeping.md)                | H-\*: tech debt and schema fixes                                                                                                                            |
 |           | [Legal and business](tasks/legal-and-business.md)    | L-_, M-_: research before strangers sign up                                                                                                                 |
 | **ERD**   |                                                      |                                                                                                                                                             |
-|           | [Design review](erd/design-review.md)                | E-1…E-12: modelling issues and their decisions                                                                                                              |
-|           | [Current schema](erd/current-schema.md)              | What's in the database today (migration `0008`)                                                                                                             |
-|           | [MVP-1 additions](erd/mvp-1.md)                      | Follow-ups as child sessions, archive, password reset                                                                                                       |
+|           | [Design review](erd/design-review.md)                | E-1…E-13: modelling issues and their decisions                                                                                                              |
+|           | [Current schema](erd/current-schema.md)              | What's in the database today (migration `0010`)                                                                                                             |
+|           | [MVP-1 additions](erd/mvp-1.md)                      | Password reset, skips for now, other MVP-1 columns                                                                                                         |
 |           | [MVP-2 additions](erd/mvp-2.md)                      | Custom prompts, proposals, saved prompts                                                                                                                    |
 |           | [MVP-3 sketch](erd/mvp-3.md)                         | Community tables (don't build until P3-1)                                                                                                                   |
 
@@ -60,10 +60,9 @@ P0-10 (EU region: first, while the data is throwaway; also does P0-8)
 P0-1 → P0-2 → P0-3 → P0-5 → P0-6 → P0-7 → P0-9        ← you can demo the full loop here
 H-11 → H-12 → H-2                                     ← schema fixes while the DB has no real data
    D-1…D-4 (scope decisions, an evening of writing)
-P1-1 → P1-3 → P1-8 (follow-ups, with P1-28 catalogue) → P1-6 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
+P1-1 → P1-3 → P1-8 (follow-ups, with P1-28 catalogue) → H-16 → P1-6 → P1-32 → P1-19 → P1-21 → P1-23a   ← Gate A: family alpha
 P1-29 → P1-30                                        ← random conversation + browse filters (Gate A or B: to confirm)
-P1-25 → P1-26 → P1-27                                ← install to phone + push (any time; owner wants it early)
-P1-7
+P1-25 → P1-26 → P1-27 → P1-31                        ← install to phone + push (done)
 P1-15 → P1-16 → P1-17 → P1-18                         ← ops, before strangers touch it
 P1-5 → P1-9 → P1-10 → P1-11 → P1-12 → P1-13
 L-1…L-5 (legal research, in parallel with the code)
@@ -86,3 +85,4 @@ Phase 2 → Phase 3
 | 2026-10-18 | H-2, H-15, H-11, H-12, H-14 done (migrations `0006`–`0008`); lint + `pnpm check-types` green               | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |
 | 2026-10-21 | Q23 + P1-25…P1-27: installable web app + push on "new conversation"                                   | No native app; guides with code in `tasks/phase-1/`                                       |
 | 2026-10-25 | Q24–Q27 (random conversations, eligibility, depth/tags, never run out) + E-13 key-based ids; P1-28 guide, P1-8 Step 2 rewritten, P1-29/P1-30 added | "Never show this again" rejected for now; one-off catalogue reset before Gate A |
+| 2026-10-26 | Plan review against Q24–Q27. P1-6 rewritten ("We talked about", full code + tests); new H-16 (web unit tests) and P1-32 (answered prompts, Gate A); Q28 reminders; [Phase 1 close-out](tasks/phase-1-close-out.md) list | **Overrule:** Q3/Q4: no one-sided skip, archive needs both partners (roadmap), so P1-7 is shelved. P1-11/P1-12 updated to match |

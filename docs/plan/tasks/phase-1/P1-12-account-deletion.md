@@ -3,7 +3,8 @@
 [← Phase 1](../phase-1-mvp-1.md) · Size **L** · Decisions: [Q8](../../03-product-decisions.md#q8), [Q18](../../03-product-decisions.md#q18) · Design review: [E-7](../../erd/design-review.md#e-7) · After: [P1-11](P1-11-leave-couple.md) · Next: [P1-13](P1-13-legal-trust-pages.md)
 
 **Builds on P1-4** (`/me`, the `invalid_current_password` reason, the settings page), **P1-5** (the
-`password_reset_tokens` table), **P1-7** (`archived_by_user_id`) **and P1-11** (dissolution).
+`password_reset_tokens` table) **and P1-11** (dissolution). *Updated 2026-10-26:* P1-7 is shelved, so
+there's no `archived_by_user_id` to clear. When the mutual archive is built (roadmap), add that step back.
 
 **Goal:** `DELETE /me` with password re-entry deletes the account. If the user is in a couple, the couple
 is dissolved first. Their answers and reveals are deleted immediately. Audit rows stay, without content.
@@ -12,7 +13,7 @@ is dissolved first. Their answers and reveals are deleted immediately. Audit row
 
 - `DELETE /me { password, confirm: true }`: a wrong password → `400 invalid_current_password`; success → `204`, cookies cleared.
 - In one transaction: dissolve the couple (same as P1-11), delete the user's responses, reveals,
-  memberships, invitations and tokens, null `archived_by_user_id`, delete the `users` row, and write a
+  memberships, invitations and tokens, delete the `users` row, and write a
   `user.deleted` audit row.
 - No row anywhere still references the user id (except `audit_events.actor_user_id`, which has no FK by design).
 - Settings has a "Delete account" section with a password confirm.
@@ -206,7 +207,6 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from "@nes
 import { and, eq, or } from "drizzle-orm";
 import {
   auditEvents,
-  conversationSessions,
   coupleInvitations,
   coupleMemberships,
   couples,
@@ -267,12 +267,6 @@ export class AccountDeletionService {
       // Content first: this user's answers and reveals go now, not after 30 days.
       await tx.delete(sessionReveals).where(eq(sessionReveals.userId, userId));
       await tx.delete(sessionResponses).where(eq(sessionResponses.userId, userId));
-
-      // Sessions belong to the couple; just drop the pointer to this user.
-      await tx
-        .update(conversationSessions)
-        .set({ archivedByUserId: null })
-        .where(eq(conversationSessions.archivedByUserId, userId));
 
       await tx.delete(coupleMemberships).where(eq(coupleMemberships.userId, userId));
       await tx
@@ -442,7 +436,7 @@ inline here only to keep the snippet together.
 
 ### FK safety net (e2e, optional but worth it)
 In `apps/api/test/`, an e2e test against the local DB: register two users, form a couple, create a
-session, answer, archive, then `DELETE /me` as one → `204`, and
+session, answer, then `DELETE /me` as one → `204`, and
 `select count(*) from users where id = $1` → 0. If a future table forgets this service, the test fails
 on the FK.
 
@@ -597,7 +591,7 @@ Optional: on `/login`, show "Your account has been deleted." when `?deleted=1`.
 
 ## Verification
 1. `pnpm check-types && pnpm test` (and the e2e test if you add it).
-2. Test couple with some answered, archived and follow-up sessions. As A: Settings → Delete account →
+2. Test couple with some answered and follow-up sessions. As A: Settings → Delete account →
    wrong password → "Your current password is incorrect." Nothing changes.
 3. Correct password → lands on `/login`. Logging in as A fails.
 4. DB: no `users` row for A; no `session_responses`/`session_reveals`/`couple_memberships`/tokens for A's

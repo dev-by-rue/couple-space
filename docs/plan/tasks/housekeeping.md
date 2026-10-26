@@ -25,7 +25,8 @@
   - `apps/api` `tsc --noEmit`: `supertest/types` can't be found in `test/app.e2e-spec.ts`, and there's a mock typing error in `auth.service.test.ts`.
   - Add `check-types` scripts to `apps/web` and `apps/api` so `pnpm check-types` covers them (today it only runs `domain` and `database`).
 - [x] **H-15 · Failing auth test** · S — `auth.service.test.ts` › "creates user with emailVerified false and issues tokens" fails on `main` (the mocked verification email isn't sent). Most likely caused by the `SANDBOX_AUTO_VERIFY` change in `a4507ede`; make the test set the flag explicitly for both cases.
-- [ ] **H-10 · Web tests** · M — Once the flows settle, add a Playwright test for the two-browser reveal flow. It's the one web test worth having.
+- [ ] **H-16 · Web unit tests (`lib/` only)** 🅰 · S · [📘 guide](phase-1/H-16-web-unit-tests.md) — Vitest in `apps/web`, Node environment, pure helpers in `lib/` only, with tests for `session-sort` and `prompt-filters`. Do it before P1-6, so every web guide from then on ships tests (owner, 2026-10-26).
+- [ ] **H-10 · Web tests** · M — Once the flows settle, add a Playwright test for the two-browser reveal flow. It's the one web test worth having. Component tests (a DOM environment) also belong here; H-16 covers pure helpers.
 
 ## Docs & repo
 

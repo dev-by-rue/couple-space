@@ -6,20 +6,18 @@ Only new or changed parts are shown. 🆕 = new table, ✏️ = new column on an
 
 ```mermaid
 erDiagram
-    prompts ||--o{ prompts : "parent_prompt_id (follow-ups)"
-    conversation_sessions ||--o{ conversation_sessions : "parent_session_id (follow-up sessions)"
     users ||--o{ password_reset_tokens : "owns"
-    users ||--o{ conversation_sessions : "archived_by"
+    users ||--o{ prompt_skips : "skips for now"
+    prompts ||--o{ prompt_skips : "skipped"
 
-    prompts {
-        uuid parent_prompt_id FK "✏️ null for top-level prompts"
-        text kind "✏️ curated | follow_up"
-    }
     conversation_sessions {
-        uuid parent_session_id FK "✏️ null for top-level; max depth 1 (E-12)"
-        timestamptz archived_at "✏️ Q4"
-        uuid archived_by_user_id FK "✏️"
-        text decline_reason "✏️ preset enum, Q3"
+        index couple_id_prompt_id "✏️ P1-29: (couple_id, prompt_id) for the Q25 checks"
+    }
+    prompt_skips {
+        uuid id PK "🆕 P1-29 (Q24, Q25)"
+        uuid user_id FK "on delete cascade"
+        uuid prompt_id FK
+        timestamptz skipped_until "now + SKIP_FOR_NOW_HOURS"
     }
     password_reset_tokens {
         uuid id PK "🆕"
@@ -44,6 +42,13 @@ erDiagram
     }
 ```
 
+*Updated 2026-10-26:* follow-ups (`parent_prompt_id`, `parent_session_id`, `kind = 'follow_up'`), and
+P1-28's `key`, `depth`, `prompt_tags` and `prompt_tag_links`, are built (migration `0010`) and now live in
+the [current schema](current-schema.md). The archive columns (`archived_at`, `archived_by_user_id`,
+`decline_reason`) are **not** in MVP-1 any more: archiving needs both partners to agree (Q4 overruled),
+which is on the [roadmap](../../product/future-roadmap.md#mutual-archive). `prompt_skips` is unique per
+`(user_id, prompt_id)`.
+
 ## Why follow-ups are child sessions
 
 A follow-up has the same core rule as the main prompt: each partner answers independently, and nothing is
@@ -66,5 +71,6 @@ but they duplicate every hidden-answer rule and test.
 ## Session completion needs no column
 
 [Q1](../03-product-decisions.md#q1) completion is derived: both partners have a `session_reveals` row on the
-main session, and every non-archived child session has both responses submitted. Add `completed_at` only
-if completion later needs an explicit action or becomes slow to compute.
+main session, and every started child session has both responses submitted (archiving comes back with the
+mutual archive on the roadmap). Add `completed_at` only if completion later needs an explicit action or
+becomes slow to compute.

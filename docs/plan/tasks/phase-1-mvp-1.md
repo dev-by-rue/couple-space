@@ -10,7 +10,7 @@ Everything else is needed for Gate B (couples you don't know personally).
 Tasks with a 📘 link have a guide with full before/after code and tests (P1-2 is prototype reuse notes only).
 
 **Guide order.** Each guide's "before" code assumes the earlier guides are already applied:
-P1-4 → P1-5 → P1-9 → P1-15 → P1-16 → P1-10 → P1-8 (Step 1) → P1-28 → P1-8 (Steps 2–5) → P1-6 → P1-7 → P1-11 → P1-12 → P1-13 → P1-14 → P1-17 → P1-18 → P1-20.
+P1-4 → P1-5 → P1-9 → P1-15 → P1-16 → P1-10 → P1-8 (Step 1) → P1-28 → P1-8 (Steps 2–5) → P1-31 → P1-30 (first slice) → P1-6 → P1-7 → P1-11 → P1-12 → P1-13 → P1-14 → P1-17 → P1-18 → P1-20.
 Each guide also has a "Flags" section listing open product decisions. Settle those before you build that task.
 
 ---

@@ -86,3 +86,4 @@ Phase 2 → Phase 3
 | 2026-10-18 | H-2, H-15, H-11, H-12, H-14 done (migrations `0006`–`0008`); lint + `pnpm check-types` green               | **Overrule:** Q13/E-1 prompt snapshots dropped; retire-and-replace instead               |
 | 2026-10-21 | Q23 + P1-25…P1-27: installable web app + push on "new conversation"                                   | No native app; guides with code in `tasks/phase-1/`                                       |
 | 2026-10-25 | Q24–Q27 (random conversations, eligibility, depth/tags, never run out) + E-13 key-based ids; P1-28 guide, P1-8 Step 2 rewritten, P1-29/P1-30 added | "Never show this again" rejected for now; one-off catalogue reset before Gate A |
+| 2026-10-26 | P1-4, P1-8, P1-25…P1-28, P1-31 done; P1-30 first slice (client-side filters + paging) | Catalogue: 10 themes, 285 questions. Next on Gate A path: P1-6 → P1-19 → P1-21 top-up → P1-23a |

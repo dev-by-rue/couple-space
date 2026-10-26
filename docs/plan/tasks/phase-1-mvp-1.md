@@ -20,12 +20,12 @@ Each guide also has a "Flags" section listing open product decisions. Settle tho
 - [x] **P1-1 · App header + logout** 🅰 · S — In `(app)/layout.tsx`: brand, "Conversations", "Start", and an account menu with **Log out**. `POST /logout` exists, but no web UI calls it today.
 - [x] **P1-2 · Hub invite-pending parity (T1)** · M · [📘 prototype reuse](phase-1/P1-2-hub-invite-pending.md) — See [`04-tickets.md` T1](../../extraction/04-tickets.md). Start disabled with a reason; steps/education; resend and revoke invite.
 - [x] **P1-3 · Replace placeholder error/empty copy** 🅰 · S — `/couple`, `/start`, `/start/[slug]` ("Error loading themes") and the conversation page. Remove the `!` non-null assertion in `start/[slug]/page.tsx`.
-- [ ] **P1-4 · Settings page `/settings`** · M · [📘 guide](phase-1/P1-4-settings.md) — Change display name (`PATCH /users/me`, rules in [Q20](../03-product-decisions.md#q20)); change password (`POST /auth/change-password`, which revokes other refresh tokens).
+- [x] **P1-4 · Settings page `/settings`** · M · [📘 guide](phase-1/P1-4-settings.md) — Change display name (`PATCH /users/me`, rules in [Q20](../03-product-decisions.md#q20)); change password (`POST /auth/change-password`, which revokes other refresh tokens).
 - [ ] **P1-5 · Password reset** · M · [📘 guide](phase-1/P1-5-password-reset.md) — `password_reset_tokens` table ([ERD](../erd/mvp-1.md)), stored as a hash like `email_verification_tokens`. `POST /forgot-password`, `POST /reset-password`, web pages, and revoke all refresh tokens on success. Always return 200 from forgot-password so it can't be used to check which emails have accounts. At Gate A this can be "message me".
 
 ## Conversation engine completion
 
-- [ ] **P1-8 · Curated follow-ups (T5)** 🅰 · L · [📘 guide](phase-1/P1-8-follow-ups.md) — Follow-ups are _child sessions_ ([ERD MVP-1](../erd/mvp-1.md)), so the hidden-until-both-submit rule is reused unchanged. Per [Q22](../03-product-decisions.md#q22), child sessions **skip the reveal step**: `canViewerSeeAnswerText` treats "both submitted" as visible when `parent_session_id` is set, and `sessionViewerPhase` goes from `waiting_for_partner` straight to `revealed` for children (no `ready_to_reveal`). No `session_reveals` rows for children.
+- [x] **P1-8 · Curated follow-ups (T5)** 🅰 · L · [📘 guide](phase-1/P1-8-follow-ups.md) — Follow-ups are _child sessions_ ([ERD MVP-1](../erd/mvp-1.md)), so the hidden-until-both-submit rule is reused unchanged. Per [Q22](../03-product-decisions.md#q22), child sessions **skip the reveal step**: `canViewerSeeAnswerText` treats "both submitted" as visible when `parent_session_id` is set, and `sessionViewerPhase` goes from `waiting_for_partner` straight to `revealed` for children (no `ready_to_reveal`). No `session_reveals` rows for children.
   - Schema: `prompts.parent_prompt_id`, `kind = 'follow_up'`; `conversation_sessions.parent_session_id`. One level only ([E-12](../erd/design-review.md#e-12)).
   - Seed: follow-ups on the [P1-28](phase-1/P1-28-catalogue-at-scale.md) catalogue (key-based ids, one file per theme). A question may have none ([Q27](../03-product-decisions.md#q27)).
   - API: `GET /sessions/:id` includes `followUps` only when **both** have revealed (FR-19); `POST /sessions/:id/follow-ups` `{ promptId }` creates the child session; `GET /sessions` excludes children.
@@ -43,6 +43,8 @@ Decisions: [Q24](../03-product-decisions.md#q24), [Q25](../03-product-decisions.
   - Schema: `prompt_skips` (`user_id`, `prompt_id`, `skipped_until`; unique per user and prompt; cascade on user delete, so P1-12 needs nothing extra). Index `conversation_sessions (couple_id, prompt_id)`.
   - API: `GET /prompts/random?themeId=` (no `themeId` = Surprise me) returns one prompt, or an empty state (`explored` / `come_back_later`). "Answered" only looks at main sessions (`parent_session_id IS NULL`); follow-ups never count. `POST /prompts/:id/skip`. `POST /sessions` rejects an answered prompt (`409 prompt_already_answered`). Add both endpoints to rate limiting (P1-15).
 - [ ] **P1-30 · Browse with filters and pagination** · M · [📘 guide](phase-1/P1-30-browse-filters.md) (first slice: client-side paging + filters; [wireframe](../wireframes/p1-30-browse.html)) — `/start` applies the same Q25 rule server-side, paginates each theme's prompts, and filters by depth and tags. `PROMPT_DEPTHS` moves into `packages/domain`; tags come from the API. Theme list shows "Explored" the same way as P1-29.
+  - [x] First slice (2026-10-25): `PROMPT_DEPTHS` in domain, depth + tags on `GET /themes`, client-side paging (`PROMPT_PAGE_SIZE = 6`) and depth/tag filters on `/start/[slug]`.
+  - [ ] Server-side Q25 eligibility + pagination and "Explored" (needs P1-29's eligibility rule).
 
 ## Safety, privacy, legal
 
@@ -57,9 +59,9 @@ Decisions: [Q24](../03-product-decisions.md#q24), [Q25](../03-product-decisions.
 
 Decision: [Q23](../03-product-decisions.md#q23). Web push only, no native app. Do these in order: you can both install the app after P1-25, and pushes start arriving after P1-27.
 
-- [ ] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
-- [ ] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
-- [ ] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
+- [x] **P1-25 · Installable app** 🅰 · S · [📘 guide](phase-1/P1-25-installable-app.md) — Web app manifest, icons, and Apple web-app metadata, so the app installs to the home screen on iPhone and Android.
+- [x] **P1-26 · Push API** 🅰 · M · [📘 guide](phase-1/P1-26-push-api.md) — `push_subscriptions` table, VAPID keys, `POST`/`DELETE /push/subscriptions`, and a push to the partner when a **new** conversation is created. Dead subscriptions (404/410) are deleted. Domain tests for the subscription schema and the notification text; API tests for sending and cleanup.
+- [x] **P1-27 · Notifications in the app** 🅰 · M · [📘 guide](phase-1/P1-27-push-in-app.md) — A push-only service worker (no offline caching), an "Enable notifications" banner on the hub with the iPhone "Add to Home Screen first" hint, an on/off item in the account menu, and unsubscribing this device on logout. Tapping a notification opens the conversation.
 - [x] **P1-31 · Notification events** 🅰 · M · [📘 guide](phase-1/P1-31-notification-events.md) — One domain rule set (`notificationsForSessionEvent`) for every step of a conversation: first answer (exists), ready to reveal, partner revealed, and (after P1-8) follow-up answered / answers in. Push only, names only, one tag per conversation with `renotify`.
 
 ## Security & ops
@@ -75,6 +77,7 @@ Decision: [Q23](../03-product-decisions.md#q23). Web push only, no native app. D
 
 - [x] **P1-28 · Catalogue at scale ([E-13](../erd/design-review.md#e-13), [Q26](../03-product-decisions.md#q26))** 🅰 · M · [📘 guide](phase-1/P1-28-catalogue-at-scale.md) — Ids from permanent keys (UUIDv5) instead of position, so there's no limit on themes, questions or follow-ups. One file per theme under `seed/catalogue/`. Real titles, a `depth` and tags on every question (`prompt_tags`, `prompt_tag_links`). One-off reset migration (deletes sessions and the old catalogue; pre-Gate A only). `vitest` in `packages/database` with a catalogue test. Do it between P1-8 Step 1 and Step 2.
 - [ ] **P1-21 · Write more prompts ([Q27](../03-product-decisions.md#q27))** 🅰 · L, then ongoing — No cap per theme. For Gate A, enough that a couple can use it for weeks without browsing feeling thin: aim for **30+ per theme** and new themes where they fit, each with a title, depth and tags, and follow-ups where they add something. After Gate A this never finishes: keep adding questions and themes so no couple runs out. Before Gate B, write a short content style guide (tone, depth, inclusive wording).
+  - Status 2026-10-26: 10 themes, 285 questions. 5 themes at 30, 5 at 27 (Knowing you, Everyday moments, Gratitude, Money & home, Us lately); top those up to 30+ for Gate A.
 
 ## Launch
 

@@ -2,9 +2,7 @@
 
 **Audience:** product, QA, junior engineers, and backend reviewers.  
 **Purpose:** Prove the API identity path works **without** Supabase Auth; default path is curl/Postman, with an optional Ethereal + web click-through for real email verification.  
-**Design:** `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md`  
-**Email verification:** `docs/superpowers/specs/2026-09-18-email-verification-design.md`  
-**Plan:** `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`
+**Design:** [ADR-001](../product/decisions.md#adr-001) (Nest-owned auth)
 
 ---
 
@@ -383,9 +381,7 @@ This extends beyond the default API smoke; run when formation flows are in scope
 ## 13. Related reading
 
 - Product rules (verification, couples): `docs/product/scope.md`
-- Auth architecture decisions: `docs/superpowers/specs/2026-08-30-nest-owned-auth-design.md`
-- Email verification design: `docs/superpowers/specs/2026-09-18-email-verification-design.md`
-- Implementation plan: `docs/superpowers/plans/2026-08-30-nest-owned-auth.md`
+- Auth architecture decision: [ADR-001](../product/decisions.md#adr-001)
 - Env template: `.env.example`
 
 ---

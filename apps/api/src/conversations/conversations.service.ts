@@ -6,13 +6,23 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+} from "drizzle-orm";
 import {
   areFollowUpsUnlocked,
   isSessionOpen,
   sessionViewerPhase,
   sessionCompletionState,
   type PromptDepth,
+  answeredSessionId,
 } from "@couple-space/domain";
 import {
   conversationSessions,
@@ -47,7 +57,7 @@ export class ConversationsService {
     private readonly push: PushService,
   ) {}
 
-  async listThemes(_user: AuthUser) {
+  async listThemes(user: AuthUser) {
     const themes = await this.db
       .select()
       .from(promptThemes)
@@ -76,7 +86,9 @@ export class ConversationsService {
                 allPrompts.map((p) => p.id),
               ),
             );
+
     const tagsByPrompt = new Map<string, string[]>();
+
     for (const link of links) {
       tagsByPrompt.set(link.promptId, [
         ...(tagsByPrompt.get(link.promptId) ?? []),
@@ -89,6 +101,8 @@ export class ConversationsService {
       .select({ slug: promptTags.slug, label: promptTags.label })
       .from(promptTags)
       .orderBy(asc(promptTags.sortOrder));
+
+    const answered = await this.answeredSessionsByPrompt(user);
 
     return {
       tags,
@@ -108,6 +122,7 @@ export class ConversationsService {
             // Curated prompts always have a depth (prompts_catalogue_key_depth check).
             depth: p.depth as PromptDepth,
             tags: tagsByPrompt.get(p.id) ?? [],
+            answeredSessionId: answered.get(p.id) ?? null,
           })),
       })),
     };
@@ -300,6 +315,38 @@ export class ConversationsService {
       );
 
       if (open) return { id: open.id };
+
+      const submitted = await this.db
+        .select({
+          sessionId: sessionResponses.sessionId,
+          userId: sessionResponses.userId,
+        })
+        .from(sessionResponses)
+        .where(
+          and(
+            inArray(
+              sessionResponses.sessionId,
+              samePrompt.map((session) => session.id),
+            ),
+            isNotNull(sessionResponses.submittedAt),
+          ),
+        );
+
+      const answered = answeredSessionId({
+        memberIds: ctx.memberIds,
+        sessions: samePrompt.map((session) => ({
+          id: session.id,
+          submittedUserIds: submitted
+            .filter((r) => r.sessionId === session.id)
+            .map((r) => r.userId),
+        })),
+      });
+
+      if (answered) {
+        throw new ConflictException({
+          reason: "prompt_already_answered",
+        });
+      }
     }
 
     // Checked after the reuse above so a couple mid-conversation on a
@@ -406,7 +453,6 @@ export class ConversationsService {
   ): Promise<SessionDetailDto> {
     const ctx = await this.requireSessionMember(user, sessionId);
     if (ctx.session.parentSessionId != null) {
-      // Q22: follow-ups auto-show; there's nothing to reveal.
       throw new BadRequestException({ reason: "follow_up_has_no_reveal" });
     }
 
@@ -705,6 +751,93 @@ export class ConversationsService {
           : null,
       };
     });
+  }
+
+  /**
+   * The couple's answered prompts, each with the session to open.
+   *
+   * @remarks
+   * Soft on membership: `/start` is reachable before a couple exists,
+   * so a user without an active couple gets an empty map instead of a 404.
+   * Only main sessions count; follow-ups never do.
+   *
+   * @param user - The signed-in user
+   * @returns Prompt id → newest answered session id
+   */
+  private async answeredSessionsByPrompt(
+    user: AuthUser,
+  ): Promise<Map<string, string>> {
+    const answered = new Map<string, string>();
+
+    const [membership] = await this.db
+      .select({ coupleId: coupleMemberships.coupleId })
+      .from(coupleMemberships)
+      .where(
+        and(
+          eq(coupleMemberships.userId, user.id),
+          eq(coupleMemberships.status, "active"),
+        ),
+      )
+      .limit(1);
+    if (!membership) return answered;
+
+    const members = await this.db
+      .select({ userId: coupleMemberships.userId })
+      .from(coupleMemberships)
+      .where(
+        and(
+          eq(coupleMemberships.coupleId, membership.coupleId),
+          eq(coupleMemberships.status, "active"),
+        ),
+      );
+
+    const sessions = await this.db
+      .select({
+        id: conversationSessions.id,
+        promptId: conversationSessions.promptId,
+      })
+      .from(conversationSessions)
+      .where(
+        and(
+          eq(conversationSessions.coupleId, membership.coupleId),
+          isNull(conversationSessions.parentSessionId),
+        ),
+      )
+      .orderBy(desc(conversationSessions.createdAt));
+    if (sessions.length === 0) return answered;
+
+    const submitted = await this.db
+      .select({
+        sessionId: sessionResponses.sessionId,
+        userId: sessionResponses.userId,
+      })
+      .from(sessionResponses)
+      .where(
+        and(
+          inArray(
+            sessionResponses.sessionId,
+            sessions.map((s) => s.id),
+          ),
+          isNotNull(sessionResponses.submittedAt),
+        ),
+      );
+
+    const memberIds = members.map((m) => m.userId);
+    for (const promptId of new Set(sessions.map((s) => s.promptId))) {
+      const id = answeredSessionId({
+        memberIds,
+        sessions: sessions
+          .filter((s) => s.promptId === promptId)
+          .map((s) => ({
+            id: s.id,
+            submittedUserIds: submitted
+              .filter((r) => r.sessionId === s.id)
+              .map((r) => r.userId),
+          })),
+      });
+      if (id) answered.set(promptId, id);
+    }
+    return answered;
   }
 
   private async requireMembership(user: AuthUser) {

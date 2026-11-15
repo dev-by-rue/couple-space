@@ -1,6 +1,6 @@
 # P1-32 · Answered prompts don't come back
 
-[← Phase 1](../board.md) · Size **S–M** · Gate A · Decision: [Q25](../../product/decisions.md#q25) (amended 2026-10-26) · After: [P1-6](P1-6-session-completion.md) · Next: [P1-19](../board.md)
+[← Phase 1](../board.md) · Size **S–M** · Gate A · Decision: [Q25](../../product/decisions.md#q25) (amended 2026-10-26) · After: P1-6 (done) · Next: [P1-19](../board.md)
 
 **Builds on P1-30's first slice** (filters in the URL), **P1-6** and **H-16** (web tests).
 

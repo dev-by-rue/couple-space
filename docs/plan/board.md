@@ -32,12 +32,10 @@ ID in commit messages (`feat(web): P1-6 hub sections`). Sizes: **S** ≈ an even
 
 | # | Task | Notes |
 | --- | --- | --- |
-| 1 | **H-16 · Web unit tests** 🅰 · S | [Guide](guides/H-16-web-unit-tests.md). Vitest for `apps/web/lib/` |
-| 2 | **P1-6 · Session completion** 🅰 · M | [Guide](guides/P1-6-session-completion.md). In progress / in discussion / completed; "We talked about" ([Q1](../product/decisions.md#q1)) |
-| 3 | **P1-32 · Answered prompts don't come back** 🅰 · S–M | [Guide](guides/P1-32-answered-prompts.md). 409 on restart, "Show talked about" chip ([Q25](../product/decisions.md#q25)) |
-| 4 | **P1-19 · Backups** 🅰 · S | Confirm Railway Postgres backups; write the restore steps into [`deployment/railway.md`](../deployment/railway.md) |
-| 5 | **P1-21 · Write more prompts** 🅰 · L, then ongoing | 10 themes, 285 questions. Top up the five at 27 to 30+ (Knowing you, Everyday moments, Gratitude, Money & home, Us lately). Content style guide before Gate B ([Q27](../product/decisions.md#q27)) |
-| 6 | **P1-23a · Gate A** 🅰 | Use it for a couple of weeks; keep a friction-notes file |
+| 1 | **P1-32 · Answered prompts don't come back** 🅰 · S–M | [Guide](guides/P1-32-answered-prompts.md). 409 on restart, "Show talked about" chip ([Q25](../product/decisions.md#q25)) |
+| 2 | **P1-19 · Backups** 🅰 · S | Confirm Railway Postgres backups; write the restore steps into [`deployment/railway.md`](../deployment/railway.md) |
+| 3 | **P1-21 · Write more prompts** 🅰 · L, then ongoing | 10 themes, 285 questions. Top up the five at 27 to 30+ (Knowing you, Everyday moments, Gratitude, Money & home, Us lately). Content style guide before Gate B ([Q27](../product/decisions.md#q27)) |
+| 4 | **P1-23a · Gate A** 🅰 | Use it for a couple of weeks; keep a friction-notes file |
 
 ## MVP-1 · Gate B
 
@@ -105,10 +103,10 @@ reports, moderation actions on the couple, `user_roles`.
 - **Phase 0 · core loop** (2026-10-18): `/conversation/[id]` with answering, waiting, draft autosave,
   reveal, polling, no duplicate open sessions, EU region, two-browser smoke test.
 - **Housekeeping:** H-2 refresh-token types, H-6 Supabase docs removed (2026-10-26), H-11 prompt
-  retirement, H-12 DB checks, H-14 lint/type-check tooling, H-15 auth test.
+  retirement, H-12 DB checks, H-14 lint/type-check tooling, H-15 auth test, H-16 web unit tests (2026-11-15).
 - **Phase 1:** P1-1 header + logout · P1-2 invite-pending hub · P1-3 error/empty copy · P1-4 settings ·
   P1-8 curated follow-ups · P1-25…P1-27 installable app + push · P1-28 catalogue at scale (migration
-  `0010`) · P1-30 first slice (client-side filters + paging) · P1-31 notification events.
+  `0010`) · P1-30 first slice (client-side filters + paging) · P1-31 notification events · P1-6 session completion (2026-11-15).
 - **Scope updates D-1…D-4** (D-4 on 2026-10-26).
 - **Shelved:** P1-7 skip/archive (Q3/Q4 overruled 2026-10-26).
 
@@ -124,3 +122,4 @@ reports, moderation actions on the couple, `user_roles`.
 | 2026-10-26 | P1-4, P1-8, P1-25…P1-28, P1-31 done; P1-30 first slice | 10 themes, 285 questions |
 | 2026-10-26 | Plan review: P1-6 rewritten, H-16 and P1-32 added, Q28 | **Overrule:** Q3/Q4: no one-sided skip, archive needs both (roadmap); P1-7 shelved |
 | 2026-10-26 | Docs consolidated: 84 files → `scope`, `decisions`, `roadmap`, this board, live guides | Done guides deleted (git history keeps them) |
+| 2026-11-15 | H-16 and P1-6 done | Hub splits active from "We talked about"; web tests run in Vitest. Next: P1-32 |

@@ -179,7 +179,20 @@ Playful couple interactions built on top of the established conversation/respons
 
 Avoid creating an unrelated games subsystem where existing domain primitives are sufficient.
 
+## Date Night Decider
+
+Decided so far in [Q30](decisions.md#q30): curated ideas first; venues and bookings later, only if
+suitable APIs exist.
+
+Suggested shape (to confirm): each partner privately picks mood, budget, energy and at home or out,
+then a **mutual reveal** shows where they overlap and suggests ideas that fit, reusing the
+conversation model rather than a separate random generator. Open: a separate screen or a kind of prompt;
+whether a follow-up asks how the date went.
+
 ## Structured Toy Exploration
+
+*Timing and how explicit (this section and the next): [Q29](decisions.md#q29), MVP-2 or later, never
+graphic.*
 
 Allow couples to explore products through the communication and consent model.
 

@@ -720,7 +720,11 @@ describe("ConversationsService.startFollowUp", () => {
     const db = {
       select: vi.fn(),
       transaction: vi.fn(async (fn: (t: typeof tx) => unknown) => fn(tx)),
+      update: vi.fn(() => ({
+        set: vi.fn(() => ({ where: vi.fn(async () => undefined) })),
+      })),
     };
+
     db.select
       .mockReturnValueOnce(
         queryResult([{ coupleId: "c1", userId: "u1", status: "active" }]),
@@ -788,6 +792,7 @@ describe("ConversationsService.startFollowUp", () => {
       (await service(db)).startFollowUp(user, "s1", { promptId: "f1" }),
     ).resolves.toEqual({ id: "child-0" });
     expect(db.transaction).not.toHaveBeenCalled();
+    expect(db.update).not.toHaveBeenCalled();
   });
 
   it("creates the child with a response row per member", async () => {
@@ -796,6 +801,7 @@ describe("ConversationsService.startFollowUp", () => {
       (await service(db)).startFollowUp(user, "s1", { promptId: "f1" }),
     ).resolves.toEqual({ id: "child-1" });
     expect(tx.insert).toHaveBeenCalledTimes(2);
+    expect(db.update).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -887,6 +893,112 @@ describe("ConversationsService.listThemes", () => {
 
     expect(db.select).toHaveBeenCalledTimes(3);
     expect(result).toEqual({ tags: [], themes: [] });
+  });
+});
+
+describe("ConversationsService.listSessions status", () => {
+  const user = { id: "u1", email: "a@example.com", emailVerified: true };
+  const now = new Date();
+
+  /**
+   * Mocks the selects `listSessions` makes, in order.
+   *
+   * @remarks
+   * `requireMembership` does three selects (membership, couple, members),
+   * then `listSessions` reads sessions, responses, reveals, children and,
+   * only when there are children, their responses.
+   *
+   * @param children - Child sessions of `s1`
+   * @param childResponses - Responses on those children
+   * @returns A fake `Db` with `select` mocked
+   */
+  function setup(
+    children: Array<{ id: string; parentSessionId: string }>,
+    childResponses: Array<{
+      sessionId: string;
+      userId: string;
+      submittedAt: Date | null;
+    }>,
+  ) {
+    const db = { select: vi.fn() };
+    db.select
+      .mockReturnValueOnce(
+        queryResult([{ coupleId: "c1", userId: "u1", status: "active" }]),
+      )
+      .mockReturnValueOnce(queryResult([{ id: "c1", status: "active" }]))
+      .mockReturnValueOnce(queryResult([{ userId: "u1" }, { userId: "u2" }]))
+      .mockReturnValueOnce(
+        queryResult([
+          { id: "s1", updatedAt: now, promptTitle: "T", promptText: "Q" },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          { sessionId: "s1", userId: "u1", submittedAt: now },
+          { sessionId: "s1", userId: "u2", submittedAt: now },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          { sessionId: "s1", userId: "u1" },
+          { sessionId: "s1", userId: "u2" },
+        ]),
+      )
+      .mockReturnValueOnce(queryResult(children))
+      .mockReturnValueOnce(queryResult(childResponses));
+    return db;
+  }
+
+  async function listSessions(db: unknown) {
+    const module = await Test.createTestingModule({
+      providers: [
+        ConversationsService,
+        { provide: DB, useValue: db },
+        { provide: PushService, useValue: fakePush() },
+      ],
+    }).compile();
+    return module.get(ConversationsService).listSessions(user);
+  }
+
+  it("marks a revealed session with no follow-ups as completed", async () => {
+    const db = setup([], []);
+    const { sessions } = await listSessions(db);
+
+    expect(sessions[0]).toMatchObject({
+      phase: "revealed",
+      status: "completed",
+    });
+    // No children, so their responses aren't queried.
+    expect(db.select).toHaveBeenCalledTimes(7);
+  });
+
+  it("marks a revealed session with an unfinished follow-up as in_discussion", async () => {
+    const db = setup(
+      [{ id: "child1", parentSessionId: "s1" }],
+      [
+        { sessionId: "child1", userId: "u1", submittedAt: now },
+        { sessionId: "child1", userId: "u2", submittedAt: null },
+      ],
+    );
+    const { sessions } = await listSessions(db);
+
+    expect(sessions[0]).toMatchObject({
+      phase: "revealed",
+      status: "in_discussion",
+    });
+  });
+
+  it("marks it completed once both have submitted the follow-up", async () => {
+    const db = setup(
+      [{ id: "child1", parentSessionId: "s1" }],
+      [
+        { sessionId: "child1", userId: "u1", submittedAt: now },
+        { sessionId: "child1", userId: "u2", submittedAt: now },
+      ],
+    );
+    const { sessions } = await listSessions(db);
+
+    expect(sessions[0]).toMatchObject({ status: "completed" });
   });
 });
 

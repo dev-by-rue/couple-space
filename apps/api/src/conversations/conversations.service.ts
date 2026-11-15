@@ -227,7 +227,7 @@ export class ConversationsService {
           children: children
             .filter((child) => child.parentSessionId === row.id)
             .map((child) => ({
-              submittedUserids: childResponses
+              submittedUserIds: childResponses
                 .filter(
                   (response) =>
                     response.sessionId === child.id &&
@@ -543,7 +543,15 @@ export class ConversationsService {
       return row;
     });
 
-    if (created) return created;
+    if (created) {
+      // The parent is back in discussion, so move it up the hub.
+      await this.db
+        .update(conversationSessions)
+        .set({ updatedAt: new Date() })
+        .where(eq(conversationSessions.id, parentSessionId));
+      return created;
+    }
+
     // Lost the race: the partner's insert won.
     const winner = await this.findChild(parentSessionId, prompt.id);
     if (!winner) throw new ConflictException({ reason: "follow_up_conflict" });

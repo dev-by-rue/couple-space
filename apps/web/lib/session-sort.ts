@@ -28,3 +28,23 @@ export function sortSessionsByPriority(
       b.updatedAt.localeCompare(a.updatedAt),
   );
 }
+
+/**
+ * Splits hub sessions into active ones and the "We talked about" list.
+ *
+ * @remarks
+ * Active is `in_progress` and `in_discussion`; talked about is `completed`
+ * (Q1). Keeps the incoming order, so call it on already-sorted data.
+ *
+ * @param sessions - Sessions from {@link sortSessionsByPriority}
+ * @returns Two new arrays, in the same order as the input
+ */
+export function splitActiveAndTalkedAbout(sessions: SessionListItem[]): {
+  active: SessionListItem[];
+  talkedAbout: SessionListItem[];
+} {
+  return {
+    active: sessions.filter((s) => s.status !== "completed"),
+    talkedAbout: sessions.filter((s) => s.status === "completed"),
+  };
+}

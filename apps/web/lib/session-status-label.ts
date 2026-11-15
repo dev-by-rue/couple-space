@@ -1,4 +1,7 @@
-import type { SessionViewerPhase } from "@couple-space/domain";
+import type {
+  SessionViewerPhase,
+  SessionCompletionStatus,
+} from "@couple-space/domain";
 
 const LABELS: Record<SessionViewerPhase, string> = {
   answering: "Your turn",
@@ -7,7 +10,23 @@ const LABELS: Record<SessionViewerPhase, string> = {
   revealed: "Revealed",
 };
 
-export function sessionStatusLabel(phase: SessionViewerPhase): string {
+/**
+ * The hub pill's wording for a session.
+ *
+ * @remarks
+ * Before both have revealed, the pill says what the viewer needs to do
+ * (`phase`). After that, it says where the couple is (`status`, Q1).
+ *
+ * @param phase - The viewer's phase
+ * @param status - The couple-level state, when known
+ * @returns The label to show
+ */
+export function sessionStatusLabel(
+  phase: SessionViewerPhase,
+  status?: SessionCompletionStatus,
+): string {
+  if (status === "in_discussion") return "In discussion";
+  if (status === "completed") return "Talked about";
   return LABELS[phase];
 }
 

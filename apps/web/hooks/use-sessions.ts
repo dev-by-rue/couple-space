@@ -6,7 +6,10 @@ import {
   useQueryClient,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import type { SessionViewerPhase } from "@couple-space/domain";
+import type {
+  SessionViewerPhase,
+  SessionCompletionStatus,
+} from "@couple-space/domain";
 import { apiFetch } from "@/lib/api";
 import { sortSessionsByPriority } from "@/lib/session-sort";
 
@@ -15,6 +18,7 @@ export type SessionListItem = {
   promptTitle: string;
   promptText: string;
   phase: SessionViewerPhase;
+  status: SessionCompletionStatus;
   updatedAt: string;
 };
 

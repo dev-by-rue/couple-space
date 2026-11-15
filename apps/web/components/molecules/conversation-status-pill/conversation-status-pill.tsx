@@ -1,6 +1,9 @@
 import { sessionStatusLabel } from "@/lib/session-status-label";
 import { cn } from "@/lib/utils";
-import type { SessionViewerPhase } from "@couple-space/domain";
+import type {
+  SessionCompletionStatus,
+  SessionViewerPhase,
+} from "@couple-space/domain";
 import { cva } from "class-variance-authority";
 
 const conversationStatusPillVariants = cva(
@@ -12,6 +15,8 @@ const conversationStatusPillVariants = cva(
         waiting_for_partner: "bg-waiting-soft text-waiting-foreground",
         ready_to_reveal: "bg-primary text-primary-foreground",
         revealed: "bg-secondary text-secondary-foreground",
+        in_discussion: "bg-accent text-accent-foreground",
+        completed: "bg-muted text-muted-foreground",
       },
     },
   },
@@ -20,20 +25,20 @@ const conversationStatusPillVariants = cva(
 type ConversationStatusPillProps = React.HTMLAttributes<HTMLSpanElement> & {
   /** The viewer's phase; drives both the label and the colour. */
   phase: SessionViewerPhase;
+  status?: SessionCompletionStatus;
 };
 
 export function ConversationStatusPill({
   className,
   phase,
+  status,
   ...props
 }: Readonly<ConversationStatusPillProps>) {
-  const label = sessionStatusLabel(phase);
+  const label = sessionStatusLabel(phase, status);
+  const variant = status && status !== "in_progress" ? status : phase;
   return (
     <span
-      className={cn(
-        conversationStatusPillVariants({ variant: phase }),
-        className,
-      )}
+      className={cn(conversationStatusPillVariants({ variant }), className)}
       {...props}
     >
       {label}

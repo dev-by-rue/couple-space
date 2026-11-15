@@ -37,7 +37,11 @@ export function ConversationCard({
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-semibold leading-snug">{session.promptTitle}</h3>
-        <ConversationStatusPill phase={session.phase} className="shrink-0" />
+        <ConversationStatusPill
+          phase={session.phase}
+          status={session.status}
+          className="shrink-0"
+        />
       </div>
 
       <p className="line-clamp-2 text-sm text-muted-foreground">

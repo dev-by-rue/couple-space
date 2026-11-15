@@ -4,7 +4,7 @@ export type SessionCompletionInput = {
   memberIds: string[];
   revealedUserIds: string[];
   children: Array<{
-    submittedUserids: string[];
+    submittedUserIds: string[];
     archived: boolean;
   }>;
 };
@@ -19,10 +19,10 @@ export type SessionCompletionStatus =
  *
  * @remarks
  * `in_progress` until both have revealed the main prompt; after this it should be `in_discussion`
- * while any have started, unarchived follw-ups are not submited by both; otherwise `completed`.
+ * while any have started, unarchived follow-ups are not submitted by both; otherwise `completed`.
  * Follow-ups nobody has started don't count, so starting a new one moves completed to `in_discussion`.
  *
- * @param input - The couples members, the main prompt reeeaals and the follow-ups
+ * @param input - The couples members, the main prompt reveals and the follow-ups
  *   that they have started.
  * @returns The sessions completion status
  */
@@ -41,7 +41,7 @@ export function sessionCompletionState(
   const anyOpenSessions = input.children.some(
     (child) =>
       !child.archived &&
-      !input.memberIds.every((id) => child.submittedUserids.includes(id)),
+      !input.memberIds.every((id) => child.submittedUserIds.includes(id)),
   );
 
   return anyOpenSessions ? "in_discussion" : "completed";

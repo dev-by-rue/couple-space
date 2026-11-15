@@ -2,9 +2,9 @@ import { areFollowUpsUnlocked } from "./follow-ups-unlocked.js";
 
 export type SessionCompletionInput = {
   memberIds: string[];
-  reveealedUserIds: string[];
+  revealedUserIds: string[];
   children: Array<{
-    submittedUserids: string;
+    submittedUserids: string[];
     archived: boolean;
   }>;
 };
@@ -32,7 +32,7 @@ export function sessionCompletionState(
   if (
     !areFollowUpsUnlocked({
       memberIds: input.memberIds,
-      revealedUserIds: input.reveealedUserIds,
+      revealedUserIds: input.revealedUserIds,
     })
   ) {
     return "in_progress";

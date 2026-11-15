@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sessionCompletionState } from "./session-completion.js";
+import { sessionCompletionState } from "./session-complete.js";
 
 const members = ["u1", "u2"];
 

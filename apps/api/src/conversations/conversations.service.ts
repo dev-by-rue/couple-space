@@ -11,6 +11,7 @@ import {
   areFollowUpsUnlocked,
   isSessionOpen,
   sessionViewerPhase,
+  sessionCompletionState,
   type PromptDepth,
 } from "@couple-space/domain";
 import {
@@ -175,6 +176,31 @@ export class ConversationsService {
       .from(sessionReveals)
       .where(inArray(sessionReveals.sessionId, sessionIds));
 
+    const children = await this.db
+      .select({
+        id: conversationSessions.id,
+        parentSessionId: conversationSessions.parentSessionId,
+      })
+      .from(conversationSessions)
+      .where(inArray(conversationSessions.parentSessionId, sessionIds));
+
+    const childResponses =
+      children.length === 0
+        ? []
+        : await this.db
+            .select({
+              sessionId: sessionResponses.sessionId,
+              userId: sessionResponses.userId,
+              submittedAt: sessionResponses.submittedAt,
+            })
+            .from(sessionResponses)
+            .where(
+              inArray(
+                sessionResponses.sessionId,
+                children.map((child) => child.id),
+              ),
+            );
+
     const memberIds = ctx.memberIds;
 
     return {
@@ -194,10 +220,28 @@ export class ConversationsService {
           })),
           revealedUserIds,
         });
+
+        const status = sessionCompletionState({
+          memberIds,
+          revealedUserIds,
+          children: children
+            .filter((child) => child.parentSessionId === row.id)
+            .map((child) => ({
+              submittedUserids: childResponses
+                .filter(
+                  (response) =>
+                    response.sessionId === child.id &&
+                    response.submittedAt != null,
+                )
+                .map((response) => response.userId),
+              archived: false,
+            })),
+        });
         return {
           id: row.id,
           promptTitle: row.promptTitle,
           promptText: row.promptText,
+          status,
           phase,
           updatedAt: row.updatedAt.toISOString(),
         };
@@ -326,10 +370,14 @@ export class ConversationsService {
       })
       .where(eq(sessionResponses.id, existing.id));
 
+    const touched = ctx.session.parentSessionId
+      ? [sessionId, ctx.session.parentSessionId]
+      : [sessionId];
+
     await this.db
       .update(conversationSessions)
       .set({ updatedAt: now })
-      .where(eq(conversationSessions.id, sessionId));
+      .where(inArray(conversationSessions.id, touched));
 
     // Fire and forget: notifySessionEvent never throws. The domain decides
     // what this answer means (new conversation, ready to reveal, follow-up).

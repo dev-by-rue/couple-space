@@ -84,6 +84,7 @@ whether anonymous partner prompts go through accept/discard; the exact attributi
 - **P2-3** Anonymous partner prompts on `/start` · L — couple-scoped `prompts` rows (`couple_id`, `author_user_id`) mixed into the catalogue; `author_user_id` never sent to the non-author before both reveal (API test).
 - **P2-4** Generic follow-ups for custom prompts ([Q11](../product/decisions.md#q11)) · S
 - **P2-7** Partner-added discussion questions ([Q21](../product/decisions.md#q21)) · M — `prompts.kind = 'partner_question'` with `couple_id`, `author_user_id`, `parent_prompt_id` = main prompt; a child session (auto-show, Q22); attributed from the start; cap of 3 open per session. No proposal step.
+- **L-6** Adult content rules · research — Online Safety Act age assurance, and hosting / email / payment providers' terms on sexual content. Decides how far [Q29](../product/decisions.md#q29) can go; needed before any intimate content is written, not for Gate B
 - **P2-5** Session history with search by theme · M · **P2-6** Saved prompts (`saved_prompts (couple_id, prompt_id)`) · S — roadmap items; only once promoted into `scope.md`.
 
 ## MVP-3 · Community

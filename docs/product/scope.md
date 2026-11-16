@@ -98,6 +98,15 @@ Any proposal that drifts toward these must be reviewed against this document bef
 
 - Concrete meaning of **dual liability** (legal copy vs couple-level sanctions vs both). Parked until MVP-3 (Q12).  
 - Dissolution confirmation UX (the rule is decided in Q7; the screen copy and flow are not).  
+- **Intimate content (MVP-2+, Q29):** opt-in by both, and can either partner turn it off without the
+  other being told? Hidden from Random? Labelling (Q26). Safeguards against one partner pressuring the
+  other (support signposting, no wording that implies obligation).  
+- **Discretion:** notification and email wording never reveals prompt content (extends Q28); app name and
+  icon on shared phones.  
+- **Measuring success without reading answers:** which counts (started, revealed, completed, returning)
+  and how they're kept private.  
+- **Inclusive content:** same-sex, asexual, long-distance and disabled couples; different cultures and
+  faiths. Who writes or reviews intimate content.  
 
 ## Related docs
 

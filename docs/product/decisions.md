@@ -26,6 +26,7 @@ dated *Amended* or *Overruled* line under it.
 | [Q12](#q12) | Dual liability parked to MVP-3 | [Q26](#q26) | One depth + tags |
 | [Q13](#q13) | Never reword: retire and replace | [Q27](#q27) | Never run out of content |
 | [Q14](#q14) | Retire, never delete | [Q28](#q28) | One reminder after 24 h (next phase) |
+| [Q29](#q29) | Intimate content: MVP-2+, never graphic | [Q30](#q30) | Date Night decider: ideas first |
 
 ---
 
@@ -194,6 +195,9 @@ conversation**. `POST /sessions` refuses an answered prompt (`409 prompt_already
 tags. *To confirm before any are written:* sexual prompts need their own rules (opt-in by both? hidden
 from Random? labelling?).
 
+*Amended 2026-11-15 (owner):* timing and how explicit are set in [Q29](#q29); the opt-in, Random and
+labelling questions above are still open.
+
 ## Q27
 
 **What if a couple runs out?** They mustn't: a hard constraint on **content**. The owner keeps writing
@@ -206,6 +210,21 @@ themes can be retired later. *Later:* an admin page, a content style guide, skip
 a conversation or started follow-up starts waiting, **once each**. Wording picked at random from a small
 set, starting with "You have a conversation waiting for you"; never prompt or answer text. No in-app quiet
 hours yet (phone settings cover it). Needs a scheduled job. See the [roadmap](roadmap.md#reminders-and-notification-polish).
+
+## Q29
+
+**Intimate / adult content: when, and how explicit?** Owner, 2026-11-15: **MVP-2 or later**, never in
+MVP-1. A mix of conversation prompts about intimacy and descriptions of activities and positions,
+**never graphic or explicit**. Comply fully with the law: if the UK rules (Online Safety Act age
+assurance) would need more than the self-declared 18+ at registration (Q9) for that content, keep it
+on the PG side instead. L-6 settles which before any is written. Q26's open questions (opt-in by both,
+Random, labelling) still need answers first.
+
+## Q30
+
+**Date Night decider?** Owner, 2026-11-15: **ideas first** (a curated list, like prompts); real venues
+and bookings only later, and only if suitable APIs exist. Not scheduled; see the
+[roadmap](roadmap.md#date-night-decider).
 
 ---
 

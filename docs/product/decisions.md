@@ -188,6 +188,13 @@ now, check back in a little while."
 with a **"Show talked about"** chip; with it on they show a "Talked about" badge and **open the old
 conversation**. `POST /sessions` refuses an answered prompt (`409 prompt_already_answered`).
 
+*Amended 2026-11-17 (owner), after Gate A partner feedback:* a prompt with an open session is **not
+hidden**. Once one partner has **submitted**, it stays on `/start` with the hub's status pill for whoever is
+looking ("Waiting together" for the one who answered, "Your turn" for the other) and "Continue
+conversation"; tapping reopens the conversation, which tells the other partner it's already been
+answered (the partner liked that). A session with only a draft shows no pill. Hiding it was considered
+and dropped. Random (P1-29) still never picks a prompt with an open session.
+
 ## Q26
 
 **Depth and tags?** Every curated prompt has one **depth** (`light`, `medium`, `deep`) and any number of

@@ -37,7 +37,7 @@ Prompt → Independent response → Mutual reveal → Guided discussion
 
 - **MVP-1 is curated-only.** Custom prompts arrive in **MVP-2**.
 - Prompts are grouped by **theme**, and each has one **depth** (light / medium / deep) and any number of **tags**; browsing filters by both (Q26). There's also a **Random** start: pick a theme or Surprise me (Q24).
-- **Offered prompts:** curated, not retired, never answered by the couple (both submitted in a main session), no open session on it, and not skipped for now by the viewer in the last 2 hours. Answered prompts are hidden on `/start` unless "Show talked about" is on, and then open the old conversation; they're never started twice (Q25).
+- **Offered prompts:** curated, not retired, never answered by the couple (both submitted in a main session), no open session on it when picked by Random, and not skipped for now by the viewer in the last 2 hours. Answered prompts are hidden on `/start` unless "Show talked about" is on, and then open the old conversation; they're never started twice. A prompt one partner has submitted stays listed with the hub's status pill for the viewer and reopens its conversation; a draft alone shows nothing (Q25).
 - **The catalogue never runs out:** the owner keeps adding questions and themes (Q27).
 - **Never reword or delete a curated prompt.** To change one, **retire** it and add the new wording as a new prompt. Retired prompts disappear from `/start`; existing sessions on them keep working. Typo fixes may be made in place (Q13, Q14).
 - **Custom prompts (MVP-2):** a partner may propose; the other **accepts or discards**; per-partner cap of **3** pending/queued customs. Custom prompts get a small generic set of follow-ups (Q11).

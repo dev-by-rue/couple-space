@@ -864,7 +864,9 @@ describe("ConversationsService.listThemes", () => {
           { slug: "playful", label: "Playful" },
           { slug: "thoughtful", label: "Thoughtful" },
         ]),
-      );
+      )
+
+      .mockReturnValueOnce(queryResult([]));
 
     const result = await (await serviceWith(db)).listThemes(user);
 
@@ -887,12 +889,157 @@ describe("ConversationsService.listThemes", () => {
     db.select
       .mockReturnValueOnce(queryResult([]))
       .mockReturnValueOnce(queryResult([]))
+      .mockReturnValueOnce(queryResult([]))
       .mockReturnValueOnce(queryResult([]));
 
     const result = await (await serviceWith(db)).listThemes(user);
 
-    expect(db.select).toHaveBeenCalledTimes(3);
+    expect(db.select).toHaveBeenCalledTimes(4);
     expect(result).toEqual({ tags: [], themes: [] });
+  });
+
+  describe("answered prompts (P1-32)", () => {
+    const theme = {
+      id: "t1",
+      slug: "s",
+      title: "T",
+      description: "d",
+      symbol: "feather",
+    };
+    const prompt = (id: string) => ({
+      id,
+      themeId: "t1",
+      title: id,
+      description: "d",
+      text: id,
+      depth: "light",
+    });
+
+    /**
+     * Mocks `listThemes` for a couple with sessions.
+     *
+     * @remarks
+     * Catalogue selects first (themes, prompts, links, tags), then
+     * `answeredSessionsByPrompt` (membership, members, sessions, submitted).
+     *
+     * @param sessions - The couple's main sessions, newest first
+     * @param submitted - Submitted responses on those sessions
+     * @returns A fake `Db` with `select` mocked
+     */
+    function setup(
+      sessions: Array<{ id: string; promptId: string }>,
+      submitted: Array<{ sessionId: string; userId: string }>,
+    ) {
+      const db = { select: vi.fn() };
+      db.select
+        .mockReturnValueOnce(queryResult([theme]))
+        .mockReturnValueOnce(queryResult([prompt("p1"), prompt("p2")]))
+        .mockReturnValueOnce(queryResult([]))
+        .mockReturnValueOnce(queryResult([]))
+        .mockReturnValueOnce(queryResult([{ coupleId: "c1" }]))
+        .mockReturnValueOnce(queryResult([{ userId: "u1" }, { userId: "u2" }]))
+        .mockReturnValueOnce(queryResult(sessions))
+        .mockReturnValueOnce(queryResult(submitted));
+      return db;
+    }
+
+    it("marks a prompt both partners submitted with the session to open", async () => {
+      const db = setup(
+        [
+          { id: "s2", promptId: "p2" },
+          { id: "s1", promptId: "p1" },
+        ],
+        [
+          { sessionId: "s1", userId: "u1" },
+          { sessionId: "s1", userId: "u2" },
+          { sessionId: "s2", userId: "u1" },
+        ],
+      );
+
+      const result = await (await serviceWith(db)).listThemes(user);
+
+      expect(result.themes[0]!.prompts).toEqual([
+        expect.objectContaining({ id: "p1", answeredSessionId: "s1" }),
+        expect.objectContaining({ id: "p2", answeredSessionId: null }),
+      ]);
+    });
+
+    it("skips the responses query when the couple has no sessions", async () => {
+      const db = setup([], []);
+
+      const result = await (await serviceWith(db)).listThemes(user);
+
+      expect(db.select).toHaveBeenCalledTimes(7);
+      expect(result.themes[0]!.prompts[0]).toMatchObject({
+        answeredSessionId: null,
+      });
+    });
+  });
+});
+
+describe("ConversationsService.createSession on an answered prompt (P1-32)", () => {
+  const user = { id: "u1", email: "a@example.com", emailVerified: true };
+  const curated = { id: "p1", kind: "curated", retiredAt: null };
+
+  /**
+   * Mocks `createSession` up to the answered check.
+   *
+   * @remarks
+   * `requireMembership` (3 selects), the prompt, sessions on the same
+   * prompt, their reveals, then their submitted responses.
+   *
+   * @param reveals - Who has revealed `s1`
+   * @param submitted - Who has submitted in `s1`
+   * @returns A fake `Db` with `select` mocked
+   */
+  function setup(reveals: string[], submitted: string[]) {
+    const db = { select: vi.fn(), transaction: vi.fn() };
+    db.select
+      .mockReturnValueOnce(
+        queryResult([{ coupleId: "c1", userId: "u1", status: "active" }]),
+      )
+      .mockReturnValueOnce(queryResult([{ id: "c1", status: "active" }]))
+      .mockReturnValueOnce(queryResult([{ userId: "u1" }, { userId: "u2" }]))
+      .mockReturnValueOnce(queryResult([curated]))
+      .mockReturnValueOnce(queryResult([{ id: "s1" }]))
+      .mockReturnValueOnce(
+        queryResult(reveals.map((userId) => ({ sessionId: "s1", userId }))),
+      )
+      .mockReturnValueOnce(
+        queryResult(submitted.map((userId) => ({ sessionId: "s1", userId }))),
+      );
+    return db;
+  }
+
+  async function serviceWith(db: unknown) {
+    const module = await Test.createTestingModule({
+      providers: [
+        ConversationsService,
+        { provide: DB, useValue: db },
+        { provide: PushService, useValue: fakePush() },
+      ],
+    }).compile();
+    return module.get(ConversationsService);
+  }
+
+  it("refuses a prompt both partners answered and revealed", async () => {
+    const db = setup(["u1", "u2"], ["u1", "u2"]);
+
+    await expect(
+      (await serviceWith(db)).createSession(user, { promptId: "p1" }),
+    ).rejects.toMatchObject({
+      response: { reason: "prompt_already_answered" },
+    });
+    expect(db.transaction).not.toHaveBeenCalled();
+  });
+
+  it("still reuses the open session when both answered but haven't revealed", async () => {
+    const db = setup([], ["u1", "u2"]);
+
+    await expect(
+      (await serviceWith(db)).createSession(user, { promptId: "p1" }),
+    ).resolves.toEqual({ id: "s1" });
+    expect(db.select).toHaveBeenCalledTimes(6);
   });
 });
 

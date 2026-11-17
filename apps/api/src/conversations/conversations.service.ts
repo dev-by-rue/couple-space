@@ -122,6 +122,8 @@ export class ConversationsService {
             // Curated prompts always have a depth (prompts_catalogue_key_depth check).
             depth: p.depth as PromptDepth,
             tags: tagsByPrompt.get(p.id) ?? [],
+            // Set once both partners have submitted; the web opens this session
+            // instead of starting a new one.
             answeredSessionId: answered.get(p.id) ?? null,
           })),
       })),
@@ -316,6 +318,7 @@ export class ConversationsService {
 
       if (open) return { id: open.id };
 
+      // Once both partners have submitted on this prompt, it can't be started again.
       const submitted = await this.db
         .select({
           sessionId: sessionResponses.sessionId,
@@ -453,6 +456,7 @@ export class ConversationsService {
   ): Promise<SessionDetailDto> {
     const ctx = await this.requireSessionMember(user, sessionId);
     if (ctx.session.parentSessionId != null) {
+      // Follow-up answers show as soon as both are submitted, so there's nothing to reveal.
       throw new BadRequestException({ reason: "follow_up_has_no_reveal" });
     }
 

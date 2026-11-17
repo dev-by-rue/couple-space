@@ -12,6 +12,7 @@ export type ThemePrompt = {
   depth: PromptDepth;
   /** Tag slugs; labels are in {@link ThemesResponse} `tags`. */
   tags: string[];
+  /** Set once the couple has answered it: open this session, never start a new one. */
   answeredSessionId: string | null;
 };
 

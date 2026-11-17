@@ -1,7 +1,12 @@
 export type AnsweredSessionInput = {
   memberIds: string[];
+  /**
+   * The couple's main sessions on one prompt, in the order to prefer (newest
+   * first). Main sessions only: follow-ups never count.
+   */
   sessions: Array<{
     id: string;
+    /** Who has submitted an answer to this session's main prompt. */
     submittedUserIds: string[];
   }>;
 };

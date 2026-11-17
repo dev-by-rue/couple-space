@@ -61,6 +61,7 @@ function ThemePromptsContent() {
   const matching = filterPrompts(theme.prompts, filters);
   const shown = matching.slice(0, filters.show);
   const remaining = matching.length - shown.length;
+  // Every prompt in this theme is answered, and answered prompts are hidden by default.
   const explored =
     !filters.talkedAbout &&
     theme.prompts.length > 0 &&

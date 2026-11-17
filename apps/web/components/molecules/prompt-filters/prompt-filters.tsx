@@ -6,6 +6,7 @@ import {
   promptFiltersHref,
   toggleDepth,
   toggleTag,
+  toggleTalkedAbout,
   type PromptFilters as Filters,
 } from "@/lib/prompt-filters";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ type PromptFiltersProps = {
 };
 
 /**
- * Depth and tag chips for a theme's questions.
+ * Depth, "Show talked about" and tag chips for a theme's questions.
  *
  * @remarks
  * Each chip is a link to the toggled URL, so the URL is the only state and
@@ -31,7 +32,8 @@ export function PromptFilters({
   filters,
   tags,
 }: Readonly<PromptFiltersProps>) {
-  const anySelected = filters.depth !== null || filters.tags.length > 0;
+  const anySelected =
+    filters.depth !== null || filters.tags.length > 0 || filters.talkedAbout;
 
   return (
     <nav
@@ -55,11 +57,18 @@ export function PromptFilters({
           label={tag.label}
         />
       ))}
+      <span aria-hidden="true" className="h-5 w-px shrink-0 bg-border" />
+      <FilterChip
+        href={promptFiltersHref(pathname, toggleTalkedAbout(filters))}
+        selected={filters.talkedAbout}
+        label="Show talked about"
+      />
       {anySelected ? (
         <Link
           href={promptFiltersHref(pathname, {
             depth: null,
             tags: [],
+            talkedAbout: false,
             show: PROMPT_PAGE_SIZE,
           })}
           scroll={false}

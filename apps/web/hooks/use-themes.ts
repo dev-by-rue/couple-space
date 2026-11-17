@@ -12,6 +12,7 @@ export type ThemePrompt = {
   depth: PromptDepth;
   /** Tag slugs; labels are in {@link ThemesResponse} `tags`. */
   tags: string[];
+  answeredSessionId: string | null;
 };
 
 export type ThemeTag = {

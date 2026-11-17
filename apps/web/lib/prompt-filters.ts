@@ -7,6 +7,7 @@ export type PromptFilters = {
   depth: PromptDepth | null;
   /** Selected tag slugs. A prompt matches if it has any of them. */
   tags: string[];
+  talkedAbout: boolean;
   /** How many matching prompts to show. */
   show: number;
 };
@@ -33,6 +34,7 @@ export function readPromptFilters(
   return {
     depth: isPromptDepth(depth) ? depth : null,
     tags: params.getAll("tag").filter((tag) => knownTags.includes(tag)),
+    talkedAbout: params.get("talked") === "1",
     show:
       Number.isInteger(show) && show > PROMPT_PAGE_SIZE
         ? show
@@ -47,12 +49,19 @@ export function readPromptFilters(
  * @param filters - From {@link readPromptFilters}
  * @returns A new array, in the original order
  */
-export function filterPrompts<T extends { depth: PromptDepth; tags: string[] }>(
+export function filterPrompts<
+  T extends {
+    depth: PromptDepth;
+    tags: string[];
+    answeredSessionId: string | null;
+  },
+>(
   prompts: T[],
-  filters: Pick<PromptFilters, "depth" | "tags">,
+  filters: Pick<PromptFilters, "depth" | "tags" | "talkedAbout">,
 ): T[] {
   return prompts.filter(
     (prompt) =>
+      (filters.talkedAbout || prompt.answeredSessionId === null) &&
       (!filters.depth || prompt.depth === filters.depth) &&
       (filters.tags.length === 0 ||
         prompt.tags.some((tag) => filters.tags.includes(tag))),
@@ -74,6 +83,7 @@ export function promptFiltersHref(
   const params = new URLSearchParams();
   if (filters.depth) params.set("depth", filters.depth);
   for (const tag of filters.tags) params.append("tag", tag);
+  if (filters.talkedAbout) params.set("talked", "1");
   if (filters.show > PROMPT_PAGE_SIZE) params.set("show", String(filters.show));
   const query = params.toString();
   return query ? `${pathname}?${query}` : pathname;
@@ -114,6 +124,22 @@ export function toggleTag(filters: PromptFilters, tag: string): PromptFilters {
     tags: filters.tags.includes(tag)
       ? filters.tags.filter((t) => t !== tag)
       : [...filters.tags, tag],
+    show: PROMPT_PAGE_SIZE,
+  };
+}
+
+/**
+ * Shows or hides the prompts the couple has answered.
+ *
+ * @remarks Changing a filter resets "show", so the list starts from the top.
+ *
+ * @param filters - The current filters
+ * @returns The next filters
+ */
+export function toggleTalkedAbout(filters: PromptFilters): PromptFilters {
+  return {
+    ...filters,
+    talkedAbout: !filters.talkedAbout,
     show: PROMPT_PAGE_SIZE,
   };
 }

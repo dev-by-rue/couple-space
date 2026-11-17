@@ -10,6 +10,7 @@ import {
   PROMPT_PAGE_SIZE,
   promptFiltersHref,
   readPromptFilters,
+  toggleTalkedAbout,
 } from "@/lib/prompt-filters";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -60,6 +61,10 @@ function ThemePromptsContent() {
   const matching = filterPrompts(theme.prompts, filters);
   const shown = matching.slice(0, filters.show);
   const remaining = matching.length - shown.length;
+  const explored =
+    !filters.talkedAbout &&
+    theme.prompts.length > 0 &&
+    theme.prompts.every((prompt) => prompt.answeredSessionId !== null);
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:p-6">
@@ -74,7 +79,21 @@ function ThemePromptsContent() {
         tags={themes.data.tags}
       />
 
-      {matching.length === 0 ? (
+      {explored ? (
+        <div className="flex flex-col items-center gap-2 rounded-lg bg-muted p-8 text-center">
+          <p>
+            You&apos;ve explored everything here. New questions arrive
+            regularly.
+          </p>
+          <Link
+            href={promptFiltersHref(pathname, toggleTalkedAbout(filters))}
+            scroll={false}
+            className="text-sm underline underline-offset-4"
+          >
+            See what you talked about
+          </Link>
+        </div>
+      ) : matching.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-lg bg-muted p-8 text-center">
           <p>No questions match these filters.</p>
           <Link

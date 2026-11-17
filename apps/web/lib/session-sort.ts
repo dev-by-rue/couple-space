@@ -33,8 +33,8 @@ export function sortSessionsByPriority(
  * Splits hub sessions into active ones and the "We talked about" list.
  *
  * @remarks
- * Active is `in_progress` and `in_discussion`; talked about is `completed`
- * (Q1). Keeps the incoming order, so call it on already-sorted data.
+ * Active is `in_progress` and `in_discussion`; talked about is `completed`.
+ * Keeps the incoming order, so call it on already-sorted data.
  *
  * @param sessions - Sessions from {@link sortSessionsByPriority}
  * @returns Two new arrays, in the same order as the input

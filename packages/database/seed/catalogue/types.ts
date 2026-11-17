@@ -9,8 +9,9 @@ export type Depth = "light" | "medium" | "deep";
 /**
  * One curated question.
  *
- * `key` is permanent: never change or reuse it (E-13). To reword a question,
- * set `retired: true` and add the new wording with a new key (Q13).
+ * `key` is permanent: the question's id is derived from it, so never change or
+ * reuse it. To reword a question, set `retired: true` and add the new wording
+ * with a new key.
  */
 export type QuestionSeed = {
   /** kebab-case, unique across the whole catalogue. */

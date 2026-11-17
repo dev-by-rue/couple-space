@@ -530,7 +530,7 @@ export class ConversationsService {
       throw new ForbiddenException({ reason: "couple_not_active" });
     }
     if (ctx.session.parentSessionId != null) {
-      // E-12: one level only.
+      // A follow-up can't have follow-ups of its own: one level only.
       throw new BadRequestException({ reason: "follow_up_of_follow_up" });
     }
 

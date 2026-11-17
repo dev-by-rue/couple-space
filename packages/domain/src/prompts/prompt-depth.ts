@@ -1,4 +1,4 @@
-/** How deep a curated prompt goes (Q26). Follow-ups take their parent's depth. */
+/** How deep a curated prompt goes. Follow-ups take their parent's depth. */
 export const PROMPT_DEPTHS = ["light", "medium", "deep"] as const;
 
 export type PromptDepth = (typeof PROMPT_DEPTHS)[number];

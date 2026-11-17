@@ -68,7 +68,7 @@ export function followUpAnsweredNotification(input: {
   };
 }
 
-/** Both answered a follow-up, so the answers are showing (no reveal step, Q22). */
+/** Both answered a follow-up, so the answers are showing (follow-ups have no reveal step). */
 export function followUpReadyNotification(input: {
   parentSessionId: string;
 }): PushNotification {

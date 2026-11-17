@@ -17,7 +17,7 @@ export type FollowUpDto = {
   text: string;
   /** Null until either partner starts it. */
   sessionId: string | null;
-  /** Null until started. Never `ready_to_reveal` (Q22). */
+  /** Null until started. Never `ready_to_reveal`: follow-ups have no reveal step. */
   phase: SessionViewerPhase | null;
   responses: ResponseDto[];
 };
@@ -35,7 +35,7 @@ export type SessionDetailDto = {
   phase: SessionViewerPhase;
   partnerSubmitted: boolean;
   responses: ResponseDto[];
-  /** Present only on a main session once both have revealed (FR-19). */
+  /** Present only on a main session, once both have revealed it. */
   followUps?: FollowUpDto[];
 };
 

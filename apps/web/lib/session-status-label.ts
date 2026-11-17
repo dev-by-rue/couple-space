@@ -15,7 +15,7 @@ const LABELS: Record<SessionViewerPhase, string> = {
  *
  * @remarks
  * Before both have revealed, the pill says what the viewer needs to do
- * (`phase`). After that, it says where the couple is (`status`, Q1).
+ * (`phase`). After that, it says where the couple is (`status`).
  *
  * @param phase - The viewer's phase
  * @param status - The couple-level state, when known

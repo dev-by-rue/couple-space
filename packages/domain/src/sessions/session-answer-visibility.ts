@@ -4,7 +4,7 @@ export type AnswerVisibilityInput = {
   authorSubmitted: boolean;
   bothSubmitted: boolean;
   viewerHasRevealed: boolean;
-  /** Child session (Q22): no reveal step; both submitted is enough. */
+  /** Child session: no reveal step; both submitted is enough. */
   isFollowUp?: boolean;
 };
 

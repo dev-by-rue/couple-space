@@ -3,7 +3,7 @@ export type FollowUpsUnlockedInput = {
   revealedUserIds: string[];
 };
 
-/** FR-19: follow-ups appear only once every member has revealed the main prompt. */
+/** Follow-ups appear only once every member has revealed the main prompt. */
 export function areFollowUpsUnlocked(input: FollowUpsUnlockedInput): boolean {
   return (
     input.memberIds.length > 0 &&

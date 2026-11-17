@@ -9,7 +9,7 @@ export type SessionViewerPhaseInput = {
   memberIds: string[];
   responses: Array<{ userId: string; submitted: boolean }>;
   revealedUserIds: string[];
-  /** Child session (Q22): goes straight from waiting_for_partner to revealed. */
+  /** Child session: no reveal step, so it goes straight from waiting_for_partner to revealed. */
   isFollowUp?: boolean;
 };
 

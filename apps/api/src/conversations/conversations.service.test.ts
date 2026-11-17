@@ -163,7 +163,7 @@ describe("buildSessionDetailDto", () => {
     { prompt: { id: "f2", text: "How could we make room?" }, session: null },
   ];
 
-  it("omits followUps until both have revealed (FR-19)", () => {
+  it("omits followUps until both have revealed", () => {
     const dto = buildSessionDetailDto({
       ...base,
       viewerId: "u1",
@@ -898,7 +898,7 @@ describe("ConversationsService.listThemes", () => {
     expect(result).toEqual({ tags: [], themes: [] });
   });
 
-  describe("answered prompts (P1-32)", () => {
+  describe("answered prompts", () => {
     const theme = {
       id: "t1",
       slug: "s",
@@ -977,7 +977,7 @@ describe("ConversationsService.listThemes", () => {
   });
 });
 
-describe("ConversationsService.createSession on an answered prompt (P1-32)", () => {
+describe("ConversationsService.createSession on an answered prompt", () => {
   const user = { id: "u1", email: "a@example.com", emailVerified: true };
   const curated = { id: "p1", kind: "curated", retiredAt: null };
 

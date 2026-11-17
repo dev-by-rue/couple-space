@@ -67,7 +67,7 @@ describe("filterPrompts", () => {
     },
   ];
 
-  it("hides answered prompts with no filters (Q25)", () => {
+  it("hides answered prompts with no filters", () => {
     expect(filterPrompts(prompts, none).map((p) => p.id)).toEqual([
       "a",
       "b",

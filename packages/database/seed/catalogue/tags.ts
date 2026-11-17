@@ -1,5 +1,5 @@
 /**
- * Tags couples can filter by (Q26). Draft list.
+ * Tags couples can filter by. Draft list.
  *
  * Slugs are permanent once live: add new tags at the end, never rename a slug.
  * Labels can change. The order here is the order the filters show in.

@@ -33,7 +33,7 @@ the process. Sentry is off when no DSN is set (local dev, CI).
 
 ### `packages/domain/src/observability/scrub-event.ts` (new)
 ```ts
-/** Keys whose values must never leave the process (Q17, E-7). Compared case-insensitively. */
+/** Keys whose values (answers, tokens, personal data) must never leave the process. Compared case-insensitively. */
 export const SENSITIVE_KEYS = [
   "text",
   "body",
@@ -181,7 +181,7 @@ if (env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     environment: env.SENTRY_ENVIRONMENT,
-    // Q17: no IPs, cookies or bodies.
+    // No IPs, cookies or request bodies: answers must never reach Sentry.
     sendDefaultPii: false,
     tracesSampleRate: 0,
     beforeSend: (event) => scrubEvent(event),

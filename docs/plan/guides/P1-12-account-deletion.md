@@ -87,7 +87,7 @@ import {
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 /**
- * Q7: dissolve a couple and end every active membership, inside the caller's
+ * Dissolves a couple and ends every active membership, inside the caller's
  * transaction. Returns false if it was already dissolved (lost a race).
  */
 export async function dissolveCouple(
@@ -137,7 +137,7 @@ export async function dissolveCouple(
     action: "couple.dissolved",
     entityType: "couple",
     entityId: input.coupleId,
-    // Enums only (E-7).
+    // Enum values only: audit metadata never holds personal data.
     metadata: { previousStatus: input.previousStatus, cause: input.cause },
   });
   return true;
@@ -223,7 +223,7 @@ import { dissolveCouple } from "../couples/dissolve-couple.js";
 import type { DeleteAccountInput } from "./dto/delete-account.schema.js";
 
 /**
- * Q8: delete an account and everything that names it.
+ * Deletes an account and everything that names it.
  *
  * Every table with a FK to users must be handled here (only refresh_tokens and
  * push_subscriptions cascade). A table missing from this list makes deletion
@@ -241,7 +241,7 @@ export class AccountDeletionService {
       .limit(1);
     if (!user) throw new NotFoundException();
 
-    // Same reason as change-password (P1-4), so the web reuses its message.
+    // Same reason as change-password, so the web reuses its message.
     if (!(await verifyPassword(user.passwordHash, input.password))) {
       throw new BadRequestException({ reason: "invalid_current_password" });
     }
@@ -254,7 +254,7 @@ export class AccountDeletionService {
         .where(and(eq(coupleMemberships.userId, userId), eq(coupleMemberships.status, "active")))
         .limit(1);
 
-      // Q8: deleting an account dissolves the couple (no-op if already dissolved).
+      // Deleting an account dissolves the couple (no-op if already dissolved).
       if (membership) {
         await dissolveCouple(tx, {
           coupleId: membership.coupleId,
@@ -282,7 +282,7 @@ export class AccountDeletionService {
       // refresh_tokens and push_subscriptions cascade.
       await tx.delete(users).where(eq(users.id, userId));
 
-      // E-7: id only. actor_user_id has no FK, so it survives the delete.
+      // Id only, no personal data. actor_user_id has no FK, so it survives the delete.
       await tx.insert(auditEvents).values({
         actorUserId: userId,
         action: "user.deleted",

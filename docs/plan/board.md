@@ -70,7 +70,7 @@ their "before" code against `main` when you pick one up.
 | Reminders after 24 h; quiet hours setting; notification wording; which conversation has a follow-up waiting | [Q28](../product/decisions.md#q28), [roadmap](../product/roadmap.md#reminders-and-notification-polish) |
 | Hub tabs, sorting by state, follow-up indicator on cards | [Roadmap](../product/roadmap.md#hub-layout-and-follow-up-indicators) |
 | Keep the discussion going · New-content notice | [Roadmap](../product/roadmap.md#keep-the-discussion-going) |
-| *(proposed)* **P1-14** Email nudges, main sessions only, if emails ship at all | [Guide](guides/P1-14-email-nudges.md) |
+| *(proposed)* **P1-14** Email nudges, main sessions only, if emails ship at all | Guide deleted 2026-11-17 (out of date after P1-31); write a fresh one if promoted |
 | *(proposed)* **H-10** Playwright two-browser reveal test; component tests | — |
 | **M-1** Monetisation research (nothing on `users`, E-10) | — |
 

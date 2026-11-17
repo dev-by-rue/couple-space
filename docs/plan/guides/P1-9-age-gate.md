@@ -142,7 +142,7 @@ export const dateOfBirthSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "dateOfBirth must be YYYY-MM-DD")
   .refine((v) => parseIsoDate(v) !== null, "enter a real date")
-  // Q9: 18+ only. Runs on the server too, via the Nest DTO re-export.
+  // 18+ only. Runs on the server too, via the Nest DTO re-export.
   .refine(
     (v) => isAtLeastAge(v, MINIMUM_AGE),
     `you must be ${MINIMUM_AGE} or older to use Couple Space`,

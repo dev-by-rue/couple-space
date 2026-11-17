@@ -111,7 +111,7 @@ const apiInternalUrl = process.env.API_INTERNAL_URL?.replace(/\/$/, "");
 const isProduction = process.env.NODE_ENV === "production";
 
 /**
- * Baseline headers for every page. CSP comes later (P1-16 follow-up).
+ * Baseline headers for every page. No Content-Security-Policy yet.
  * no-referrer: invite / verify / reset URLs carry tokens in the path.
  */
 const securityHeaders = [

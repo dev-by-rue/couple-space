@@ -1,6 +1,6 @@
 # P1-10 · Real email verification
 
-[← Phase 1](../board.md) · Size **S** · Decision: [Q10](../../product/decisions.md#q10) · After: [P1-16](P1-16-security-headers.md) · Next: P1-8
+[← Phase 1](../board.md) · Size **S** · Decision: [Q10](../../product/decisions.md#q10) · After: [P1-16](P1-16-security-headers.md) · Next: [P1-11](P1-11-leave-couple.md)
 
 **Goal:** on the beta environment, real verification emails arrive through Brevo, and
 `SANDBOX_AUTO_VERIFY=false`.

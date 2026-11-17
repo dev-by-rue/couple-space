@@ -56,7 +56,7 @@ import { RateLimitGuard } from "./rate-limit.guard.js";
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 
-/** Per-IP limits for the routes P1-15 protects. One place to tune them. */
+/** Per-IP limits for the auth and invite routes. One place to tune them. */
 export const RATE_LIMITS = {
   login: { limit: 10, ttl: 15 * MINUTE },
   register: { limit: 5, ttl: HOUR },

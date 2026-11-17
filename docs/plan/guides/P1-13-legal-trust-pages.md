@@ -1,6 +1,6 @@
 # P1-13 · Legal + trust pages, data export
 
-[← Phase 1](../board.md) · Size **M** · Content source: [L-1…L-5](../board.md) · After: [P1-12](P1-12-account-deletion.md) · Next: [P1-14](P1-14-email-nudges.md)
+[← Phase 1](../board.md) · Size **M** · Content source: [L-1…L-5](../board.md) · After: [P1-12](P1-12-account-deletion.md) · Next: [P1-17](P1-17-ci.md)
 
 **Goal:** public `/privacy`, `/terms` and `/how-privacy-works` pages linked from the landing page, the
 register form and settings, plus `GET /me/export`, which downloads your own data as JSON.
@@ -75,7 +75,7 @@ typography plugin instead, that's a new dependency.
 ### `apps/web/components/atoms/legal-placeholder/legal-placeholder.tsx` (new)
 ```tsx
 type LegalPlaceholderProps = {
-  /** What L-task the wording depends on, e.g. "L-1". */
+  /** The legal research this wording waits on, shown until the real text replaces it. */
   source: string;
   children: React.ReactNode;
 };

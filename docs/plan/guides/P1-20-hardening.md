@@ -61,7 +61,7 @@ Add a rule to the existing config object (match its shape):
 ```js
   {
     rules: {
-      // Logs reach the browser console and Railway; answers must never be in them (Q17).
+      // Logs reach the browser console and Railway; answers must never be in them.
       "no-console": ["error", { allow: ["warn", "error"] }],
     },
   },
@@ -362,8 +362,7 @@ After P1-8, also check the `Collapsible` triggers in `FollowUpCard`, and any `Co
 ```tsx
           <CollapsibleTrigger className="… rounded outline-none focus-visible:ring-2 focus-visible:ring-ring">
 ```
-The checkbox in P1-14 keeps the browser's ring. Don't add `outline-none` to it. (P1-7's skip dialog is
-shelved, 2026-10-26.)
+Native checkboxes keep the browser's focus ring; don't add `outline-none` to them.
 
 **Check:** Tab through `/couple`, `/start`, a conversation in every phase, and `/settings`. Every stop
 shows a ring.

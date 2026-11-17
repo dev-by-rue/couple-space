@@ -1,6 +1,6 @@
 # P1-11 · Leave couple / dissolution
 
-[← Phase 1](../board.md) · Size **L** · Decisions: [Q7](../../product/decisions.md#q7), [Q18](../../product/decisions.md#q18), [Q19](../../product/decisions.md#q19) · Design review: [E-4](../../product/decisions.md#e-4), [E-8](../../product/decisions.md#e-8) · After: [P1-32](P1-32-answered-prompts.md) · Next: [P1-12](P1-12-account-deletion.md)
+[← Phase 1](../board.md) · Size **L** · Decisions: [Q7](../../product/decisions.md#q7), [Q18](../../product/decisions.md#q18), [Q19](../../product/decisions.md#q19) · Design review: [E-4](../../product/decisions.md#e-4), [E-8](../../product/decisions.md#e-8) · After: [P1-10](P1-10-real-email-verification.md) · Next: [P1-12](P1-12-account-deletion.md)
 
 **Builds on P1-4** (the settings page hosts the button). *Updated 2026-10-26:* P1-7 is shelved (Q3/Q4
 overruled), so this guide now adds `sessionWriteBlock` and `requireWritableSession` itself, with no archive reason.
@@ -47,7 +47,7 @@ export type LeaveCoupleGate =
   | { ok: true }
   | { ok: false; reason: "not_a_member" | "already_dissolved" };
 
-/** Q7: any active member of a forming or active couple can leave. */
+/** Any active member of a forming or active couple can leave. */
 export function canLeaveCouple(input: {
   coupleStatus: CoupleStatus;
   isActiveMember: boolean;
@@ -110,10 +110,10 @@ export type SessionWriteBlock = "couple_not_active" | null;
  * Says whether a session can still change, and if not, why.
  *
  * @remarks
- * Q7: once a couple isn't active, its sessions are read-only: no answers,
+ * Once a couple isn't active, its sessions are read-only: no answers,
  * drafts, reveals or new follow-ups. This is the one place the API asks
- * "can this session still change?"; the mutual archive (Q4, roadmap) adds
- * its own reason here when it's built.
+ * "can this session still change?"; a future mutual archive would add its
+ * own reason here.
  *
  * @param input - The status of the session's couple
  * @returns Why writes are blocked, or `null` if they're allowed
@@ -163,7 +163,7 @@ export * from "./sessions/session-write-block.js";
 **After**
 ```ts
   status: text("status").notNull(), // CoupleStatus
-  /** Q7/Q18: set on dissolution; the purge job deletes content 30 days later. */
+  /** Set on dissolution; the purge job deletes the content 30 days later. */
   dissolvedAt: timestamp("dissolved_at", { withTimezone: true }),
 ```
 
@@ -175,7 +175,7 @@ export * from "./sessions/session-write-block.js";
 **After**
 ```ts
     status: text("status").notNull(), // MembershipStatus
-    /** E-4 / H-13: when this member left. Null while active. */
+    /** When this member left. Null while active. */
     leftAt: timestamp("left_at", { withTimezone: true }),
 ```
 
@@ -217,8 +217,8 @@ import {
 **Add after `revokeInvitation`**
 ```ts
   /**
-   * Q7: either partner leaves. The couple dissolves and BOTH memberships end,
-   * so neither can reach the shared sessions. Q19: both can re-couple at once,
+   * Either partner leaves. The couple dissolves and BOTH memberships end,
+   * so neither can reach the shared sessions. Both can re-couple at once,
    * because the partial unique index only covers active memberships.
    */
   async leaveCouple(user: AuthUser): Promise<{ ok: true }> {
@@ -406,9 +406,9 @@ Writes go through a new guard. Add `sessionWriteBlock` and `type CoupleStatus` t
    * Loads a session the user may change.
    *
    * @remarks
-   * {@link requireSessionMember} plus Q7: a couple that isn't active can't
-   * answer, save drafts or reveal (`403 couple_not_active`). Reads keep
-   * using `requireSessionMember`.
+   * {@link requireSessionMember} plus a status check: a couple that isn't
+   * active can't answer, save drafts or reveal (`403 couple_not_active`).
+   * Reads keep using `requireSessionMember`.
    *
    * @param user - The signed-in user
    * @param sessionId - The session to change
@@ -432,7 +432,7 @@ memberships) already returns `404 no_couple` for every session read. No change n
 there so it isn't "fixed" later:
 ```ts
   private async requireMembership(user: AuthUser) {
-    // Only ACTIVE memberships count: after leaving (Q7), nobody can read the
+    // Only ACTIVE memberships count: after leaving, nobody can read the
     // dissolved couple's sessions, even though the rows exist until the purge.
 ```
 ### `apps/api/src/conversations/conversations.service.test.ts` (change): add at the end
@@ -493,7 +493,7 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(here, "../../../.env") });
 
-/** Q18: a dissolved couple's session content is hard-deleted after 30 days. */
+/** A dissolved couple's session content is hard-deleted after 30 days. */
 const PURGE_AFTER_DAYS = 30;
 
 const url = process.env.DATABASE_URL;
@@ -521,7 +521,7 @@ for (const couple of due) {
 
     await tx.delete(sessionReveals).where(inArray(sessionReveals.sessionId, ids));
     await tx.delete(sessionResponses).where(inArray(sessionResponses.sessionId, ids));
-    // Children reference parents (P1-8), so delete them first.
+    // Follow-ups reference their parent session, so delete them first.
     await tx
       .delete(conversationSessions)
       .where(and(inArray(conversationSessions.id, ids), isNotNull(conversationSessions.parentSessionId)));
